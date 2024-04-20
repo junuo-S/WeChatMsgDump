@@ -173,6 +173,6 @@ WxMemoryReader* WxMemoryReader::instance()
 
 WxMemoryReader::WxMemoryReader()
 {
-	reset();
+	
 }
 

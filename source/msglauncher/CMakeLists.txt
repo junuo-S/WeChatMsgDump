@@ -4,9 +4,10 @@
 
 set(target_name msglauncher)
 
-include_directories(
+junuo_add_executable(${target_name} ${sources})
+junuo_link_libraries(${target_name} msgviewer)
+junuo_include_directories(${target_name}
     .
+    ../include
 )
 
-junuo_add_executable(${target_name} ${sources})
-target_link_libraries(${target_name} PRIVATE dbdecryptor)

@@ -1,7 +1,6 @@
-﻿#include "../dbdecryptor/wxmemoryreader/wxmemoryreader.h"
+﻿#include "msgviewer/entry.h"
 
 int main(int argc, char** argv)
 {
-    WxMemoryReader::instance();
-    return 0;
+    return msgViewerExec(argc, argv);
 }

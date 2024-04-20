@@ -5,5 +5,6 @@ include(cmake/junuo.cmake)
 
 project(WeChatMsgDump)
 
-add_subdirectory(msglauncher)
 add_subdirectory(dbdecryptor)
+add_subdirectory(msgviewer)
+add_subdirectory(msglauncher)
