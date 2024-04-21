@@ -23,6 +23,7 @@ public:
 	std::string getSecretKey();
 	BOOL reset();
 	bool isSuccessFulRead() const;
+	DWORD getWxProcessId() const;
 	static WxMemoryReader* instance();
 
 protected:

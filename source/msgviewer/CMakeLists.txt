@@ -8,6 +8,9 @@
     windows/decryptdlg/decryptdlg.cpp
     windows/decryptdlg/widgets/loadingpage.h
     windows/decryptdlg/widgets/loadingpage.cpp
+    windows/decryptdlg/widgets/wxprocesslistpage.h
+    windows/decryptdlg/widgets/wxprocesslistpage.cpp
+
     msgmanager/msgmanager.h
     msgmanager/msgmanager.cpp
 )
@@ -22,7 +25,7 @@ set(ts_files
 
 set(target_name msgviewer)
 
-junuo_add_library(${target_name} SHARED ${sources} ${qrc_files})
+junuo_add_library(${target_name} SHARED ${sources} ${ts_files} ${qrc_files})
 junuo_use_Qt(${target_name} Core Widgets Gui)
 junuo_auto_moc(${target_name} ${sources})
 junuo_auto_rcc(${target_name} ${qrc_files})

@@ -171,6 +171,11 @@ bool WxMemoryReader::isSuccessFulRead() const
 	return m_isSuccessed;
 }
 
+DWORD WxMemoryReader::getWxProcessId() const
+{
+	return m_processId;
+}
+
 WxMemoryReader* WxMemoryReader::instance()
 {
 	return s_reader;

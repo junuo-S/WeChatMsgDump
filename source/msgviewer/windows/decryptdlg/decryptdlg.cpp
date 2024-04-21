@@ -5,6 +5,7 @@
 #include <QStackedLayout>
 
 #include "widgets/loadingpage.h"
+#include "widgets/wxprocesslistpage.h"
 
 struct DecryptDialog::Data
 {
@@ -14,10 +15,13 @@ struct DecryptDialog::Data
 		DecryptDialog::connect(stackedLayout, &QStackedLayout::currentChanged, q, &DecryptDialog::onPageChanged);
 		loadingPage = new LoadingPage(q);
 		stackedLayout->addWidget(loadingPage);
+		wxProcessListPage = new WxProcessListPage(q);
+		stackedLayout->addWidget(wxProcessListPage);
 	}
 
 	DecryptDialog* q = nullptr;
 	LoadingPage* loadingPage = nullptr;
+	WxProcessListPage* wxProcessListPage = nullptr;
 	QStackedLayout* stackedLayout = nullptr;
 };
 
@@ -45,7 +49,10 @@ void DecryptDialog::gotoLoadingPage()
 
 void DecryptDialog::gotoWxProcessListPage()
 {
-
+	if (data->stackedLayout->indexOf(data->wxProcessListPage) == -1)
+		data->stackedLayout->addWidget(data->wxProcessListPage);
+	data->stackedLayout->setCurrentWidget(data->wxProcessListPage);
+	data->wxProcessListPage->resetContent();
 }
 
 void DecryptDialog::onPageChanged(int index)
@@ -54,5 +61,7 @@ void DecryptDialog::onPageChanged(int index)
 		data->loadingPage->stopLoadingMovie();
 	if (index == data->stackedLayout->indexOf(data->loadingPage))
 		setFixedSize(DPI_SIZE(300, 200));
+	if (index == data->stackedLayout->indexOf(data->wxProcessListPage))
+		setFixedSize(DPI_SIZE(600, 300));
 }
 
