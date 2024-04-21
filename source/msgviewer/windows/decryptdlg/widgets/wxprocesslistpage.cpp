@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QMouseEvent>
 
 #include "dbdecryptor/wxmemoryreader/wxmemoryreader.h"
 
@@ -13,14 +14,19 @@ struct WxProcessListPage::Data
 	void initUI()
 	{
 		mainLayout = new QVBoxLayout(q);
+		mainLayout->setContentsMargins(20, 20, 20, 8);
 
 		tipHLayout = new QHBoxLayout(q);
 		{
 			tipLabel = new QLabel(q);
+			tipLabel->setObjectName("title");
+			tipLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 			refreshLabel = new QLabel(q);
+			refreshLabel->setToolTip(WxProcessListPage::tr("refresh"));
 			tipHLayout->addWidget(tipLabel);
 			tipHLayout->addWidget(refreshLabel);
 		}
+		tipHLayout->setAlignment(Qt::AlignCenter);
 		mainLayout->addLayout(tipHLayout);
 		mainLayout->addSpacing(DPI(12));
 
@@ -31,6 +37,8 @@ struct WxProcessListPage::Data
 			processInfoHLayout->addWidget(processHintLabel);
 			processInfoHLayout->addWidget(processLabel);
 		}
+		processInfoHLayout->setStretch(0, 1);
+		processInfoHLayout->setStretch(1, 3);
 		mainLayout->addLayout(processInfoHLayout);
 
 		userNameHLayout = new QHBoxLayout(q);
@@ -40,6 +48,8 @@ struct WxProcessListPage::Data
 			userNameHLayout->addWidget(userNameHintLabel);
 			userNameHLayout->addWidget(userNameLabel);
 		}
+		userNameHLayout->setStretch(0, 1);
+		userNameHLayout->setStretch(1, 3);
 		mainLayout->addLayout(userNameHLayout);
 
 		wxNumberHLayout = new QHBoxLayout(q);
@@ -49,6 +59,8 @@ struct WxProcessListPage::Data
 			wxNumberHLayout->addWidget(wxNumberHintLabel);
 			wxNumberHLayout->addWidget(wxNumberLabel);
 		}
+		wxNumberHLayout->setStretch(0, 1);
+		wxNumberHLayout->setStretch(1, 3);
 		mainLayout->addLayout(wxNumberHLayout);
 
 		phoneNumberHLayout = new QHBoxLayout(q);
@@ -58,12 +70,28 @@ struct WxProcessListPage::Data
 			phoneNumberHLayout->addWidget(phoneNumberHintLabel);
 			phoneNumberHLayout->addWidget(phoneNumberLabel);
 		}
+		phoneNumberHLayout->setStretch(0, 1);
+		phoneNumberHLayout->setStretch(1, 3);
 		mainLayout->addLayout(phoneNumberHLayout);
+		mainLayout->addStretch();
 	}
 
 	void initStyle()
 	{
-		
+		refreshLabel->setPixmap(QPixmap(":/icon_svg/refresh.svg").scaled(DPI_SIZE(24, 24)));
+		refreshLabel->setCursor(Qt::PointingHandCursor);
+		QFont font("Microsoft YaHei");
+		font.setPointSize(14);
+		tipLabel->setFont(font);
+		font.setPointSize(9);
+		processHintLabel->setFont(font);
+		processLabel->setFont(font);
+		userNameHintLabel->setFont(font);
+		userNameLabel->setFont(font);
+		wxNumberHintLabel->setFont(font);
+		wxNumberLabel->setFont(font);
+		phoneNumberHintLabel->setFont(font);
+		phoneNumberLabel->setFont(font);
 	}
 
 	void resetContent()
@@ -71,6 +99,7 @@ struct WxProcessListPage::Data
 		auto reader = WxMemoryReader::instance();
 		if (reader->isSuccessFulRead())
 		{
+			tipLabel->setText(WxProcessListPage::tr("read success tip"));
 			processLabel->setText(QString::number(reader->getWxProcessId()));
 			userNameLabel->setText(QString::fromStdWString(reader->getWxUserName()));
 			wxNumberLabel->setText(QString::fromStdString(reader->getWxNumber()));
@@ -78,6 +107,7 @@ struct WxProcessListPage::Data
 		}
 		else
 		{
+			tipLabel->setText(WxProcessListPage::tr("read failed tip"));
 			QString readFailed = WxProcessListPage::tr("read failed");
 			processLabel->setText(readFailed);
 			userNameLabel->setText(readFailed);
@@ -112,6 +142,7 @@ WxProcessListPage::WxProcessListPage(QWidget* parent)
 	data->q = this;
 	data->initUI();
 	data->initStyle();
+	data->refreshLabel->installEventFilter(this);
 }
 
 WxProcessListPage::~WxProcessListPage()
@@ -122,5 +153,20 @@ WxProcessListPage::~WxProcessListPage()
 void WxProcessListPage::resetContent()
 {
 	data->resetContent();
+}
+
+bool WxProcessListPage::eventFilter(QObject* object, QEvent* event)
+{
+	if (object == data->refreshLabel && event->type() == QEvent::MouseButtonPress)
+	{
+		QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+		if (mouseEvent && mouseEvent->button() == Qt::LeftButton)
+		{
+			emit sigRefresh();
+			return true;
+		}
+		return false;
+	}
+	return false;
 }
 

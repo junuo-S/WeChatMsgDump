@@ -11,6 +11,12 @@ public:
 	~WxProcessListPage();
 	void resetContent();
 
+protected:
+	bool eventFilter(QObject* object, QEvent* event) override;
+
+signals:
+	void sigRefresh();
+
 private:
 	struct Data;
 	QScopedPointer<Data> data;

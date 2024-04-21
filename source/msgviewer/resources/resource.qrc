@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/">
     <file>icon_svg/loading-light.svg</file>
+    <file>icon_svg/refresh.svg</file>
   </qresource>
 </RCC>

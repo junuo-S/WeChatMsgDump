@@ -17,6 +17,7 @@ struct DecryptDialog::Data
 		stackedLayout->addWidget(loadingPage);
 		wxProcessListPage = new WxProcessListPage(q);
 		stackedLayout->addWidget(wxProcessListPage);
+		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigRefresh, q, &DecryptDialog::sigRefresh);
 	}
 
 	DecryptDialog* q = nullptr;
@@ -62,6 +63,6 @@ void DecryptDialog::onPageChanged(int index)
 	if (index == data->stackedLayout->indexOf(data->loadingPage))
 		setFixedSize(DPI_SIZE(300, 200));
 	if (index == data->stackedLayout->indexOf(data->wxProcessListPage))
-		setFixedSize(DPI_SIZE(600, 300));
+		setFixedSize(DPI_SIZE(300, 200));
 }
 

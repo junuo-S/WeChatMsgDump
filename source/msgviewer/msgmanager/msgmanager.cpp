@@ -9,6 +9,7 @@
 MsgManager::MsgManager()
 {
 	m_decryptDialog = new DecryptDialog(nullptr);
+	connect(m_decryptDialog, &DecryptDialog::sigRefresh, this, &MsgManager::startWork);
 }
 
 MsgManager::~MsgManager()

@@ -12,6 +12,9 @@ public:
 	void gotoLoadingPage();
 	void gotoWxProcessListPage();
 
+signals:
+	void sigRefresh();
+
 private:
 	void onPageChanged(int index);
 	struct Data;
