@@ -3,6 +3,8 @@
     wxmemoryreader/wxmemoryreader.cpp
     winprocessutils/winprocessutils.h
     winprocessutils/winprocessutils.cpp
+    threads/wxmemorythread.h
+    threads/wxmemorythread.cpp
 
     configs/versionconfig.json
 )
@@ -13,6 +15,7 @@ junuo_add_library(${target_name} SHARED ${sources})
 junuo_include_directories(${target_name} .)
 junuo_compile_definitions(${target_name} _DB_DECRYPTOR_MODULE_)
 junuo_use_Qt(${target_name} Core)
+junuo_auto_moc(${target_name} ${sources})
 
 add_custom_command(
     TARGET ${target_name} POST_BUILD

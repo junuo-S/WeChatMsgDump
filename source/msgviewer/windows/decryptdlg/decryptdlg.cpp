@@ -43,6 +43,11 @@ void DecryptDialog::gotoLoadingPage()
 	data->loadingPage->startLoadingMovie();
 }
 
+void DecryptDialog::gotoWxProcessListPage()
+{
+
+}
+
 void DecryptDialog::onPageChanged(int index)
 {
 	if (data->loadingPage && index != data->stackedLayout->indexOf(data->loadingPage))

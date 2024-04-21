@@ -166,6 +166,11 @@ BOOL WxMemoryReader::reset()
 	return m_isSuccessed;
 }
 
+bool WxMemoryReader::isSuccessFulRead() const
+{
+	return m_isSuccessed;
+}
+
 WxMemoryReader* WxMemoryReader::instance()
 {
 	return s_reader;

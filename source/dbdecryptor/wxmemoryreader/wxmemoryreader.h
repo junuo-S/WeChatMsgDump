@@ -1,10 +1,14 @@
 ﻿#pragma once
 
+#ifndef DBDECRYPTOR_EXPORT
+
 #ifdef _DB_DECRYPTOR_MODULE_
 #define DBDECRYPTOR_EXPORT __declspec(dllexport)
 #else
 #define DBDECRYPTOR_EXPORT __declspec(dllimport)
 #endif // _DB_DECRYPTOR_MODULE_
+
+#endif // DBDECRYPTOR_EXPORT
 
 #include <windows.h>
 #include <string>
@@ -18,6 +22,7 @@ public:
 	std::string getWxNumber();
 	std::string getSecretKey();
 	BOOL reset();
+	bool isSuccessFulRead() const;
 	static WxMemoryReader* instance();
 
 protected:

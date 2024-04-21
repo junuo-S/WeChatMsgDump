@@ -10,6 +10,7 @@ public:
 	DecryptDialog(QWidget* parent);
 	~DecryptDialog();
 	void gotoLoadingPage();
+	void gotoWxProcessListPage();
 
 private:
 	void onPageChanged(int index);
