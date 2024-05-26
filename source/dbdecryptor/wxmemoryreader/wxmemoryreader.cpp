@@ -1,8 +1,12 @@
 ﻿#include "wxmemoryreader.h"
 
+#include <Python.h>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
+#include <comdef.h>
+#include <algorithm>
+#include <sys/stat.h>
 
 #include "winprocessutils/winprocessutils.h"
 
@@ -13,8 +17,8 @@ BOOL WxMemoryReader::readWxProcessMemory()
 {
 	if (m_hProcess == NULL)
 		return FALSE;
-	std::string wxVersion = utils::GetFileVersion(utils::GetExecutablePath(gs_wxProcessName).c_str());
-	if (wxVersion.empty())
+	m_wxVersion = utils::GetFileVersion(utils::GetExecutablePath(gs_wxProcessName).c_str());
+	if (m_wxVersion.empty())
 		return FALSE;
 	QFile jsonFile(QString::fromStdWString(utils::GetMoudlePath()) + "/../cfgs/versionconfig.json");
 	if (!jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -25,7 +29,7 @@ BOOL WxMemoryReader::readWxProcessMemory()
 	jsonData.clear();
 	if (jsonDoc.isNull() || !jsonDoc.isObject())
 		return FALSE;
-	QJsonObject versionInfo = jsonDoc.object().value(wxVersion.c_str()).toObject();
+	QJsonObject versionInfo = jsonDoc.object().value(m_wxVersion.c_str()).toObject();
 	if (versionInfo.isEmpty())
 		return FALSE;
 
@@ -41,7 +45,7 @@ BOOL WxMemoryReader::readWxProcessMemory()
 	if (!readSecretKey(m_weChatDllAdress + versionInfo.value("secretkey").toInt()))
 		return FALSE;
 	
-	return TRUE;
+	return patternScanForAddress() && readWxid() && readWxDataPath();
 }
 
 BOOL WxMemoryReader::readPhoneNumber(DWORD_PTR address)
@@ -101,6 +105,105 @@ BOOL WxMemoryReader::readSecretKey(DWORD_PTR address)
 	return TRUE;
 }
 
+BOOL WxMemoryReader::readWxid()
+{
+	m_wxids.clear();
+	for (auto cit = m_patternScanAddressRet.cbegin(); cit != m_patternScanAddressRet.cend(); cit++)
+	{
+		BYTE buffer[80];
+		if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(*cit-40), buffer, sizeof(buffer), NULL))
+			continue;
+		QString bufferString = reinterpret_cast<const char*>(buffer);
+		QStringList splitTemp = bufferString.split("\\Msg");
+		std::string wxid = splitTemp.first().split("\\").last().toStdString();
+		if (std::find(m_wxids.cbegin(), m_wxids.cend(), wxid) == m_wxids.cend())
+			m_wxids.push_back(wxid);
+	}
+	return !m_wxids.empty();
+}
+
+BOOL WxMemoryReader::readWxDataPath()
+{
+	m_wxDataPaths.clear();
+	static BYTE rootTarget[] = {':', '\\'};
+	static BYTE endTarget[] = {'\\', 'M', 's', 'g'};
+	for (auto cit = m_patternScanAddressRet.cbegin(); cit != m_patternScanAddressRet.cend(); cit++)
+	{
+		BYTE buffer[256];
+		if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(*cit - 128), buffer, sizeof(buffer), NULL))
+			continue;
+		auto rootPos = std::search(buffer, buffer + sizeof(buffer), rootTarget, rootTarget + sizeof(rootTarget));
+		auto endPos = std::search(buffer, buffer + sizeof(buffer), endTarget, endTarget + sizeof(endTarget));
+		int byteLength = endPos - rootPos + 1;
+		int wideCharLength = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<LPCSTR>(rootPos - 1), byteLength, nullptr, 0);
+		wchar_t* wideCharArray = new wchar_t[wideCharLength + 1];
+		MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<LPCSTR>(rootPos - 1), byteLength, wideCharArray, wideCharLength);
+		wideCharArray[wideCharLength] = L'\0';
+		std::wstring path = wideCharArray;
+		delete[] wideCharArray;
+		if (_wstat(path.c_str(), &struct _stat()) == 0 && std::find(m_wxDataPaths.cbegin(), m_wxDataPaths.cend(), path) == m_wxDataPaths.cend())
+			m_wxDataPaths.push_back(path);
+	}
+	return !m_wxDataPaths.empty();
+}
+
+BOOL WxMemoryReader::patternScanForAddress()
+{
+	static std::string patternStr = "\\\\Msg\\\\FTSContact";
+	static size_t patternStrLength = patternStr.length();
+	static DWORD_PTR maxAddress = utils::IsWx64BitExecutable(m_wxExePath = utils::GetExecutablePath(gs_wxProcessName)) ? 0x7FFFFFFF0000 : 0x7fff0000;
+	m_patternScanAddressRet.clear();
+	Py_Initialize();
+	_bstr_t currentPath = utils::GetMoudlePath().c_str();
+	PyObject* sysPath = PySys_GetObject("path");
+	PyList_Append(sysPath, PyUnicode_FromString(currentPath));
+	PyObject* pModule = PyImport_ImportModule("pymemutils");
+	if (!pModule)
+	{
+		PyErr_Print();
+		Py_Finalize();
+		return FALSE;
+	}
+	PyObject* pFunc = PyObject_GetAttrString(pModule, "patternScanAllAddress");
+	if (!pFunc || !PyCallable_Check(pFunc))
+	{
+		PyErr_Print();
+		Py_DECREF(pModule);
+		Py_Finalize();
+		return FALSE;
+	}
+	PyObject* pArgs = PyTuple_Pack(4,
+		PyLong_FromLongLong(m_processId),
+		PyUnicode_FromString(patternStr.c_str()),
+		PyLong_FromLongLong(maxAddress),
+		PyLong_FromLong(100)
+	);
+	PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
+	if (!pValue)
+	{
+		PyErr_Print();
+	}
+	else
+	{
+		Py_ssize_t size = PyList_Size(pValue);
+		for (Py_ssize_t i = 0; i < size; ++i)
+		{
+			PyObject* item = PyList_GetItem(pValue, i);
+			if (item && PyLong_Check(item))
+			{
+				DWORD_PTR value = PyLong_AsLongLong(item);
+				m_patternScanAddressRet.push_back(value);
+			}
+		}
+		Py_DECREF(pValue);
+	}
+	Py_XDECREF(pArgs);
+	Py_XDECREF(pFunc);
+	Py_XDECREF(pModule);
+	Py_Finalize();
+	return !m_patternScanAddressRet.empty();
+}
+
 void WxMemoryReader::resetWxProcessInfo()
 {
 	m_processId = utils::GetProcessIdByName(gs_wxProcessName);
@@ -139,24 +242,44 @@ WxMemoryReader::~WxMemoryReader()
 	CloseHandle(m_hProcess);
 }
 
-std::string WxMemoryReader::getWxPhoneNumber()
+std::string WxMemoryReader::getWxVersion() const
+{
+	return m_wxVersion;
+}
+
+std::wstring WxMemoryReader::getWxExePath() const
+{
+	return m_wxExePath;
+}
+
+std::string WxMemoryReader::getWxPhoneNumber() const
 {
 	return m_phoneNumber;
 }
 
-std::wstring WxMemoryReader::getWxUserName()
+std::wstring WxMemoryReader::getWxUserName() const
 {
 	return m_userName;
 }
 
-std::string WxMemoryReader::getWxNumber()
+std::string WxMemoryReader::getWxNumber() const
 {
 	return m_wxNumber;
 }
 
-std::string WxMemoryReader::getSecretKey()
+std::string WxMemoryReader::getSecretKey() const
 {
 	return m_secretKey;
+}
+
+std::vector<std::string> WxMemoryReader::getWxids() const
+{
+	return m_wxids;
+}
+
+std::vector<std::wstring> WxMemoryReader::getWxDataPaths() const
+{
+	return m_wxDataPaths;
 }
 
 BOOL WxMemoryReader::reset()

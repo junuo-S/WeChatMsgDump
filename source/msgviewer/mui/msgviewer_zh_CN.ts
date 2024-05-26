@@ -30,42 +30,62 @@
 <context>
     <name>WxProcessListPage</name>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="25"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="26"/>
         <source>refresh</source>
         <translation>重新检测</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="35"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="36"/>
+        <source>wechat version: </source>
+        <translation>微信版本：</translation>
+    </message>
+    <message>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="47"/>
+        <source>wechat exe: </source>
+        <translation>程序路径：</translation>
+    </message>
+    <message>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="58"/>
         <source>processs id: </source>
         <translation>进程ID：</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="46"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="69"/>
         <source>username: </source>
         <translation>昵称：</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="57"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="80"/>
         <source>wxnumber: </source>
         <translation>微信号：</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="68"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="91"/>
         <source>phone number: </source>
         <translation>手机号码：</translation>
     </message>
     <message>
         <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="102"/>
+        <source>wxid: </source>
+        <translation>原始id：</translation>
+    </message>
+    <message>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="113"/>
+        <source>wechat path: </source>
+        <translation>数据路径：</translation>
+    </message>
+    <message>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="144"/>
         <source>read success tip</source>
         <translation>检测成功</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="110"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="162"/>
         <source>read failed tip</source>
         <translation>检测微信进程失败</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="111"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="163"/>
         <source>read failed</source>
         <translation>读取失败，请检查微信是否登录</translation>
     </message>

@@ -12,4 +12,6 @@ namespace utils
 	std::wstring GetExecutablePath(const char* processName);
 	std::string GetFileVersion(const wchar_t* fileName);
 	std::wstring GetMoudlePath();
+	BOOL IsWx64BitExecutable(const std::wstring& exePath);
+	BOOL IsMemoryPageWritable(void* address);
 }

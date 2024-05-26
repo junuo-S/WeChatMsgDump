@@ -129,6 +129,25 @@ std::wstring utils::GetMoudlePath()
 	return path.substr(0, index);
 }
 
+BOOL utils::IsWx64BitExecutable(const std::wstring& exePath)
+{
+	DWORD binaryType;
+	if (GetBinaryTypeW(exePath.c_str(), &binaryType))
+		return binaryType == SCS_64BIT_BINARY;
+	return false;
+}
+
+BOOL utils::IsMemoryPageWritable(void* address)
+{
+	MEMORY_BASIC_INFORMATION mbi;
+	if (VirtualQuery(address, &mbi, sizeof(mbi)))
+	{
+		return (mbi.Protect & PAGE_READWRITE) || (mbi.Protect & PAGE_WRITECOPY) ||
+			(mbi.Protect & PAGE_EXECUTE_READWRITE) || (mbi.Protect & PAGE_EXECUTE_WRITECOPY);
+	}
+	return false;
+}
+
 std::wstring utils::GetExecutablePath(const char* processName)
 {
 	DWORD processId = GetProcessIdByName(processName);

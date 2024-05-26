@@ -6,6 +6,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QMouseEvent>
+#include <QComboBox>
 
 #include "dbdecryptor/wxmemoryreader/wxmemoryreader.h"
 
@@ -29,6 +30,28 @@ struct WxProcessListPage::Data
 		tipHLayout->setAlignment(Qt::AlignCenter);
 		mainLayout->addLayout(tipHLayout);
 		mainLayout->addSpacing(DPI(12));
+
+		wxVersionLayout = new QHBoxLayout(q);
+		{
+			wxVersionHintLabel = new QLabel(WxProcessListPage::tr("wechat version: "), q);
+			wxVersionLabel = new QLabel(q);
+			wxVersionLayout->addWidget(wxVersionHintLabel);
+			wxVersionLayout->addWidget(wxVersionLabel);
+		}
+		wxVersionLayout->setStretch(0, 1);
+		wxVersionLayout->setStretch(1, 3);
+		mainLayout->addLayout(wxVersionLayout);
+
+		wxExePathLayout = new QHBoxLayout(q);
+		{
+			wxExePathHintLabel = new QLabel(WxProcessListPage::tr("wechat exe: "), q);
+			wxExePathLabel = new QLabel(q);
+			wxExePathLayout->addWidget(wxExePathHintLabel);
+			wxExePathLayout->addWidget(wxExePathLabel);
+		}
+		wxExePathLayout->setStretch(0, 1);
+		wxExePathLayout->setStretch(1, 3);
+		mainLayout->addLayout(wxExePathLayout);
 
 		processInfoHLayout = new QHBoxLayout(q);
 		{
@@ -73,25 +96,44 @@ struct WxProcessListPage::Data
 		phoneNumberHLayout->setStretch(0, 1);
 		phoneNumberHLayout->setStretch(1, 3);
 		mainLayout->addLayout(phoneNumberHLayout);
+
+		wxidsLayout = new QHBoxLayout(q);
+		{
+			wxidsHintLabel = new QLabel(WxProcessListPage::tr("wxid: "), q);
+			wxidsComboBox = new QComboBox(q);
+			wxidsLayout->addWidget(wxidsHintLabel);
+			wxidsLayout->addWidget(wxidsComboBox);
+		}
+		wxidsLayout->setStretch(0, 1);
+		wxidsLayout->setStretch(1, 3);
+		mainLayout->addLayout(wxidsLayout);
+
+		wxDataPathsLayout = new QHBoxLayout(q);
+		{
+			wxDataPathsHintLabel = new QLabel(WxProcessListPage::tr("wechat path: "), q);
+			wxDataPathsComboBox = new QComboBox(q);
+			wxDataPathsLayout->addWidget(wxDataPathsHintLabel);
+			wxDataPathsLayout->addWidget(wxDataPathsComboBox);
+		}
+		wxDataPathsLayout->setStretch(0, 1);
+		wxDataPathsLayout->setStretch(1, 3);
+		mainLayout->addLayout(wxDataPathsLayout);
+
 		mainLayout->addStretch();
 	}
 
 	void initStyle()
 	{
-		refreshLabel->setPixmap(QPixmap(":/icon_svg/refresh.svg").scaled(DPI_SIZE(24, 24)));
+		refreshLabel->setPixmap(QPixmap(":/icon_svg/refresh.svg").scaled(DPI_SIZE(20, 20)));
 		refreshLabel->setCursor(Qt::PointingHandCursor);
-		QFont font("Microsoft YaHei");
-		font.setPointSize(14);
-		tipLabel->setFont(font);
-		font.setPointSize(9);
-		processHintLabel->setFont(font);
-		processLabel->setFont(font);
-		userNameHintLabel->setFont(font);
-		userNameLabel->setFont(font);
-		wxNumberHintLabel->setFont(font);
-		wxNumberLabel->setFont(font);
-		phoneNumberHintLabel->setFont(font);
-		phoneNumberLabel->setFont(font);
+		QString styleSheet = QString("QLabel, QComboBox {"
+			"font-family: Microsoft YaHei;"
+			"font-size: %1px;"
+			"}"
+			"QLabel#title {"
+			"font-size: %2px;"
+			"}").arg(DPI(12)).arg(DPI(16));
+		q->setStyleSheet(styleSheet);
 	}
 
 	void resetContent()
@@ -100,19 +142,35 @@ struct WxProcessListPage::Data
 		if (reader->isSuccessFulRead())
 		{
 			tipLabel->setText(WxProcessListPage::tr("read success tip"));
+			wxVersionLabel->setText(QString::fromStdString(reader->getWxVersion()));
+			wxExePathLabel->setText(QString::fromStdWString(reader->getWxExePath()));
+			wxExePathLabel->setToolTip(wxExePathLabel->text());
 			processLabel->setText(QString::number(reader->getWxProcessId()));
 			userNameLabel->setText(QString::fromStdWString(reader->getWxUserName()));
 			wxNumberLabel->setText(QString::fromStdString(reader->getWxNumber()));
 			phoneNumberLabel->setText(QString::fromStdString(reader->getWxPhoneNumber()));
+			auto wxids = reader->getWxids();
+			for (auto cit = wxids.cbegin(); cit != wxids.cend(); cit++)
+				wxidsComboBox->addItem(QString::fromStdString(*cit));
+			auto wxDataPaths = reader->getWxDataPaths();
+			for (auto cit = wxDataPaths.cbegin(); cit != wxDataPaths.cend(); cit++)
+				wxDataPathsComboBox->addItem(QString::fromStdWString(*cit));
+			wxDataPathsComboBox->setToolTip(wxDataPathsComboBox->currentText());
 		}
 		else
 		{
 			tipLabel->setText(WxProcessListPage::tr("read failed tip"));
 			QString readFailed = WxProcessListPage::tr("read failed");
+			wxVersionLabel->setText(readFailed);
+			wxExePathLabel->setText(readFailed);
+			wxExePathLabel->setToolTip(wxExePathLabel->text());
 			processLabel->setText(readFailed);
 			userNameLabel->setText(readFailed);
 			wxNumberLabel->setText(readFailed);
 			phoneNumberLabel->setText(readFailed);
+			wxidsComboBox->clear();
+			wxDataPathsComboBox->clear();
+			wxDataPathsComboBox->setToolTip(wxDataPathsComboBox->currentText());
 		}
 	}
 
@@ -121,6 +179,12 @@ struct WxProcessListPage::Data
 	QHBoxLayout* tipHLayout = nullptr;
 	QLabel* tipLabel = nullptr;
 	QLabel* refreshLabel = nullptr;
+	QHBoxLayout* wxVersionLayout = nullptr;
+	QLabel* wxVersionHintLabel = nullptr;
+	QLabel* wxVersionLabel = nullptr;
+	QHBoxLayout* wxExePathLayout = nullptr;
+	QLabel* wxExePathHintLabel = nullptr;
+	QLabel* wxExePathLabel = nullptr;
 	QHBoxLayout* processInfoHLayout = nullptr;
 	QLabel* processHintLabel = nullptr;
 	QLabel* processLabel = nullptr;
@@ -133,6 +197,12 @@ struct WxProcessListPage::Data
 	QHBoxLayout* phoneNumberHLayout = nullptr;
 	QLabel* phoneNumberHintLabel = nullptr;
 	QLabel* phoneNumberLabel = nullptr;
+	QHBoxLayout* wxidsLayout = nullptr;
+	QLabel* wxidsHintLabel = nullptr;
+	QComboBox* wxidsComboBox = nullptr;
+	QHBoxLayout* wxDataPathsLayout = nullptr;
+	QLabel* wxDataPathsHintLabel = nullptr;
+	QComboBox* wxDataPathsComboBox = nullptr;
 };
 
 WxProcessListPage::WxProcessListPage(QWidget* parent)

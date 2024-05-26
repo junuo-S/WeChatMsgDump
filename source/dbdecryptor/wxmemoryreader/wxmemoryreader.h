@@ -12,15 +12,20 @@
 
 #include <windows.h>
 #include <string>
+#include <vector>
 
 class DBDECRYPTOR_EXPORT WxMemoryReader
 {
 public:
 	~WxMemoryReader();
-	std::string getWxPhoneNumber();
-	std::wstring getWxUserName();
-	std::string getWxNumber();
-	std::string getSecretKey();
+	std::string getWxVersion() const;
+	std::wstring getWxExePath() const;
+	std::string getWxPhoneNumber() const;
+	std::wstring getWxUserName() const;
+	std::string getWxNumber() const;
+	std::string getSecretKey() const;
+	std::vector<std::string> getWxids() const;
+	std::vector<std::wstring> getWxDataPaths() const;
 	BOOL reset();
 	bool isSuccessFulRead() const;
 	DWORD getWxProcessId() const;
@@ -35,6 +40,9 @@ private:
 	BOOL readUserName(DWORD_PTR address);
 	BOOL readWxNumber(DWORD_PTR address);
 	BOOL readSecretKey(DWORD_PTR address);
+	BOOL readWxid();
+	BOOL readWxDataPath();
+	BOOL patternScanForAddress();
 	void resetWxProcessInfo();
 	std::string decToHex(size_t dec);
 	DWORD_PTR byteArrayToAddress(BYTE* byte, size_t pointerLen);
@@ -43,9 +51,14 @@ private:
 	DWORD m_processId = NULL;
 	HANDLE m_hProcess = NULL;
 	DWORD_PTR m_weChatDllAdress = NULL;
+	std::string m_wxVersion;
+	std::wstring m_wxExePath;
 	std::string m_phoneNumber;
 	std::wstring m_userName;
 	std::string m_wxNumber;
 	std::string m_secretKey;
+	std::vector<std::string> m_wxids;
+	std::vector<std::wstring> m_wxDataPaths;
+	std::vector<DWORD_PTR> m_patternScanAddressRet;
 	bool m_isSuccessed = false;
 };

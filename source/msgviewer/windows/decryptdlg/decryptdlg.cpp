@@ -63,6 +63,6 @@ void DecryptDialog::onPageChanged(int index)
 	if (index == data->stackedLayout->indexOf(data->loadingPage))
 		setFixedSize(DPI_SIZE(300, 200));
 	if (index == data->stackedLayout->indexOf(data->wxProcessListPage))
-		setFixedSize(DPI_SIZE(300, 200));
+		setFixedSize(DPI_SIZE(480, 300));
 }
 
