@@ -9,6 +9,7 @@
 #include <QComboBox>
 
 #include "dbdecryptor/wxmemoryreader/wxmemoryreader.h"
+#include "junuoui/button/buttons.h"
 
 struct WxProcessListPage::Data
 {
@@ -119,6 +120,15 @@ struct WxProcessListPage::Data
 		wxDataPathsLayout->setStretch(1, 3);
 		mainLayout->addLayout(wxDataPathsLayout);
 
+		buttonLayout = new QHBoxLayout(q);
+		{
+			beginButton = new JunuoBaseButton(WxProcessListPage::tr("begin decrypt"), q);
+			beginButton->setBgColor(0x409eff, 0x66b1ff, 0x3a8ee6);
+			beginButton->setTextColor(Qt::white);
+			buttonLayout->addWidget(beginButton);
+		}
+		mainLayout->addSpacing(DPI(10));
+		mainLayout->addLayout(buttonLayout);
 		mainLayout->addStretch();
 	}
 
@@ -127,13 +137,18 @@ struct WxProcessListPage::Data
 		refreshLabel->setPixmap(QPixmap(":/icon_svg/refresh.svg").scaled(DPI_SIZE(20, 20)));
 		refreshLabel->setCursor(Qt::PointingHandCursor);
 		QString styleSheet = QString("QLabel, QComboBox {"
-			"font-family: Microsoft YaHei;"
-			"font-size: %1px;"
+				"font-family: Microsoft YaHei;"
+				"font-size: %1px;"
 			"}"
 			"QLabel#title {"
-			"font-size: %2px;"
-			"}").arg(DPI(12)).arg(DPI(16));
+				"font-size: %2px;"
+			"}"
+		).arg(DPI(12)).arg(DPI(16));
 		q->setStyleSheet(styleSheet);
+		QFont font("KaiTi");
+		font.setPixelSize(DPI(18));
+		beginButton->setFont(font);
+		beginButton->adjustBestSize();
 	}
 
 	void resetContent()
@@ -156,6 +171,7 @@ struct WxProcessListPage::Data
 			for (auto cit = wxDataPaths.cbegin(); cit != wxDataPaths.cend(); cit++)
 				wxDataPathsComboBox->addItem(QString::fromStdWString(*cit));
 			wxDataPathsComboBox->setToolTip(wxDataPathsComboBox->currentText());
+			beginButton->setEnabled(true);
 		}
 		else
 		{
@@ -171,6 +187,7 @@ struct WxProcessListPage::Data
 			wxidsComboBox->clear();
 			wxDataPathsComboBox->clear();
 			wxDataPathsComboBox->setToolTip(wxDataPathsComboBox->currentText());
+			beginButton->setEnabled(false);
 		}
 	}
 
@@ -203,6 +220,8 @@ struct WxProcessListPage::Data
 	QHBoxLayout* wxDataPathsLayout = nullptr;
 	QLabel* wxDataPathsHintLabel = nullptr;
 	QComboBox* wxDataPathsComboBox = nullptr;
+	QHBoxLayout* buttonLayout = nullptr;
+	JunuoBaseButton* beginButton = nullptr;
 };
 
 WxProcessListPage::WxProcessListPage(QWidget* parent)
