@@ -7,6 +7,8 @@
 #include <string>
 #include <sstream>
 
+#pragma comment(lib, "version")
+
 static std::wstring TCHARToWString(const TCHAR* tchar)
 {
 	std::wstringstream wss;
