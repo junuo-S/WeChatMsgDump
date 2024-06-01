@@ -44,7 +44,8 @@ private:
 	BOOL readWxDataPath();
 	BOOL patternScanForAddress();
 	void resetWxProcessInfo();
-	std::string decToHex(size_t dec);
+	std::string decToHex(size_t dec) const;
+	bool isWxidFormat(const std::string& wxid) const;
 	DWORD_PTR byteArrayToAddress(BYTE* byte, size_t pointerLen);
 
 	static WxMemoryReader* s_reader;

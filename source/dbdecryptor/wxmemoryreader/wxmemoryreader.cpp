@@ -116,7 +116,7 @@ BOOL WxMemoryReader::readWxid()
 		QString bufferString = reinterpret_cast<const char*>(buffer);
 		QStringList splitTemp = bufferString.split("\\Msg");
 		std::string wxid = splitTemp.first().split("\\").last().toStdString();
-		if (std::find(m_wxids.cbegin(), m_wxids.cend(), wxid) == m_wxids.cend())
+		if (isWxidFormat(wxid) && std::find(m_wxids.cbegin(), m_wxids.cend(), wxid) == m_wxids.cend())
 			m_wxids.push_back(wxid);
 	}
 	return !m_wxids.empty();
@@ -211,7 +211,7 @@ void WxMemoryReader::resetWxProcessInfo()
 	m_weChatDllAdress = utils::GetModuleAddress(gs_wxProcessName, gs_wxDllName);
 }
 
-std::string WxMemoryReader::decToHex(size_t dec)
+std::string WxMemoryReader::decToHex(size_t dec) const
 {
 	static std::string hexBase = "0123456789ABCDEF";
 	std::string result;
@@ -222,6 +222,22 @@ std::string WxMemoryReader::decToHex(size_t dec)
 		dec /= 16;
 	}
 	return result;
+}
+
+bool WxMemoryReader::isWxidFormat(const std::string& wxid) const
+{
+	if (wxid.length() < 5 || wxid.substr(0, 5).compare("wxid_") != 0)
+		return false;
+	for (size_t i = 5; i < wxid.length(); i++)
+	{
+		char ch = wxid.at(i);
+		bool isNumber = ch >= '0' && ch <= '9';
+		bool isEnglish = (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
+		bool isUnderline = ch == '_';
+		if (!isNumber && !isEnglish && !isUnderline)
+			return false;
+	}
+	return true;
 }
 
 DWORD_PTR WxMemoryReader::byteArrayToAddress(BYTE* byte, size_t pointerLen)
