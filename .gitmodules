@@ -1,0 +1,6 @@
+[submodule "source/cmake"]
+	path = source/cmake
+	url = git@github.com:junuo-S/cmake.git
+[submodule "source/junuoui"]
+	path = source/junuoui
+	url = git@github.com:junuo-S/junuoui.git
