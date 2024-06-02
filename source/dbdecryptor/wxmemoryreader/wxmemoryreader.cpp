@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <sys/stat.h>
 
-#include "winprocessutils/winprocessutils.h"
+#include "utils/winprocessutils.h"
 
 static const char* const gs_wxProcessName = "WeChat.exe";
 static const char* const gs_wxDllName = "WeChatWin.dll";

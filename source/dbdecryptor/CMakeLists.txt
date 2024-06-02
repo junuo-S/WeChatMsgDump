@@ -1,8 +1,8 @@
 ﻿set(sources
     wxmemoryreader/wxmemoryreader.h
     wxmemoryreader/wxmemoryreader.cpp
-    winprocessutils/winprocessutils.h
-    winprocessutils/winprocessutils.cpp
+    utils/winprocessutils.h
+    utils/winprocessutils.cpp
     threads/wxmemorythread.h
     threads/wxmemorythread.cpp
     threads/wxdbdecryptthread.h
