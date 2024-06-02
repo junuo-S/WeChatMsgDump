@@ -5,6 +5,7 @@
 #include "windows/decryptdlg/decryptdlg.h"
 #include "dbdecryptor/wxmemoryreader/wxmemoryreader.h"
 #include "dbdecryptor/threads/wxmemorythread.h"
+#include "dbdecryptor/threads/wxdbdecryptthread.h"
 
 MsgManager::MsgManager()
 {
@@ -45,6 +46,7 @@ void MsgManager::onWxProcessDetectFinished(bool isSuccess)
 
 void MsgManager::onStartDecrypt()
 {
-
+	m_wxDbDecryptThread = new WxDBDecryptThread(this);
+	m_wxDbDecryptThread->start();
 }
 

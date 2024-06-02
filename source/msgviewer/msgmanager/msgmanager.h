@@ -4,6 +4,7 @@
 
 class DecryptDialog;
 class WxMemoryReadThread;
+class WxDBDecryptThread;
 
 class MsgManager : public QObject
 {
@@ -20,4 +21,5 @@ private:
 
 	DecryptDialog* m_decryptDialog = nullptr;
 	WxMemoryReadThread* m_wxReadThread = nullptr;
+	WxDBDecryptThread* m_wxDbDecryptThread = nullptr;
 };

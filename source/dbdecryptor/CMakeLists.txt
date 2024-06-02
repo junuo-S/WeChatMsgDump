@@ -5,6 +5,8 @@
     winprocessutils/winprocessutils.cpp
     threads/wxmemorythread.h
     threads/wxmemorythread.cpp
+    threads/wxdbdecryptthread.h
+    threads/wxdbdecryptthread.cpp
 
     configs/versionconfig.json
 
