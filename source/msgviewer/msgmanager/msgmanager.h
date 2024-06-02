@@ -16,6 +16,7 @@ public:
 private:
 	void startReadWxMemory();
 	void onWxProcessDetectFinished(bool isSuccess);
+	void onStartDecrypt();
 
 	DecryptDialog* m_decryptDialog = nullptr;
 	WxMemoryReadThread* m_wxReadThread = nullptr;

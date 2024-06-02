@@ -10,6 +10,7 @@ MsgManager::MsgManager()
 {
 	m_decryptDialog = new DecryptDialog(nullptr);
 	connect(m_decryptDialog, &DecryptDialog::sigRefresh, this, &MsgManager::startWork);
+	connect(m_decryptDialog, &DecryptDialog::sigStartDecrypt, this, &MsgManager::onStartDecrypt);
 }
 
 MsgManager::~MsgManager()
@@ -40,5 +41,10 @@ void MsgManager::onWxProcessDetectFinished(bool isSuccess)
 	disconnect(sender, &WxMemoryReadThread::sigReadMemoryFinished, this, &MsgManager::onWxProcessDetectFinished);
 	delete sender;
 	QTimer::singleShot(3000, m_decryptDialog, &DecryptDialog::gotoWxProcessListPage);
+}
+
+void MsgManager::onStartDecrypt()
+{
+
 }
 

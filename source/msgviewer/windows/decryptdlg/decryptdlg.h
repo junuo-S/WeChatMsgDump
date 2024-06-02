@@ -14,6 +14,7 @@ public:
 
 signals:
 	void sigRefresh();
+	void sigStartDecrypt();
 
 private:
 	void onPageChanged(int index);

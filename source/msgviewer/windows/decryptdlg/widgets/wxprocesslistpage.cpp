@@ -126,6 +126,7 @@ struct WxProcessListPage::Data
 			beginButton->setBgColor(0x409eff, 0x66b1ff, 0x3a8ee6);
 			beginButton->setTextColor(Qt::white);
 			buttonLayout->addWidget(beginButton);
+			WxProcessListPage::connect(beginButton, &QPushButton::clicked, q, &WxProcessListPage::sigStartDecrypt);
 		}
 		mainLayout->addSpacing(DPI(10));
 		mainLayout->addLayout(buttonLayout);

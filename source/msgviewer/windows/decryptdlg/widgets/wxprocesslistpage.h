@@ -16,6 +16,7 @@ protected:
 
 signals:
 	void sigRefresh();
+	void sigStartDecrypt();
 
 private:
 	struct Data;
