@@ -221,6 +221,8 @@ std::string WxMemoryReader::decToHex(size_t dec) const
 		result.insert(result.begin(), hexBase[temp]);
 		dec /= 16;
 	}
+	while (result.length() < 2)
+		result.insert(result.begin(), '0');
 	return result;
 }
 
