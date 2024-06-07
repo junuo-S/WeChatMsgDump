@@ -2,7 +2,7 @@
 
 enum WeChatDbType
 {
-	MSG,
+	_MSG,
 	MediaMSG,
 	MicroMsg,
 	OpenIMContact,
