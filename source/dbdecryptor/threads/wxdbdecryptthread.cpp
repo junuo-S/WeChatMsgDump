@@ -12,7 +12,13 @@ WxDBDecryptThread::WxDBDecryptThread(QObject* parent /*= nullptr*/)
 
 void WxDBDecryptThread::run()
 {
-	WxDBDecryptor d(WeChatDbType::_MSG);
-	d.beginDecrypt();
+	WxDBDecryptor decryptor({ WeChatDbType::_MSG });
+	connect(&decryptor, &WxDBDecryptor::sigDecryptDoneOneFile, this, &WxDBDecryptThread::sigDecryptDoneOneFile);
+	connect(&decryptor, &WxDBDecryptor::sigDecryptAllDone, this, &WxDBDecryptThread::sigDecryptFinished);
+	if (!decryptor.beforeDecrypt())
+		return;
+	size_t totalCount = decryptor.getTotalDBFileCount();
+	emit sigBeginDecrypt(totalCount);
+	decryptor.beginDecrypt();
 }
 

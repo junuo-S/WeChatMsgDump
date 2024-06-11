@@ -8,6 +8,7 @@
 #include <QRegularExpression>
 #include <QCryptographicHash>
 #include <QMessageAuthenticationCode>
+#include <QThreadPool>
 #include <openssl/aes.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
@@ -16,8 +17,8 @@ static constexpr int gs_keySize = 32;
 static constexpr int gs_pageSize = 4096;
 static constexpr char* gs_sqliteFileHeaderHex = "53514c69746520666f726d6174203300";
 
-WxDBDecryptor::WxDBDecryptor(WeChatDbType type, const QString& inputPath /* = QString()*/, const QString& outputPath /*= QString()*/)
-	: m_type(type)
+WxDBDecryptor::WxDBDecryptor(WeChatDbTypeList typeList, const QString& inputPath /* = QString()*/, const QString& outputPath /*= QString()*/)
+	: m_typeList(typeList)
 	, m_outputPath(outputPath)
 	, m_inputPath(inputPath)
 {
@@ -27,51 +28,70 @@ WxDBDecryptor::WxDBDecryptor(WeChatDbType type, const QString& inputPath /* = QS
 		m_inputPath = QString::fromStdWString(WxMemoryReader::instance()->getWxDataPaths().at(0));
 }
 
-bool WxDBDecryptor::beginDecrypt() const
+void WxDBDecryptor::beginDecrypt() const
 {
-	QStringList dbFiles = getDbPathByWeChatDbType();
-	for (const auto& file : dbFiles)
+	auto threadPool = QThreadPool::globalInstance();
+	for (const auto& file : m_dbFileList)
 	{
-		if (!decrypt(file, m_outputPath + file.mid(file.lastIndexOf("/wxid_"))))
-			return false;
+		threadPool->start([&file, this]() 
+			{ 
+				decrypt(file, m_outputPath + file.mid(file.lastIndexOf("/wxid_")));
+			});
 	}
-	return true;
+	threadPool->waitForDone();
+	emit sigDecryptAllDone();
+}
+
+bool WxDBDecryptor::beforeDecrypt()
+{
+	m_dbFileList = getDbPathByWeChatDbType();
+	return !m_dbFileList.isEmpty();
+}
+
+size_t WxDBDecryptor::getTotalDBFileCount() const
+{
+	return m_dbFileList.size();
 }
 
 QStringList WxDBDecryptor::getDbPathByWeChatDbType() const
 {
+	QStringList ret;
 	QString pattern, subDir;
 	bool isRegular = true;
-	switch (m_type)
+	for (const auto type : m_typeList)
 	{
-	case WeChatDbType::_MSG:
-		subDir = "Multi";
-		pattern = "^MSG\\d+\\.db$";
-		break;
-	case WeChatDbType::MediaMSG:
-		subDir = "Multi";
-		pattern = "^MediaMSG\\d+\\.db$";
-		break;
-	case WeChatDbType::MicroMsg:
-		pattern = "MicroMsg.db";
-		isRegular = false;
-		break;
-	case WeChatDbType::OpenIMContact:
-		pattern = "OpenIMContact.db";
-		isRegular = false;
-		break;
-	case WeChatDbType::OpenIMMedia:
-		pattern = "OpenIMMedia.db";
-		isRegular = false;
-		break;
-	case WeChatDbType::OpenIMMsg:
-		pattern = "OpenIMMsg.db";
-		isRegular = false;
-		break;
-	default:
-		break;
+		switch (type)
+		{
+		case WeChatDbType::_MSG:
+			subDir = "Multi";
+			pattern = "^MSG\\d+\\.db$";
+			break;
+		case WeChatDbType::MediaMSG:
+			subDir = "Multi";
+			pattern = "^MediaMSG\\d+\\.db$";
+			break;
+		case WeChatDbType::MicroMsg:
+			pattern = "MicroMsg.db";
+			isRegular = false;
+			break;
+		case WeChatDbType::OpenIMContact:
+			pattern = "OpenIMContact.db";
+			isRegular = false;
+			break;
+		case WeChatDbType::OpenIMMedia:
+			pattern = "OpenIMMedia.db";
+			isRegular = false;
+			break;
+		case WeChatDbType::OpenIMMsg:
+			pattern = "OpenIMMsg.db";
+			isRegular = false;
+			break;
+		default:
+			break;
+		}
+		ret.append(getDbFiles(pattern, isRegular, subDir));
 	}
-	return getDbFiles(pattern, isRegular, subDir);
+	return ret;
 }
 
 QStringList WxDBDecryptor::getDbFiles(const QString& pattern, bool isRegular /*= true*/, const QString& subDir /* = QString()*/) const
@@ -91,24 +111,31 @@ QStringList WxDBDecryptor::getDbFiles(const QString& pattern, bool isRegular /*=
 	return ret;
 }
 
-bool WxDBDecryptor::decrypt(const QString& inputFile, const QString& outputFile) const
+bool WxDBDecryptor::decrypt(const QString& inputFilePath, const QString& outputFilePath) const
 {
-	if (!QFileInfo::exists(inputFile))
-		return false;
-	const std::string key = WxMemoryReader::instance()->getSecretKey();
-	if (key.length() != 64)
-		return false;
-	QFile dbFile(inputFile);
-	if (!dbFile.open(QIODevice::ReadOnly))
+	if (!QFileInfo::exists(inputFilePath))
 	{
-		dbFile.close();
+		emit sigDecryptDoneOneFile(false);
 		return false;
 	}
-	size_t dbFileSize = dbFile.size();
-	uchar* ptr = dbFile.map(0, dbFileSize);
-	dbFile.close();
-	QByteArray salt = QByteArray::fromRawData((const char*)ptr, 16);
-	QByteArray first = QByteArray::fromRawData((const char*)(ptr + 16), gs_pageSize - 16);
+	const std::string key = WxMemoryReader::instance()->getSecretKey();
+	if (key.length() != 64)
+	{
+		emit sigDecryptDoneOneFile(false);
+		return false;
+	}
+	QFile inputFile(inputFilePath);
+	if (!inputFile.open(QIODevice::ReadOnly))
+	{
+		inputFile.close();
+		emit sigDecryptDoneOneFile(false);
+		return false;
+	}
+	size_t inputFileSize = inputFile.size();
+	uchar* inputFileMapPtr = inputFile.map(0, inputFileSize);
+	inputFile.close();
+	QByteArray salt = QByteArray::fromRawData((const char*)inputFileMapPtr, 16);
+	QByteArray first = QByteArray::fromRawData((const char*)(inputFileMapPtr + 16), gs_pageSize - 16);
 	QByteArray macSalt;
 	for (const auto& ch : salt)
 	{
@@ -122,27 +149,32 @@ bool WxDBDecryptor::decrypt(const QString& inputFile, const QString& outputFile)
 	hashMac.addData(first.left(4064 - 16));
 	hashMac.addData(QByteArray::fromHex("01000000"));
 	if (hashMac.result().compare(first.mid(first.size() - 32, 20)) != 0)
+	{
+		emit sigDecryptDoneOneFile(false);
 		return false;
-	QFile out(outputFile);
-	QFileInfo fileInfo(outputFile);
+	}
+	QFile outputFile(outputFilePath);
+	QFileInfo fileInfo(outputFilePath);
 	if (!fileInfo.exists())
 		QDir().mkpath(fileInfo.absoluteDir().absolutePath());
-	if (!out.open(QIODevice::WriteOnly))
+	if (!outputFile.open(QIODevice::WriteOnly))
 	{
-		out.close();
+		outputFile.close();
+		emit sigDecryptDoneOneFile(false);
 		return false;
 	}
-	out.write(QByteArray::fromHex(gs_sqliteFileHeaderHex));
-	QByteArray tbList = QByteArray::fromRawData((const char*)(ptr + 16), gs_pageSize - 16);
-	out.write(aesCbcDecrypt(byteHMac, tbList.mid(tbList.size() - 48, 16), tbList.left(tbList.size() - 48)));
-	out.write(tbList.right(48));
-	for (size_t i = gs_pageSize; i < dbFileSize; i += gs_pageSize)
+	outputFile.write(QByteArray::fromHex(gs_sqliteFileHeaderHex));
+	QByteArray tbList = QByteArray::fromRawData((const char*)(inputFileMapPtr + 16), gs_pageSize - 16);
+	outputFile.write(aesCbcDecrypt(byteHMac, tbList.mid(tbList.size() - 48, 16), tbList.left(tbList.size() - 48)));
+	outputFile.write(tbList.right(48));
+	for (size_t i = gs_pageSize; i < inputFileSize; i += gs_pageSize)
 	{
-		tbList = QByteArray::fromRawData((const char*)(ptr + i), gs_pageSize);
-		out.write(aesCbcDecrypt(byteHMac, tbList.mid(tbList.size() - 48, 16), tbList.left(tbList.size() - 48)));
-		out.write(tbList.right(48));
+		tbList = QByteArray::fromRawData((const char*)(inputFileMapPtr + i), gs_pageSize);
+		outputFile.write(aesCbcDecrypt(byteHMac, tbList.mid(tbList.size() - 48, 16), tbList.left(tbList.size() - 48)));
+		outputFile.write(tbList.right(48));
 	}
-	out.close();
+	outputFile.close();
+	emit sigDecryptDoneOneFile(true);
 	return true;
 }
 
