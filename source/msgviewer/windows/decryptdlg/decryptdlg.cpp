@@ -6,6 +6,7 @@
 
 #include "widgets/loadingpage.h"
 #include "widgets/wxprocesslistpage.h"
+#include "widgets/decryptingpage.h"
 
 struct DecryptDialog::Data
 {
@@ -19,11 +20,16 @@ struct DecryptDialog::Data
 		stackedLayout->addWidget(wxProcessListPage);
 		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigRefresh, q, &DecryptDialog::sigRefresh);
 		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigStartDecrypt, q, &DecryptDialog::sigStartDecrypt);
+	
+		decryptingPage = new DecryptingPage(q);
+		stackedLayout->addWidget(decryptingPage);
+		DecryptDialog::connect(decryptingPage, &DecryptingPage::sigReDecrypt, q, &DecryptDialog::sigStartDecrypt);
 	}
 
 	DecryptDialog* q = nullptr;
 	LoadingPage* loadingPage = nullptr;
 	WxProcessListPage* wxProcessListPage = nullptr;
+	DecryptingPage* decryptingPage = nullptr;
 	QStackedLayout* stackedLayout = nullptr;
 };
 
@@ -55,6 +61,29 @@ void DecryptDialog::gotoWxProcessListPage()
 		data->stackedLayout->addWidget(data->wxProcessListPage);
 	data->stackedLayout->setCurrentWidget(data->wxProcessListPage);
 	data->wxProcessListPage->resetContent();
+}
+
+void DecryptDialog::gotoDecryptingPage()
+{
+	if (data->stackedLayout->indexOf(data->decryptingPage) == -1)
+		data->stackedLayout->addWidget(data->decryptingPage);
+	data->stackedLayout->setCurrentWidget(data->decryptingPage);
+}
+
+void DecryptDialog::onBeginDecrypt(size_t totalCount)
+{
+	data->decryptingPage->onBeginDecrypt(totalCount);
+	gotoDecryptingPage();
+}
+
+void DecryptDialog::onDecryptDoneOneFile(bool isSuccess)
+{
+	data->decryptingPage->onDecryptDoneOneFile(isSuccess);
+}
+
+void DecryptDialog::onDecryptFinished()
+{
+	data->decryptingPage->onDecryptFinished();
 }
 
 void DecryptDialog::onPageChanged(int index)

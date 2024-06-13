@@ -10,6 +10,8 @@
     windows/decryptdlg/widgets/loadingpage.cpp
     windows/decryptdlg/widgets/wxprocesslistpage.h
     windows/decryptdlg/widgets/wxprocesslistpage.cpp
+    windows/decryptdlg/widgets/decryptingpage.h
+    windows/decryptdlg/widgets/decryptingpage.cpp
 
     msgmanager/msgmanager.h
     msgmanager/msgmanager.cpp

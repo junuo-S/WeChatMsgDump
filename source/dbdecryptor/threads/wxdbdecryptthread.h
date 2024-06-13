@@ -20,7 +20,7 @@ public:
 	void run() override;
 
 signals:
-	void sigBeginDecrypt(size_t totalCount);
+	void sigBeginDecrypt(int totalCount);
 	void sigDecryptDoneOneFile(bool isSuccess);
 	void sigDecryptFinished();
 };

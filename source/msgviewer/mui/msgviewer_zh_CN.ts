@@ -4,9 +4,32 @@
 <context>
     <name>DecryptDialog</name>
     <message>
-        <location filename="../windows/decryptdlg/decryptdlg.cpp" line="35"/>
+        <location filename="../windows/decryptdlg/decryptdlg.cpp" line="42"/>
         <source>wechat db decrypt</source>
         <translation>微信数据库解密</translation>
+    </message>
+</context>
+<context>
+    <name>DecryptingPage</name>
+    <message>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="26"/>
+        <source>begin view msg</source>
+        <translation>开始查阅</translation>
+    </message>
+    <message>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="32"/>
+        <source>re decrypt</source>
+        <translation>重新解密</translation>
+    </message>
+    <message>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="89"/>
+        <source>decrypting...</source>
+        <translation>解密中，请稍后...</translation>
+    </message>
+    <message>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="103"/>
+        <source>decrypt success</source>
+        <translation>解密成功</translation>
     </message>
 </context>
 <context>
@@ -80,17 +103,17 @@
         <translation>开始解密</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="158"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="160"/>
         <source>read success tip</source>
         <translation>检测成功</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="177"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="179"/>
         <source>read failed tip</source>
         <translation>检测微信进程失败</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="178"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="180"/>
         <source>read failed</source>
         <translation>读取失败，请检查微信是否登录</translation>
     </message>

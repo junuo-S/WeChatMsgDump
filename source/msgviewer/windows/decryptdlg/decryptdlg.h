@@ -11,6 +11,10 @@ public:
 	~DecryptDialog();
 	void gotoLoadingPage();
 	void gotoWxProcessListPage();
+	void gotoDecryptingPage();
+	void onBeginDecrypt(size_t totalCount);
+	void onDecryptDoneOneFile(bool isSuccess);
+	void onDecryptFinished();
 
 signals:
 	void sigRefresh();

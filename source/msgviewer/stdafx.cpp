@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 
-double dpiScaled(double value)
+int dpiScaled(double value)
 {
 	static double px = []() -> double
 		{
