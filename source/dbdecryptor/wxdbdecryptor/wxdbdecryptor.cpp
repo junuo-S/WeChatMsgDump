@@ -55,10 +55,10 @@ size_t WxDBDecryptor::getTotalDBFileCount() const
 QStringList WxDBDecryptor::getDbPathByWeChatDbType() const
 {
 	QStringList ret;
-	QString pattern, subDir;
-	bool isRegular = true;
 	for (const auto type : m_typeList)
 	{
+		QString pattern, subDir;
+		bool isRegular = true;
 		switch (type)
 		{
 		case WeChatDbType::_MSG:
