@@ -1,6 +1,5 @@
 ﻿#include "wxdbdecryptor.h"
 
-#include "defines.h"
 #include "wxmemoryreader/wxmemoryreader.h"
 
 #include <QDir>
@@ -15,7 +14,7 @@
 
 static constexpr int gs_keySize = 32;
 static constexpr int gs_pageSize = 4096;
-static constexpr char* gs_sqliteFileHeaderHex = "53514c69746520666f726d6174203300";
+static constexpr const char* gs_sqliteFileHeaderHex = "53514c69746520666f726d6174203300";
 
 WxDBDecryptor::WxDBDecryptor(WeChatDbTypeList typeList, const QString& inputPath /* = QString()*/, const QString& outputPath /*= QString()*/)
 	: m_typeList(typeList)

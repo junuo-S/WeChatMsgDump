@@ -141,7 +141,8 @@ BOOL WxMemoryReader::readWxDataPath()
 		wideCharArray[wideCharLength] = L'\0';
 		std::wstring path = wideCharArray;
 		delete[] wideCharArray;
-		if (_wstat(path.c_str(), &struct _stat()) == 0 && std::find(m_wxDataPaths.cbegin(), m_wxDataPaths.cend(), path) == m_wxDataPaths.cend())
+		struct _stat __stat;
+		if (_wstat(path.c_str(), &__stat) == 0 && std::find(m_wxDataPaths.cbegin(), m_wxDataPaths.cend(), path) == m_wxDataPaths.cend())
 			m_wxDataPaths.push_back(path);
 	}
 	return !m_wxDataPaths.empty();

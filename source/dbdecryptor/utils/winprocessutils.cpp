@@ -16,6 +16,16 @@ static std::wstring TCHARToWString(const TCHAR* tchar)
 	return wss.str();
 }
 
+static wchar_t* charToWChar(const char* charArray)
+{
+	if (!charArray)
+		return nullptr;
+	size_t size_needed = std::mbstowcs(nullptr, charArray, 0) + 1;
+	wchar_t* wCharArray = new wchar_t[size_needed];
+	std::mbstowcs(wCharArray, charArray, size_needed);
+	return wCharArray;
+}
+
 DWORD utils::GetProcessIdByName(const char* pName)
 {
 	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -24,7 +34,8 @@ DWORD utils::GetProcessIdByName(const char* pName)
 	PROCESSENTRY32 pe = { sizeof(pe) };
 	for (BOOL ret = Process32First(hSnapshot, &pe); ret; ret = Process32Next(hSnapshot, &pe)) 
 	{
-		if (strcmp(pe.szExeFile, pName) == 0)
+		std::unique_ptr<wchar_t[], void(*)(wchar_t*)> pNameW(charToWChar(pName), [](wchar_t* ptr) { delete[] ptr; });
+		if (wcscmp(pe.szExeFile, pNameW.get()) == 0)
 		{
 			CloseHandle(hSnapshot);
 			return pe.th32ProcessID;
@@ -48,7 +59,8 @@ DWORD_PTR utils::GetModuleAddress(const char* processName, const char* dllName)
 	{
 		TCHAR szModuleName[MAX_PATH];
 		GetModuleBaseName(hProcess, hModules[i], szModuleName, sizeof(szModuleName) / sizeof(TCHAR));
-		if (_tcscmp(szModuleName, _T(dllName)) == 0)
+		std::unique_ptr<wchar_t[], void(*)(wchar_t*)> dllNameW(charToWChar(dllName), [](wchar_t* ptr) { delete[] ptr; });
+		if (_tcscmp(szModuleName, dllNameW.get()) == 0)
 		{
 			DWORD_PTR baseAddress = (DWORD_PTR)hModules[i];
 			return baseAddress;

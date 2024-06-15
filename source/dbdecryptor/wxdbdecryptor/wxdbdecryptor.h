@@ -1,10 +1,10 @@
 ﻿#pragma once
 
+#include "defines.h"
+
 #include <QStringList>
 #include <QObject>
 #include <vector>
-
-enum WeChatDbType;
 
 class WxDBDecryptor : public QObject
 {

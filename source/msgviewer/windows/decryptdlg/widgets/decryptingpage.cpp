@@ -57,7 +57,7 @@ struct DecryptingPage::Data
 		reDecryptButton->setFont(font);
 		reDecryptButton->adjustBestSize();
 		progressBar->setWaterColor(0x00d200);
-		progressBar->setRadius(DPI(50));
+		progressBar->setRadius(DPI(80));
 	}
 
 	DecryptingPage* q = nullptr;
