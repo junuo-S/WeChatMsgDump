@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <QObject>
 #include <vector>
+#include <QMutex>
 
 class WxDBDecryptor : public QObject
 {
@@ -14,8 +15,9 @@ class WxDBDecryptor : public QObject
 public:
 	WxDBDecryptor(WeChatDbTypeList typeList, const QString& inputPath = QString(), const QString& outputPath = QString());
 	bool beforeDecrypt();
-	void beginDecrypt() const;
+	void beginDecrypt();
 	size_t getTotalDBFileCount() const;
+	QStringList getOutputDBFiles() const;
 
 signals:
 	void sigDecryptDoneOneFile(bool isSuccess) const;
@@ -24,11 +26,13 @@ signals:
 private:
 	QStringList getDbPathByWeChatDbType() const;
 	QStringList getDbFiles(const QString& pattern, bool isRegular = true, const QString& subDir = QString()) const;
-	bool decrypt(const QString& inputFilePath, const QString& outputFilePath) const;
+	bool decrypt(const QString& inputFilePath, const QString& outputFilePath);
 	QByteArray pbkdf2_hmac(const QByteArray& password, const QByteArray& salt, int iterations, int dklen) const;
 	QByteArray aesCbcDecrypt(const QByteArray& key, const QByteArray& iv, const QByteArray& cipherText) const;
 	WeChatDbTypeList m_typeList;
 	QString m_outputPath;
 	QString m_inputPath;
-	QStringList m_dbFileList;
+	QStringList m_inputDBFileList;
+	QStringList m_outputDBFileList;
+	QMutex m_mutex;
 };

@@ -27,10 +27,10 @@ WxDBDecryptor::WxDBDecryptor(WeChatDbTypeList typeList, const QString& inputPath
 		m_inputPath = QString::fromStdWString(WxMemoryReader::instance()->getWxDataPaths().at(0));
 }
 
-void WxDBDecryptor::beginDecrypt() const
+void WxDBDecryptor::beginDecrypt()
 {
 	auto threadPool = QThreadPool::globalInstance();
-	for (const auto& file : m_dbFileList)
+	for (const auto& file : m_inputDBFileList)
 	{
 		threadPool->start([&file, this]() 
 			{ 
@@ -43,13 +43,18 @@ void WxDBDecryptor::beginDecrypt() const
 
 bool WxDBDecryptor::beforeDecrypt()
 {
-	m_dbFileList = getDbPathByWeChatDbType();
-	return !m_dbFileList.isEmpty();
+	m_inputDBFileList = getDbPathByWeChatDbType();
+	return !m_inputDBFileList.isEmpty();
 }
 
 size_t WxDBDecryptor::getTotalDBFileCount() const
 {
-	return m_dbFileList.size();
+	return m_inputDBFileList.size();
+}
+
+QStringList WxDBDecryptor::getOutputDBFiles() const
+{
+	return m_outputDBFileList;
 }
 
 QStringList WxDBDecryptor::getDbPathByWeChatDbType() const
@@ -110,7 +115,7 @@ QStringList WxDBDecryptor::getDbFiles(const QString& pattern, bool isRegular /*=
 	return ret;
 }
 
-bool WxDBDecryptor::decrypt(const QString& inputFilePath, const QString& outputFilePath) const
+bool WxDBDecryptor::decrypt(const QString& inputFilePath, const QString& outputFilePath)
 {
 	if (!QFileInfo::exists(inputFilePath))
 	{
@@ -174,6 +179,9 @@ bool WxDBDecryptor::decrypt(const QString& inputFilePath, const QString& outputF
 	}
 	outputFile.close();
 	emit sigDecryptDoneOneFile(true);
+	m_mutex.lock();
+	m_outputDBFileList.append(outputFilePath);
+	m_mutex.unlock();
 	return true;
 }
 
