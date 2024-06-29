@@ -22,14 +22,24 @@
         <translation>重新解密</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="89"/>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="90"/>
         <source>decrypting...</source>
         <translation>解密中，请稍后...</translation>
     </message>
     <message>
         <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="103"/>
         <source>decrypt success</source>
-        <translation>解密成功</translation>
+        <translation>解密成功！</translation>
+    </message>
+    <message>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="112"/>
+        <source>merge success</source>
+        <translation>合并成功！</translation>
+    </message>
+    <message>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="126"/>
+        <source>merging...</source>
+        <translation>正在合并...</translation>
     </message>
 </context>
 <context>

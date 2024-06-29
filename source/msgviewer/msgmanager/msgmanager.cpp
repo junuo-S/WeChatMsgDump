@@ -38,9 +38,8 @@ void MsgManager::startReadWxMemory()
 
 void MsgManager::onWxProcessDetectFinished(bool isSuccess)
 {
-	auto sender = qobject_cast<WxMemoryReadThread*>(this->sender());
-	disconnect(sender, &WxMemoryReadThread::sigReadMemoryFinished, this, &MsgManager::onWxProcessDetectFinished);
-	delete sender;
+	if (auto sender = qobject_cast<WxMemoryReadThread*>(this->sender()))
+		sender->deleteLater();
 	QTimer::singleShot(3000, m_decryptDialog, &DecryptDialog::gotoWxProcessListPage);
 }
 
@@ -50,17 +49,16 @@ void MsgManager::onStartDecrypt()
 	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigBeginDecrypt, m_decryptDialog, &DecryptDialog::onBeginDecrypt);
 	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigDecryptDoneOneFile, m_decryptDialog, &DecryptDialog::onDecryptDoneOneFile);
 	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigDecryptFinished, m_decryptDialog, &DecryptDialog::onDecryptFinished);
-	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigDecryptFinished, this, &MsgManager::onDecryptFinished);
+	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigCombineStarted, m_decryptDialog, &DecryptDialog::onCombineStarted);
+	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigCombineOneFinished, m_decryptDialog, &DecryptDialog::onCombineOneFinished);
+	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigCombineFinished, m_decryptDialog, &DecryptDialog::onCombineFinished);
+	connect(m_wxDbDecryptThread, &QThread::finished, this, &MsgManager::detroyDecryptThread);
 	m_wxDbDecryptThread->start();
 }
 
-void MsgManager::onDecryptFinished()
+void MsgManager::detroyDecryptThread()
 {
-	auto sender = qobject_cast<WxDBDecryptThread*>(this->sender());
-	disconnect(m_wxDbDecryptThread, &WxDBDecryptThread::sigBeginDecrypt, m_decryptDialog, &DecryptDialog::onBeginDecrypt);
-	disconnect(m_wxDbDecryptThread, &WxDBDecryptThread::sigDecryptDoneOneFile, m_decryptDialog, &DecryptDialog::onDecryptDoneOneFile);
-	disconnect(m_wxDbDecryptThread, &WxDBDecryptThread::sigDecryptFinished, m_decryptDialog, &DecryptDialog::onDecryptFinished);
-	disconnect(m_wxDbDecryptThread, &WxDBDecryptThread::sigDecryptFinished, this, &MsgManager::onDecryptFinished);
-	delete sender;
+	if (auto sender = qobject_cast<WxDBDecryptThread*>(this->sender()))
+		sender->deleteLater();
 }
 

@@ -11,6 +11,9 @@ public:
 	void onBeginDecrypt(int totalCount);
 	void onDecryptDoneOneFile(bool isSuccess);
 	void onDecryptFinished();
+	void onCombineFinished(bool isSuccess);
+	void onCombineOneFinished(bool isSuccess);
+	void onCombineStarted(int totalCount);
 
 signals:
 	void sigReDecrypt();

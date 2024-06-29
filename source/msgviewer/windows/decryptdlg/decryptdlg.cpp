@@ -86,6 +86,21 @@ void DecryptDialog::onDecryptFinished()
 	data->decryptingPage->onDecryptFinished();
 }
 
+void DecryptDialog::onCombineFinished(bool isSuccess)
+{
+	data->decryptingPage->onCombineFinished(isSuccess);
+}
+
+void DecryptDialog::onCombineOneFinished(bool isSuccess)
+{
+	data->decryptingPage->onCombineOneFinished(isSuccess);
+}
+
+void DecryptDialog::onCombineStarted(int totalCount)
+{
+	data->decryptingPage->onCombineStarted(totalCount);
+}
+
 void DecryptDialog::onPageChanged(int index)
 {
 	if (data->loadingPage && index != data->stackedLayout->indexOf(data->loadingPage))

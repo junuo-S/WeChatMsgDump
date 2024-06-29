@@ -100,10 +100,32 @@ void DecryptingPage::onDecryptDoneOneFile(bool isSuccess)
 
 void DecryptingPage::onDecryptFinished()
 {
-	data->beginViewButton->setDisabled(false);
-	data->reDecryptButton->setDisabled(false);
 	data->tipLabel->setText(tr("decrypt success"));
 	data->progressBar->setValue(data->progressBar->getMaxmumValue());
 	data->progressBar->stopTimer();
+}
+
+void DecryptingPage::onCombineFinished(bool isSuccess)
+{
+	data->beginViewButton->setDisabled(false);
+	data->reDecryptButton->setDisabled(false);
+	data->tipLabel->setText(tr("merge success"));
+	data->progressBar->setValue(data->progressBar->getMaxmumValue());
+	data->progressBar->stopTimer();
+}
+
+void DecryptingPage::onCombineOneFinished(bool isSuccess)
+{
+	data->progressBar->setValue(data->progressBar->getValue() + 1);
+}
+
+void DecryptingPage::onCombineStarted(int totalCount)
+{
+	data->beginViewButton->setDisabled(true);
+	data->reDecryptButton->setDisabled(true);
+	data->tipLabel->setText(tr("merging..."));
+	data->progressBar->setMaxmumValue(totalCount);
+	data->progressBar->setValue(data->progressBar->getMinimumValue());
+	data->progressBar->startTimer();
 }
 

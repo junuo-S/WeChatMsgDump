@@ -23,4 +23,7 @@ signals:
 	void sigBeginDecrypt(int totalCount);
 	void sigDecryptDoneOneFile(bool isSuccess);
 	void sigDecryptFinished();
+	void sigCombineFinished(bool isSuccess);
+	void sigCombineOneFinished(bool isSuccess);
+	void sigCombineStarted(int);
 };
