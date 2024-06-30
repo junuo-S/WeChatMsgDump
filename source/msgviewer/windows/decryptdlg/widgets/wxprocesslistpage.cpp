@@ -127,6 +127,11 @@ struct WxProcessListPage::Data
 			beginButton->setTextColor(Qt::white);
 			buttonLayout->addWidget(beginButton);
 			WxProcessListPage::connect(beginButton, &QPushButton::clicked, q, &WxProcessListPage::sigStartDecrypt);
+			reuseLastRetButton = new JunuoBaseButton(WxProcessListPage::tr("reuse last result begin"), q);
+			reuseLastRetButton->setBgColor(0x67c23a, 0x85ce61, 0x5daf34, 0xb3e19d);
+			reuseLastRetButton->setTextColor(Qt::white);
+			buttonLayout->addWidget(reuseLastRetButton);
+			WxProcessListPage::connect(reuseLastRetButton, &QPushButton::clicked, q, &WxProcessListPage::sigReuseLastResultBeginMsgView);
 		}
 		mainLayout->addSpacing(DPI(10));
 		mainLayout->addLayout(buttonLayout);
@@ -150,6 +155,8 @@ struct WxProcessListPage::Data
 		font.setPixelSize(DPI(18));
 		beginButton->setFont(font);
 		beginButton->adjustBestSize();
+		reuseLastRetButton->setFont(font);
+		reuseLastRetButton->adjustBestSize();
 	}
 
 	void resetContent()
@@ -223,6 +230,7 @@ struct WxProcessListPage::Data
 	QComboBox* wxDataPathsComboBox = nullptr;
 	QHBoxLayout* buttonLayout = nullptr;
 	JunuoBaseButton* beginButton = nullptr;
+	JunuoBaseButton* reuseLastRetButton = nullptr;
 };
 
 WxProcessListPage::WxProcessListPage(QWidget* parent)

@@ -17,6 +17,7 @@ protected:
 signals:
 	void sigRefresh();
 	void sigStartDecrypt();
+	void sigReuseLastResultBeginMsgView();
 
 private:
 	struct Data;

@@ -20,6 +20,7 @@ struct DecryptDialog::Data
 		stackedLayout->addWidget(wxProcessListPage);
 		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigRefresh, q, &DecryptDialog::sigRefresh);
 		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigStartDecrypt, q, &DecryptDialog::sigStartDecrypt);
+		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigReuseLastResultBeginMsgView, q, &DecryptDialog::sigBeginMsgView);
 	
 		decryptingPage = new DecryptingPage(q);
 		stackedLayout->addWidget(decryptingPage);

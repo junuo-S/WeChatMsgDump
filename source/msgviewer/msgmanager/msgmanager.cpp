@@ -2,6 +2,8 @@
 
 #include <QTimer>
 #include <QStandardPaths>
+#include <QFile>
+#include <QMessageBox>
 
 #include "windows/decryptdlg/decryptdlg.h"
 #include "dbdecryptor/wxmemoryreader/wxmemoryreader.h"
@@ -63,6 +65,7 @@ void MsgManager::onWxProcessDetectFinished(bool isSuccess)
 {
 	if (auto sender = qobject_cast<WxMemoryReadThread*>(this->sender()))
 		sender->deleteLater();
+	m_mergedDBPath = m_outputPath % "/" % QString::fromStdString(WxMemoryReader::instance()->getWxids().at(0)) % "/merge_db.db";
 	QTimer::singleShot(3000, m_decryptDialog, &DecryptDialog::gotoWxProcessListPage);
 }
 
@@ -90,6 +93,10 @@ void MsgManager::onDecryptFinished()
 
 void MsgManager::onBeginMsgView()
 {
-
+	if (!QFile::exists(m_mergedDBPath))
+	{
+		QMessageBox::about(m_decryptDialog, tr("error"), tr("result don't exists"));
+		return;
+	}
 }
 
