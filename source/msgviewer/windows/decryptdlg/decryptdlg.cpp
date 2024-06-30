@@ -24,6 +24,7 @@ struct DecryptDialog::Data
 		decryptingPage = new DecryptingPage(q);
 		stackedLayout->addWidget(decryptingPage);
 		DecryptDialog::connect(decryptingPage, &DecryptingPage::sigReDecrypt, q, &DecryptDialog::sigStartDecrypt);
+		DecryptDialog::connect(decryptingPage, &DecryptingPage::sigBeginMsgView, q, &DecryptDialog::sigBeginMsgView);
 	}
 
 	DecryptDialog* q = nullptr;

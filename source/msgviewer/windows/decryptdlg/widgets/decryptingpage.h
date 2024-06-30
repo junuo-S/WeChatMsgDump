@@ -17,6 +17,7 @@ public:
 
 signals:
 	void sigReDecrypt();
+	void sigBeginMsgView();
 
 private:
 	struct Data;

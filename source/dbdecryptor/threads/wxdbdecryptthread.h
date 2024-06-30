@@ -17,7 +17,9 @@ class DBDECRYPTOR_EXPORT WxDBDecryptThread : public QThread
 	Q_OBJECT
 public:
 	WxDBDecryptThread(QObject* parent = nullptr);
+	WxDBDecryptThread(const QString& inputPath, const QString& outputPath, QObject* parent = nullptr);
 	void run() override;
+	QString getMergedDBPath() const;
 
 signals:
 	void sigBeginDecrypt(int totalCount);
@@ -26,4 +28,9 @@ signals:
 	void sigCombineFinished(bool isSuccess);
 	void sigCombineOneFinished(bool isSuccess);
 	void sigCombineStarted(int);
+
+private:
+	QString m_inputPath;
+	QString m_outputPath;
+	QString m_mergedDBPath;
 };

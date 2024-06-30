@@ -123,7 +123,7 @@ struct WxProcessListPage::Data
 		buttonLayout = new QHBoxLayout(q);
 		{
 			beginButton = new JunuoBaseButton(WxProcessListPage::tr("begin decrypt"), q);
-			beginButton->setBgColor(0x409eff, 0x66b1ff, 0x3a8ee6);
+			beginButton->setBgColor(0x409eff, 0x66b1ff, 0x3a8ee6, 0xa0cfff);
 			beginButton->setTextColor(Qt::white);
 			buttonLayout->addWidget(beginButton);
 			WxProcessListPage::connect(beginButton, &QPushButton::clicked, q, &WxProcessListPage::sigStartDecrypt);

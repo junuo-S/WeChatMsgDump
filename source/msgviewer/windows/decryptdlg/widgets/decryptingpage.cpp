@@ -21,9 +21,10 @@ struct DecryptingPage::Data
 		buttonHLayout = new QHBoxLayout(q);
 		{
 			beginViewButton = new JunuoBaseButton(q);
-			beginViewButton->setBgColor(0x67c23a, 0x85ce61, 0x5daf34);
+			beginViewButton->setBgColor(0x67c23a, 0x85ce61, 0x5daf34, 0xb3e19d);
 			beginViewButton->setTextColor(Qt::white);
 			beginViewButton->setText(DecryptingPage::tr("begin view msg"));
+			DecryptingPage::connect(beginViewButton, &JunuoBaseButton::clicked, q, &DecryptingPage::sigBeginMsgView);
 			reDecryptButton = new JunuoBaseButton(q);
 			reDecryptButton->setBgColor(Qt::white, 0xF5F6F7, 0xEBEEF2);
 			reDecryptButton->setTextColor(0x434B5A);

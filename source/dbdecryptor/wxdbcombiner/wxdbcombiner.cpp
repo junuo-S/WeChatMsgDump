@@ -28,7 +28,7 @@ WxDBCombiner::WxDBCombiner(const QStringList& decryptedFilesPath, const QString&
 	}
 }
 
-void WxDBCombiner::beginCombine()
+QString WxDBCombiner::beginCombine()
 {
 	emit sigCombineStarted(m_decryptedFilesPath.size());
 	std::remove(m_mergeOutputFilePath.toStdString().c_str());
@@ -37,7 +37,7 @@ void WxDBCombiner::beginCombine()
 	if (!mergeDb.open())
 	{
 		emit sigCombineFinished(false);
-		return;
+		return QString();
 	}
 	for (const auto& dbFilePath : m_decryptedFilesPath)
 	{
@@ -48,6 +48,7 @@ void WxDBCombiner::beginCombine()
 	emit sigCombineFinished(true);
 	mergeDb.close();
 	QSqlDatabase::removeDatabase(gs_mergeDBConnectionName);
+	return m_mergeOutputFilePath;
 }
 
 void WxDBCombiner::combineDBFile(const QString& path)

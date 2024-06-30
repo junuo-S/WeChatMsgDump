@@ -7,7 +7,7 @@ class WxDBCombiner : public QObject
 	Q_OBJECT
 public:
 	WxDBCombiner(const QStringList& decryptedFilesPath, const QString& mergeOutputFilePath = QString(), QObject* parent = nullptr);
-	void beginCombine();
+	QString beginCombine();
 
 signals:
 	void sigCombineFinished(bool isSuccess);

@@ -11,9 +11,17 @@ WxDBDecryptThread::WxDBDecryptThread(QObject* parent /*= nullptr*/)
 
 }
 
+WxDBDecryptThread::WxDBDecryptThread(const QString& inputPath, const QString& outputPath, QObject* parent /*= nullptr*/)
+	: QThread(parent)
+	, m_inputPath(inputPath)
+	, m_outputPath(outputPath)
+{
+
+}
+
 void WxDBDecryptThread::run()
 {
-	WxDBDecryptor decryptor({ WeChatDbType::_MSG, WeChatDbType::MediaMSG, WeChatDbType::MicroMsg, WeChatDbType::OpenIMContact, WeChatDbType::OpenIMMedia, WeChatDbType::OpenIMMsg });
+	WxDBDecryptor decryptor({ WeChatDbType::_MSG, WeChatDbType::MediaMSG, WeChatDbType::MicroMsg, WeChatDbType::OpenIMContact, WeChatDbType::OpenIMMedia, WeChatDbType::OpenIMMsg }, m_inputPath, m_outputPath);
 	connect(&decryptor, &WxDBDecryptor::sigDecryptDoneOneFile, this, &WxDBDecryptThread::sigDecryptDoneOneFile);
 	connect(&decryptor, &WxDBDecryptor::sigDecryptAllDone, this, &WxDBDecryptThread::sigDecryptFinished);
 	if (!decryptor.beforeDecrypt())
@@ -25,6 +33,11 @@ void WxDBDecryptThread::run()
 	connect(&combiner, &WxDBCombiner::sigCombineStarted, this, &WxDBDecryptThread::sigCombineStarted);
 	connect(&combiner, &WxDBCombiner::sigCombineOneFinished, this, &WxDBDecryptThread::sigCombineOneFinished);
 	connect(&combiner, &WxDBCombiner::sigCombineFinished, this, &WxDBDecryptThread::sigCombineFinished);
-	combiner.beginCombine();
+	m_mergedDBPath = combiner.beginCombine();
+}
+
+QString WxDBDecryptThread::getMergedDBPath() const
+{
+	return m_mergedDBPath;
 }
 

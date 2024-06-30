@@ -22,6 +22,7 @@ public:
 signals:
 	void sigRefresh();
 	void sigStartDecrypt();
+	void sigBeginMsgView();
 
 private:
 	void onPageChanged(int index);
