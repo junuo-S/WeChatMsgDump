@@ -78,14 +78,14 @@ void WxDBCombiner::combineDBFile(const QString& path)
 				continue;
 			QSqlQuery contentQuery(decryptedDB);
 			QString tableName = tableQuery.value("tbl_name").toString();
-			contentQuery.exec(QString("SELECT * FROM %1").arg(tableName));
-			if (contentQuery.next())
+			QStringList columns;
+			QStringList placeholders;
+			if (contentQuery.exec(QString("PRAGMA table_info(%1);").arg(tableName)))
 			{
-				QStringList columns;
-				QStringList placeholders;
-				for (int i = 0; i < contentQuery.record().count(); ++i)
+				// ===== 建索引 start =====
+				while (contentQuery.next())
 				{
-					columns << contentQuery.record().fieldName(i);
+					columns << contentQuery.value("name").toString();
 					placeholders << "?";
 				}
 
@@ -98,7 +98,12 @@ void WxDBCombiner::combineDBFile(const QString& path)
 				QString indexSql = QString("CREATE UNIQUE INDEX IF NOT EXISTS ") % indexName % " ON " % tableName % " (" % coalesceColumn % ")";
 				if (!mergeQuery.exec(indexSql))
 					continue;
+				// ===== 建索引 end =====
+			}
 
+			contentQuery.exec(QString("SELECT * FROM %1").arg(tableName));
+			if (contentQuery.next())
+			{
 				QVector<QVariantList> values;
 				values.resize(columns.size());
 				do
@@ -113,7 +118,7 @@ void WxDBCombiner::combineDBFile(const QString& path)
 					.arg(tableName)
 					.arg(columns.join(", "))
 					.arg(placeholders.join(", "))
-					.arg(tableName == "Name2ID" ? "OR IGNORE" : "");
+					.arg(true || tableName == "Name2ID" ? "OR IGNORE" : "");
 				mergeQuery.prepare(insertSql);
 				for (size_t i = 0; i < columns.size(); i++)
 					mergeQuery.bindValue(i, values.at(i));
