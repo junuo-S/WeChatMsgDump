@@ -65,7 +65,8 @@ void MsgManager::onWxProcessDetectFinished(bool isSuccess)
 {
 	if (auto sender = qobject_cast<WxMemoryReadThread*>(this->sender()))
 		sender->deleteLater();
-	m_mergedDBPath = m_outputPath % "/" % QString::fromStdString(WxMemoryReader::instance()->getWxids().at(0)) % "/merge_db.db";
+	if (isSuccess)
+		m_mergedDBPath = m_outputPath % "/" % QString::fromStdString(WxMemoryReader::instance()->getWxids().at(0)) % "/merge_db.db";
 	QTimer::singleShot(3000, m_decryptDialog, &DecryptDialog::gotoWxProcessListPage);
 }
 
