@@ -66,6 +66,8 @@ BOOL WxMemoryReader::readUserName(DWORD_PTR address)
 	DWORD_PTR userNameAddress = byteArrayToAddress(userNamePointerBuffer, pointerLen);
 	delete[]userNamePointerBuffer;
 	userNamePointerBuffer = nullptr;
+	if (!utils::IsAddressInProcess(m_hProcess, reinterpret_cast<LPCVOID>(userNameAddress)))
+		userNameAddress = address;
 	BYTE userNameBuffer[1024] = { 0 };
 	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(userNameAddress), userNameBuffer, sizeof(userNameBuffer), NULL))
 		return FALSE;

@@ -14,4 +14,5 @@ namespace utils
 	std::wstring GetMoudlePath();
 	BOOL IsWx64BitExecutable(const std::wstring& exePath);
 	BOOL IsMemoryPageWritable(void* address);
+	BOOL IsAddressInProcess(HANDLE hProcess, LPCVOID lpAddress);
 }

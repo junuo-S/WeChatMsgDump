@@ -162,6 +162,14 @@ BOOL utils::IsMemoryPageWritable(void* address)
 	return false;
 }
 
+BOOL utils::IsAddressInProcess(HANDLE hProcess, LPCVOID lpAddress)
+{
+	MEMORY_BASIC_INFORMATION mbi;
+	if (VirtualQueryEx(hProcess, lpAddress, &mbi, sizeof(mbi)))
+		return mbi.AllocationBase != nullptr;
+	return FALSE;
+}
+
 std::wstring utils::GetExecutablePath(const char* processName)
 {
 	DWORD processId = GetProcessIdByName(processName);
