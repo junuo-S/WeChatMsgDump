@@ -15,6 +15,9 @@ public:
 	void onCombineOneFinished(bool isSuccess);
 	void onCombineStarted(int totalCount);
 
+protected:
+	void showEvent(QShowEvent* event) override;
+
 signals:
 	void sigReDecrypt();
 	void sigBeginMsgView();

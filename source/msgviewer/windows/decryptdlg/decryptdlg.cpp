@@ -3,6 +3,7 @@
 #include "decryptdlg.h"
 
 #include <QStackedLayout>
+#include <QFile>
 
 #include "widgets/loadingpage.h"
 #include "widgets/wxprocesslistpage.h"
@@ -12,7 +13,12 @@ struct DecryptDialog::Data
 {
 	void initUI()
 	{
-		stackedLayout = new QStackedLayout(q);
+		mainWidget = new QWidget(q);
+		mainWidget->setObjectName("mainWidget");
+		QVBoxLayout* vLayout = new QVBoxLayout(q);
+		vLayout->setContentsMargins(DPI(10), DPI(10), DPI(10), DPI(10));
+		vLayout->addWidget(mainWidget);
+		stackedLayout = new QStackedLayout(mainWidget);
 		DecryptDialog::connect(stackedLayout, &QStackedLayout::currentChanged, q, &DecryptDialog::onPageChanged);
 		loadingPage = new LoadingPage(q);
 		stackedLayout->addWidget(loadingPage);
@@ -26,8 +32,16 @@ struct DecryptDialog::Data
 		stackedLayout->addWidget(decryptingPage);
 		DecryptDialog::connect(decryptingPage, &DecryptingPage::sigReDecrypt, q, &DecryptDialog::sigStartDecrypt);
 		DecryptDialog::connect(decryptingPage, &DecryptingPage::sigBeginMsgView, q, &DecryptDialog::sigBeginMsgView);
+		
+		QFile qssFile(":/stylesheet/decryptdlg.qss");
+		if (qssFile.open(QIODevice::ReadOnly | QIODevice::Text))
+		{
+			q->setStyleSheet(qssFile.readAll());
+		}
+		qssFile.close();
 	}
 
+	QWidget* mainWidget = nullptr;
 	DecryptDialog* q = nullptr;
 	LoadingPage* loadingPage = nullptr;
 	WxProcessListPage* wxProcessListPage = nullptr;
@@ -36,7 +50,7 @@ struct DecryptDialog::Data
 };
 
 DecryptDialog::DecryptDialog(QWidget* parent)
-	: QWidget(parent)
+	: JunuoFrameLessWidget(parent)
 	, data(new Data)
 {
 	data->q = this;
@@ -108,8 +122,8 @@ void DecryptDialog::onPageChanged(int index)
 	if (data->loadingPage && index != data->stackedLayout->indexOf(data->loadingPage))
 		data->loadingPage->stopLoadingMovie();
 	if (index == data->stackedLayout->indexOf(data->loadingPage))
-		setFixedSize(DPI_SIZE(300, 200));
+		setFixedSize(DPI_SIZE(320, 220));
 	if (index == data->stackedLayout->indexOf(data->wxProcessListPage))
-		setFixedSize(DPI_SIZE(480, 300));
+		setFixedSize(DPI_SIZE(500, 320));
 }
 

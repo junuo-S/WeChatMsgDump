@@ -2,5 +2,6 @@
   <qresource prefix="/">
     <file>icon_svg/loading-light.svg</file>
     <file>icon_svg/refresh.svg</file>
+    <file>stylesheet/decryptdlg.qss</file>
   </qresource>
 </RCC>

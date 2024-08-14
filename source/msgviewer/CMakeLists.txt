@@ -21,13 +21,19 @@ set(qrc_files
     resources/resource.qrc
 )
 
+set(resource_files
+    resources/icon_svg/loading-light.svg
+    resources/icon_svg/refresh.svg
+    resources/stylesheet/decryptdlg.qss
+)
+
 set(ts_files 
     mui/msgviewer_zh_CN.ts
 )
 
 set(target_name msgviewer)
 
-junuo_add_library(${target_name} SHARED ${sources} ${ts_files} ${qrc_files})
+junuo_add_library(${target_name} SHARED ${sources} ${ts_files} ${qrc_files} ${resource_files})
 junuo_use_Qt(${target_name} Core Widgets Gui)
 junuo_auto_moc(${target_name} ${sources})
 junuo_auto_rcc(${target_name} ${qrc_files})

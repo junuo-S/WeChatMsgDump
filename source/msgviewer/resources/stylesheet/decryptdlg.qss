@@ -1,0 +1,41 @@
+﻿DecryptDialog #mainWidget {
+    background-color: rgb(245, 245, 245);
+    border-radius: 10px;
+}
+
+DecryptDialog LoadingPage #titleLabel {
+    font-family: 'Microsoft YaHei';
+    font-size: 18px;
+}
+
+DecryptDialog LoadingPage #loadingTextLabel {
+    font-family: 'Microsoft YaHei';
+    font-size: 12px;
+    color: #8B97AF;
+}
+
+DecryptDialog WxProcessListPage QLabel, 
+DecryptDialog WxProcessListPage QComboBox {
+    font-family: 'Microsoft YaHei';
+    font-size: 12px;
+}
+
+DecryptDialog WxProcessListPage QLabel#title {
+    font-size: 16px;
+}
+
+DecryptDialog WxProcessListPage JunuoBaseButton {
+    font-family: 'KaiTi';
+    font-size: 18px;
+}
+
+DecryptDialog DecryptingPage QLabel {
+    font-family: 'Microsoft YaHei';
+    font-size: 14px;
+    color: #8B97AF;
+}
+
+DecryptDialog DecryptingPage JunuoBaseButton {
+    font-family: 'KaiTi';
+    font-size: 18px;
+}

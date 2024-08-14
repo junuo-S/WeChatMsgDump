@@ -16,10 +16,12 @@ struct LoadingPage::Data
 		mainLayout = new QVBoxLayout(q);
 		mainLayout->setAlignment(Qt::AlignHCenter);
 		titleLabel = new QLabel(q);
+		titleLabel->setObjectName("titleLabel");
 		titleLabel->setText(LoadingPage::tr("welcome to wechat msg dump"));
 		gifLabel = new QLabel(q);
 		gifLabel->setAlignment(Qt::AlignCenter);
 		loadingTextLabel = new QLabel(q);
+		loadingTextLabel->setObjectName("loadingTextLabel");
 		loadingTextLabel->setText(QString("<center>%1</center><center>%2</center>").arg(LoadingPage::tr("detecting wechat process")).arg(LoadingPage::tr("please wait")));
 		timer = new QTimer(q);
 		timer->setInterval(16);
@@ -28,18 +30,6 @@ struct LoadingPage::Data
 		mainLayout->addSpacing(DPI(16));
 		mainLayout->addWidget(gifLabel);
 		mainLayout->addWidget(loadingTextLabel);
-	}
-
-	void initStyle()
-	{
-		QFont font("Microsoft YaHei");
-		font.setPointSize(16);
-		titleLabel->setFont(font);
-		font.setPointSize(10);
-		loadingTextLabel->setFont(font);
-		auto palette = loadingTextLabel->palette();
-		palette.setColor(QPalette::WindowText, QColor(QRgb(0x8B97AF)));
-		loadingTextLabel->setPalette(palette);
 	}
 
 	void nextRotation()
@@ -80,7 +70,6 @@ LoadingPage::LoadingPage(QWidget* parent)
 {
 	data->q = this;
 	data->initUI();
-	data->initStyle();
 }
 
 LoadingPage::~LoadingPage()

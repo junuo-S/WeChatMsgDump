@@ -142,21 +142,6 @@ struct WxProcessListPage::Data
 	{
 		refreshLabel->setPixmap(QPixmap(":/icon_svg/refresh.svg").scaled(DPI_SIZE(20, 20)));
 		refreshLabel->setCursor(Qt::PointingHandCursor);
-		QString styleSheet = QString("QLabel, QComboBox {"
-				"font-family: Microsoft YaHei;"
-				"font-size: %1px;"
-			"}"
-			"QLabel#title {"
-				"font-size: %2px;"
-			"}"
-		).arg(DPI(12)).arg(DPI(16));
-		q->setStyleSheet(styleSheet);
-		QFont font("KaiTi");
-		font.setPixelSize(DPI(18));
-		beginButton->setFont(font);
-		beginButton->adjustBestSize();
-		reuseLastRetButton->setFont(font);
-		reuseLastRetButton->adjustBestSize();
 	}
 
 	void resetContent()
@@ -266,5 +251,11 @@ bool WxProcessListPage::eventFilter(QObject* object, QEvent* event)
 		return false;
 	}
 	return false;
+}
+
+void WxProcessListPage::showEvent(QShowEvent* event)
+{
+	data->beginButton->adjustBestSize();
+	data->reuseLastRetButton->adjustBestSize();
 }
 

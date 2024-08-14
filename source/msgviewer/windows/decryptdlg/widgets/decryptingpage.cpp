@@ -44,19 +44,6 @@ struct DecryptingPage::Data
 
 	void initStyle()
 	{
-		QString styleSheet = QString("QLabel {"
-				"font-family: Microsoft YaHei;"
-				"font-size: %1px;"
-				"color: #8B97AF;"
-			"}"
-		).arg(DPI(14));
-		q->setStyleSheet(styleSheet);
-		QFont font("KaiTi");
-		font.setPixelSize(DPI(18));
-		beginViewButton->setFont(font);
-		beginViewButton->adjustBestSize();
-		reDecryptButton->setFont(font);
-		reDecryptButton->adjustBestSize();
 		progressBar->setWaterColor(0x00d200);
 		progressBar->setRadius(DPI(80));
 	}
@@ -128,5 +115,11 @@ void DecryptingPage::onCombineStarted(int totalCount)
 	data->progressBar->setMaxmumValue(totalCount);
 	data->progressBar->setValue(data->progressBar->getMinimumValue());
 	data->progressBar->startTimer();
+}
+
+void DecryptingPage::showEvent(QShowEvent* event)
+{
+	data->beginViewButton->adjustBestSize();
+	data->reDecryptButton->adjustBestSize();
 }
 
