@@ -1,5 +1,6 @@
 ﻿DecryptDialog #mainWidget {
     background-color: rgb(245, 245, 245);
+    border: 1px solid #ccc;
     border-radius: 10px;
 }
 
