@@ -1,6 +1,7 @@
 ﻿DecryptDialog JunuoBaseTitleBar QPushButton {
     background: transparent;
     border: none;
+    border-radius: 6px;
     width: 24px;
     height: 24px;
 }

@@ -34,14 +34,17 @@ struct DecryptDialog::Data
 		mainVLayout->addLayout(stackedLayout);
 		DecryptDialog::connect(stackedLayout, &QStackedLayout::currentChanged, q, &DecryptDialog::onPageChanged);
 		loadingPage = new LoadingPage(q);
+		loadingPage->setMouseTracking(true);
 		stackedLayout->addWidget(loadingPage);
 		wxProcessListPage = new WxProcessListPage(q);
+		wxProcessListPage->setMouseTracking(true);
 		stackedLayout->addWidget(wxProcessListPage);
 		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigRefresh, q, &DecryptDialog::sigRefresh);
 		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigStartDecrypt, q, &DecryptDialog::sigStartDecrypt);
 		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigReuseLastResultBeginMsgView, q, &DecryptDialog::sigBeginMsgView);
 	
 		decryptingPage = new DecryptingPage(q);
+		decryptingPage->setMouseTracking(true);
 		stackedLayout->addWidget(decryptingPage);
 		DecryptDialog::connect(decryptingPage, &DecryptingPage::sigReDecrypt, q, &DecryptDialog::sigStartDecrypt);
 		DecryptDialog::connect(decryptingPage, &DecryptingPage::sigBeginMsgView, q, &DecryptDialog::sigBeginMsgView);
@@ -69,6 +72,7 @@ DecryptDialog::DecryptDialog(QWidget* parent)
 {
 	data->q = this;
 	data->initUI();
+	setMainWidget(data->mainWidget);
 	setWindowIcon(QIcon(":/icon_svg/wxchat.svg"));
 }
 
