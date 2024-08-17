@@ -3,5 +3,6 @@
     <file>icon_svg/loading-light.svg</file>
     <file>icon_svg/refresh.svg</file>
     <file>stylesheet/decryptdlg.qss</file>
+    <file>icon_svg/wxchat.svg</file>
   </qresource>
 </RCC>

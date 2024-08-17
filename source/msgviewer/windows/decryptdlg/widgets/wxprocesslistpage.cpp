@@ -16,7 +16,7 @@ struct WxProcessListPage::Data
 	void initUI()
 	{
 		mainLayout = new QVBoxLayout(q);
-		mainLayout->setContentsMargins(20, 20, 20, 8);
+		mainLayout->setContentsMargins(20, 0, 20, 4);
 
 		tipHLayout = new QHBoxLayout(q);
 		{

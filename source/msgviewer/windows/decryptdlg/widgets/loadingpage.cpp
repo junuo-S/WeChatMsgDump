@@ -14,6 +14,7 @@ struct LoadingPage::Data
 	void initUI()
 	{
 		mainLayout = new QVBoxLayout(q);
+		mainLayout->setContentsMargins(0, 0, 0, 0);
 		mainLayout->setAlignment(Qt::AlignHCenter);
 		titleLabel = new QLabel(q);
 		titleLabel->setObjectName("titleLabel");

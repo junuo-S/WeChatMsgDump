@@ -13,6 +13,7 @@ struct DecryptingPage::Data
 	void initUI()
 	{
 		mainVLayout = new QVBoxLayout(q);
+		mainVLayout->setContentsMargins(0, 0, 0, DPI(4));
 		progressBar = new JunuoWaterProgressBar(q);
 		mainVLayout->addWidget(progressBar);
 		tipLabel = new QLabel(q);

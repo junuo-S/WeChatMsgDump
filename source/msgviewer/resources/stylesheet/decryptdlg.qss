@@ -1,4 +1,30 @@
-﻿DecryptDialog #mainWidget {
+﻿DecryptDialog JunuoBaseTitleBar QPushButton {
+    background: transparent;
+    border: none;
+    width: 24px;
+    height: 24px;
+}
+
+DecryptDialog JunuoBaseTitleBar QPushButton#closeButton {
+    qproperty-iconSize: 14px 14px;
+}
+
+DecryptDialog JunuoBaseTitleBar QPushButton:hover {
+    background-color: #ddd;
+}
+
+DecryptDialog JunuoBaseTitleBar QPushButton:pressed {
+    background-color: #ccc;
+}
+
+DecryptDialog JunuoBaseTitleBar #titleLabel {
+    font-family: 'Microsoft YaHei';
+    font-size: 12px;
+    height: 32px;
+    line-height: 32px;
+}
+
+DecryptDialog #mainWidget {
     background-color: rgb(245, 245, 245);
     border: 1px solid #ccc;
     border-radius: 10px;

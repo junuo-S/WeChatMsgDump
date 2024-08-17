@@ -4,10 +4,13 @@
 
 #include <QStackedLayout>
 #include <QFile>
+#include <QPixmap>
 
 #include "widgets/loadingpage.h"
 #include "widgets/wxprocesslistpage.h"
 #include "widgets/decryptingpage.h"
+
+#include "junuoui/customwidget/junuobasetitlebar.h"
 
 struct DecryptDialog::Data
 {
@@ -17,8 +20,18 @@ struct DecryptDialog::Data
 		mainWidget->setObjectName("mainWidget");
 		QVBoxLayout* vLayout = new QVBoxLayout(q);
 		vLayout->setContentsMargins(DPI(10), DPI(10), DPI(10), DPI(10));
+		titleBar = new JunuoBaseTitleBar(QPixmap(":/icon_svg/wxchat.svg"), q->tr("wechat db decrypt"), q);
+		titleBar->setObjectName("titleBar");
+		titleBar->setTitleIconSize(DPI_SIZE(18, 18));
+		q->setTitleBar(titleBar);
 		vLayout->addWidget(mainWidget);
+		QVBoxLayout* mainVLayout = new QVBoxLayout(mainWidget);
+		mainVLayout->setContentsMargins(0, 0, 0, 0);
+		mainVLayout->setSpacing(0);
+		mainVLayout->addWidget(titleBar);
 		stackedLayout = new QStackedLayout(mainWidget);
+		stackedLayout->setContentsMargins(0, 0, 0, 0);
+		mainVLayout->addLayout(stackedLayout);
 		DecryptDialog::connect(stackedLayout, &QStackedLayout::currentChanged, q, &DecryptDialog::onPageChanged);
 		loadingPage = new LoadingPage(q);
 		stackedLayout->addWidget(loadingPage);
@@ -47,6 +60,7 @@ struct DecryptDialog::Data
 	WxProcessListPage* wxProcessListPage = nullptr;
 	DecryptingPage* decryptingPage = nullptr;
 	QStackedLayout* stackedLayout = nullptr;
+	JunuoBaseTitleBar* titleBar = nullptr;
 };
 
 DecryptDialog::DecryptDialog(QWidget* parent)
@@ -55,7 +69,7 @@ DecryptDialog::DecryptDialog(QWidget* parent)
 {
 	data->q = this;
 	data->initUI();
-	setWindowTitle(tr("wechat db decrypt"));
+	setWindowIcon(QIcon(":/icon_svg/wxchat.svg"));
 }
 
 DecryptDialog::~DecryptDialog()
@@ -122,8 +136,10 @@ void DecryptDialog::onPageChanged(int index)
 	if (data->loadingPage && index != data->stackedLayout->indexOf(data->loadingPage))
 		data->loadingPage->stopLoadingMovie();
 	if (index == data->stackedLayout->indexOf(data->loadingPage))
-		setFixedSize(DPI_SIZE(320, 220));
-	if (index == data->stackedLayout->indexOf(data->wxProcessListPage))
-		setFixedSize(DPI_SIZE(500, 320));
+		setFixedSize(DPI_SIZE(320, 252));
+	else if (index == data->stackedLayout->indexOf(data->wxProcessListPage))
+		setFixedSize(DPI_SIZE(500, 336));
+	else if (index == data->stackedLayout->indexOf(data->decryptingPage))
+		setFixedSize(DPI_SIZE(500, 352));
 }
 
