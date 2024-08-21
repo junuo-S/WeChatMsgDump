@@ -9,6 +9,7 @@
 #include "dbdecryptor/wxmemoryreader/wxmemoryreader.h"
 #include "dbdecryptor/threads/wxmemorythread.h"
 #include "dbdecryptor/threads/wxdbdecryptthread.h"
+#include "dbreader/dbthreadpool/dbthreadpool.h"
 
 MsgManager::MsgManager()
 	: m_outputPath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation))
@@ -90,6 +91,8 @@ void MsgManager::onDecryptFinished()
 		m_mergedDBPath = sender->getMergedDBPath();
 		sender->deleteLater();
 	}
+	if (QFile::exists(m_mergedDBPath))
+		m_dbThreadPool = new JunuoDbThreadPool(m_mergedDBPath, -1, this);
 }
 
 void MsgManager::onBeginMsgView()
@@ -99,5 +102,7 @@ void MsgManager::onBeginMsgView()
 		QMessageBox::about(m_decryptDialog, tr("error"), tr("result don't exists"));
 		return;
 	}
+	if (!m_dbThreadPool)
+		m_dbThreadPool = new JunuoDbThreadPool(m_mergedDBPath, -1, this);
 }
 

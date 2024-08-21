@@ -5,6 +5,7 @@
 class DecryptDialog;
 class WxMemoryReadThread;
 class WxDBDecryptThread;
+class JunuoDbThreadPool;
 
 class MsgManager : public QObject
 {
@@ -31,4 +32,5 @@ private:
 	QString m_inputPath;
 	QString m_outputPath;
 	QString m_mergedDBPath;
+	JunuoDbThreadPool* m_dbThreadPool = nullptr;
 };

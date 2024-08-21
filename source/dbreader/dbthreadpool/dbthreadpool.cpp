@@ -20,7 +20,7 @@ public:
 			QThread* thread = new QThread(threadPool);
 			DatabaseWorker* worker = new DatabaseWorker(dbName, connectNameBase.arg(i + 1));
 			worker->moveToThread(thread);
-			QObject::connect(thread, &QThread::start, worker, &DatabaseWorker::initializeDatabaseConnection, Qt::QueuedConnection);
+			QObject::connect(thread, &QThread::started, worker, &DatabaseWorker::initializeDatabaseConnection, Qt::QueuedConnection);
 			QObject::connect(worker, &DatabaseWorker::sigQueryResult, threadPool, &JunuoDbThreadPool::onQueryResult, Qt::QueuedConnection);
 			QObject::connect(worker, &DatabaseWorker::sigQueryExecError, threadPool, &JunuoDbThreadPool::onQueryExecError, Qt::QueuedConnection);
 			QObject::connect(thread, &QThread::finished, thread, &QThread::deleteLater);

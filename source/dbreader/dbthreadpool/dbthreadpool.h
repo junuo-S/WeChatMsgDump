@@ -12,7 +12,6 @@
 
 #include <QObject>
 #include <memory>
-#include <QSqlQuery>
 
 class DBREADER_EXPORT JunuoDbThreadPool : public QObject
 {
