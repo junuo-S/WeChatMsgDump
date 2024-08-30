@@ -19,11 +19,10 @@ class DBREADER_EXPORT JunuoDbThreadPool : public QObject
 public:
 	JunuoDbThreadPool(const QString& dbName, int maxCount = -1, QObject* parent = nullptr);
 	~JunuoDbThreadPool();
-	void executeQuery(const QString& sql);
+	void executeQuery(const QString& sql, QObject* reciver, const char* method);
 
 private:
-	void onQueryResult(QVariantList result);
-	void onQueryExecError(QString sql, QString errorMsg);
+	void onQueryFinished();
 	struct Data;
 	std::unique_ptr<Data> data = nullptr;
 	friend class JunuoWorkerPool;

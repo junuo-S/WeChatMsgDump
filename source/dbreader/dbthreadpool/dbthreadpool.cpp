@@ -1,5 +1,6 @@
 ﻿#include "dbthreadpool.h"
 
+#include <QThreadPool>
 #include <QThread>
 #include <QList>
 #include <QMutex>
@@ -20,9 +21,8 @@ public:
 			QThread* thread = new QThread(threadPool);
 			DatabaseWorker* worker = new DatabaseWorker(dbName, connectNameBase.arg(i + 1));
 			worker->moveToThread(thread);
-			QObject::connect(thread, &QThread::started, worker, &DatabaseWorker::initializeDatabaseConnection, Qt::QueuedConnection);
-			QObject::connect(worker, &DatabaseWorker::sigQueryResult, threadPool, &JunuoDbThreadPool::onQueryResult, Qt::QueuedConnection);
-			QObject::connect(worker, &DatabaseWorker::sigQueryExecError, threadPool, &JunuoDbThreadPool::onQueryExecError, Qt::QueuedConnection);
+			QObject::connect(thread, &QThread::started, worker, &DatabaseWorker::initializeDatabaseConnection);
+			QObject::connect(worker, &DatabaseWorker::sigQueryFinished, threadPool, &JunuoDbThreadPool::onQueryFinished);
 			QObject::connect(thread, &QThread::finished, thread, &QThread::deleteLater);
 			QObject::connect(thread, &QThread::finished, worker, &DatabaseWorker::deleteLater);
 			thread->start();
@@ -85,25 +85,19 @@ JunuoDbThreadPool::~JunuoDbThreadPool()
 	
 }
 
-void JunuoDbThreadPool::executeQuery(const QString& sql)
+void JunuoDbThreadPool::executeQuery(const QString& sql, QObject* reciver, const char* method)
 {
-	QThread* thread = QThread::create([this, sql]()
+	auto queryAsyncCall = [this, sql, reciver, method]()
 		{
 			auto worker = data->workerPool->acquire();
-			QMetaObject::invokeMethod(worker, "executeQuery", Q_ARG(const QString&, sql));
-		});
-	connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-	thread->start();
+			if (worker)
+				worker->executeQuery(sql, reciver, method);
+		};
+	QThreadPool::globalInstance()->start(queryAsyncCall);
 }
 
-void JunuoDbThreadPool::onQueryResult(QVariantList result)
+void JunuoDbThreadPool::onQueryFinished()
 {
 	if (auto worker = qobject_cast<DatabaseWorker*>(sender()))
 		data->workerPool->release(worker);
 }
-
-void JunuoDbThreadPool::onQueryExecError(QString sql, QString errorMsg)
-{
-
-}
-

@@ -5,7 +5,7 @@
 class DecryptDialog;
 class WxMemoryReadThread;
 class WxDBDecryptThread;
-class JunuoDbThreadPool;
+class WechatDbReader;
 
 class MsgManager : public QObject
 {
@@ -25,6 +25,7 @@ private:
 	void onStartDecrypt();
 	void onDecryptFinished();
 	void onBeginMsgView();
+	void createWechatDbReader();
 
 	DecryptDialog* m_decryptDialog = nullptr;
 	WxMemoryReadThread* m_wxReadThread = nullptr;
@@ -32,5 +33,5 @@ private:
 	QString m_inputPath;
 	QString m_outputPath;
 	QString m_mergedDBPath;
-	JunuoDbThreadPool* m_dbThreadPool = nullptr;
+	WechatDbReader* m_wechatDbReader = nullptr;
 };

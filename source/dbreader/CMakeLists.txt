@@ -5,6 +5,8 @@ set(sources
     dbthreadpool/databaseworker.cpp
     dbthreadpool/dbthreadpool.h
     dbthreadpool/dbthreadpool.cpp
+    wechatdbreader.h
+    wechatdbreader.cpp
 )
 
 junuo_add_library(${target_name} SHARED ${sources})

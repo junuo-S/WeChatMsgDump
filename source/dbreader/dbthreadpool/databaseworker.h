@@ -12,12 +12,11 @@ public:
 
 public slots:
 	void initializeDatabaseConnection();
-	void executeQuery(const QString& sql);
+	void executeQuery(const QString& sql, QObject* reciver, const char* method);
 
 signals:
 	void sigDbOpenError(QString threadId, QString errorMsg);
-	void sigQueryResult(QVariantList result);
-	void sigQueryExecError(QString sql, QString errorMsg);
+	void sigQueryFinished();
 
 private:
 	QString m_dbName;
