@@ -85,13 +85,13 @@ JunuoDbThreadPool::~JunuoDbThreadPool()
 	
 }
 
-void JunuoDbThreadPool::executeQuery(const QString& sql, QObject* reciver, const char* method)
+void JunuoDbThreadPool::executeQuery(const QString& sql, QObject* receiver, const char* method)
 {
-	auto queryAsyncCall = [this, sql, reciver, method]()
+	auto queryAsyncCall = [this, sql, receiver, method]()
 		{
 			auto worker = data->workerPool->acquire();
 			if (worker)
-				worker->executeQuery(sql, reciver, method);
+				worker->executeQuery(sql, receiver, method);
 		};
 	QThreadPool::globalInstance()->start(queryAsyncCall);
 }

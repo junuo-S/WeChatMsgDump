@@ -12,7 +12,7 @@ public:
 
 public slots:
 	void initializeDatabaseConnection();
-	void executeQuery(const QString& sql, QObject* reciver, const char* method);
+	void executeQuery(const QString& sql, QObject* receiver, const char* method);
 
 signals:
 	void sigDbOpenError(QString threadId, QString errorMsg);
