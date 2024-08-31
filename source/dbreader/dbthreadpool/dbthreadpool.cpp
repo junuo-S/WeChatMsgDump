@@ -21,8 +21,8 @@ public:
 			QThread* thread = new QThread(threadPool);
 			DatabaseWorker* worker = new DatabaseWorker(dbName, connectNameBase.arg(i + 1));
 			worker->moveToThread(thread);
-			QObject::connect(thread, &QThread::started, worker, &DatabaseWorker::initializeDatabaseConnection);
-			QObject::connect(worker, &DatabaseWorker::sigQueryFinished, threadPool, &JunuoDbThreadPool::onQueryFinished);
+			QObject::connect(thread, &QThread::started, worker, &DatabaseWorker::initializeDatabaseConnection, Qt::QueuedConnection);
+			QObject::connect(worker, &DatabaseWorker::sigQueryFinished, threadPool, &JunuoDbThreadPool::onQueryFinished, Qt::QueuedConnection);
 			QObject::connect(thread, &QThread::finished, thread, &QThread::deleteLater);
 			QObject::connect(thread, &QThread::finished, worker, &DatabaseWorker::deleteLater);
 			thread->start();
@@ -91,7 +91,7 @@ void JunuoDbThreadPool::executeQuery(const QString& sql, QObject* receiver, cons
 		{
 			auto worker = data->workerPool->acquire();
 			if (worker)
-				worker->executeQuery(sql, receiver, method);
+				QMetaObject::invokeMethod(worker, "executeQuery", Qt::QueuedConnection, Q_ARG(const QString&, sql), Q_ARG(QObject*, receiver), Q_ARG(const char*, method));
 		};
 	QThreadPool::globalInstance()->start(queryAsyncCall);
 }
