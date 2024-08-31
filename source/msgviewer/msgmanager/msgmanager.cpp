@@ -6,6 +6,8 @@
 #include <QMessageBox>
 
 #include "windows/decryptdlg/decryptdlg.h"
+#include "windows/msgdlg/msgdlg.h"
+
 #include "dbdecryptor/wxmemoryreader/wxmemoryreader.h"
 #include "dbdecryptor/threads/wxmemorythread.h"
 #include "dbdecryptor/threads/wxdbdecryptthread.h"
@@ -14,15 +16,16 @@
 MsgManager::MsgManager()
 	: m_outputPath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation))
 {
-	m_decryptDialog = new DecryptDialog(nullptr);
-	connect(m_decryptDialog, &DecryptDialog::sigRefresh, this, &MsgManager::startWork);
-	connect(m_decryptDialog, &DecryptDialog::sigStartDecrypt, this, &MsgManager::onStartDecrypt);
-	connect(m_decryptDialog, &DecryptDialog::sigBeginMsgView, this, &MsgManager::onBeginMsgView);
+	m_decryptDialog.reset(new DecryptDialog(nullptr));
+	connect(m_decryptDialog.get(), &DecryptDialog::sigRefresh, this, &MsgManager::startWork);
+	connect(m_decryptDialog.get(), &DecryptDialog::sigStartDecrypt, this, &MsgManager::onStartDecrypt);
+	connect(m_decryptDialog.get(), &DecryptDialog::sigBeginMsgView, this, &MsgManager::onBeginMsgView);
+	m_msgDialog.reset(new WechatMsgDialog(nullptr));
 }
 
 MsgManager::~MsgManager()
 {
-	delete m_decryptDialog;
+	
 }
 
 void MsgManager::startWork()
@@ -68,18 +71,18 @@ void MsgManager::onWxProcessDetectFinished(bool isSuccess)
 		sender->deleteLater();
 	if (isSuccess)
 		m_mergedDBPath = m_outputPath % "/" % QString::fromStdString(WxMemoryReader::instance()->getWxids().at(0)) % "/merge_db.db";
-	QTimer::singleShot(3000, m_decryptDialog, &DecryptDialog::gotoWxProcessListPage);
+	QTimer::singleShot(3000, m_decryptDialog.get(), &DecryptDialog::gotoWxProcessListPage);
 }
 
 void MsgManager::onStartDecrypt()
 {
 	m_wxDbDecryptThread = new WxDBDecryptThread(m_inputPath, m_outputPath, this);
-	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigBeginDecrypt, m_decryptDialog, &DecryptDialog::onBeginDecrypt);
-	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigDecryptDoneOneFile, m_decryptDialog, &DecryptDialog::onDecryptDoneOneFile);
-	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigDecryptFinished, m_decryptDialog, &DecryptDialog::onDecryptFinished);
-	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigCombineStarted, m_decryptDialog, &DecryptDialog::onCombineStarted);
-	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigCombineOneFinished, m_decryptDialog, &DecryptDialog::onCombineOneFinished);
-	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigCombineFinished, m_decryptDialog, &DecryptDialog::onCombineFinished);
+	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigBeginDecrypt, m_decryptDialog.get(), &DecryptDialog::onBeginDecrypt);
+	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigDecryptDoneOneFile, m_decryptDialog.get(), &DecryptDialog::onDecryptDoneOneFile);
+	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigDecryptFinished, m_decryptDialog.get(), &DecryptDialog::onDecryptFinished);
+	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigCombineStarted, m_decryptDialog.get(), &DecryptDialog::onCombineStarted);
+	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigCombineOneFinished, m_decryptDialog.get(), &DecryptDialog::onCombineOneFinished);
+	connect(m_wxDbDecryptThread, &WxDBDecryptThread::sigCombineFinished, m_decryptDialog.get(), &DecryptDialog::onCombineFinished);
 	connect(m_wxDbDecryptThread, &QThread::finished, this, &MsgManager::onDecryptFinished);
 	m_wxDbDecryptThread->start();
 }
@@ -99,9 +102,12 @@ void MsgManager::onBeginMsgView()
 	createWechatDbReader();
 	if (!m_wechatDbReader)
 	{
-		QMessageBox::about(m_decryptDialog, tr("error"), tr("result don't exists"));
+		QMessageBox::about(m_decryptDialog.get(), tr("error"), tr("result don't exists"));
 		return;
 	}
+	m_decryptDialog->close();
+	m_msgDialog->initUI();
+	m_msgDialog->show();
 }
 
 void MsgManager::createWechatDbReader()

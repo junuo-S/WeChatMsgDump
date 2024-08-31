@@ -1,0 +1,11 @@
+﻿WechatMsgDialog #mainWidget {
+    background-color: rgb(255, 255, 255);
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+WechatMsgDialog VerticalNavigationBar {
+    background-color: #ededed;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}

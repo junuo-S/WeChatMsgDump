@@ -13,6 +13,11 @@
     windows/decryptdlg/widgets/decryptingpage.h
     windows/decryptdlg/widgets/decryptingpage.cpp
 
+    windows/msgdlg/msgdlg.h
+    windows/msgdlg/msgdlg.cpp
+    windows/msgdlg/leftwidgets/verticalnavigationbar.h
+    windows/msgdlg/leftwidgets/verticalnavigationbar.cpp
+
     msgmanager/msgmanager.h
     msgmanager/msgmanager.cpp
 )
@@ -25,6 +30,12 @@ set(resource_files
     resources/icon_svg/loading-light.svg
     resources/icon_svg/refresh.svg
     resources/stylesheet/decryptdlg.qss
+    resources/icon_svg/wxchat.svg
+    resources/icon_svg/wechat-friend-gray.svg
+    resources/icon_svg/wechat-friend-green.svg
+    resources/icon_svg/wechat-msg-gray.svg
+    resources/icon_svg/wechat-msg-green.svg
+    resources/stylesheet/wechatmsgdialog.qss
 )
 
 set(ts_files 

@@ -1,11 +1,13 @@
 ﻿#pragma once
 
 #include <QObject>
+#include <QScopedPointer>
 
 class DecryptDialog;
 class WxMemoryReadThread;
 class WxDBDecryptThread;
 class WechatDbReader;
+class WechatMsgDialog;
 
 class MsgManager : public QObject
 {
@@ -27,11 +29,12 @@ private:
 	void onBeginMsgView();
 	void createWechatDbReader();
 
-	DecryptDialog* m_decryptDialog = nullptr;
+	QScopedPointer<DecryptDialog> m_decryptDialog;
 	WxMemoryReadThread* m_wxReadThread = nullptr;
 	WxDBDecryptThread* m_wxDbDecryptThread = nullptr;
 	QString m_inputPath;
 	QString m_outputPath;
 	QString m_mergedDBPath;
 	WechatDbReader* m_wechatDbReader = nullptr;
+	QScopedPointer<WechatMsgDialog> m_msgDialog;
 };

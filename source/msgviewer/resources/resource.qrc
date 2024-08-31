@@ -4,5 +4,10 @@
     <file>icon_svg/refresh.svg</file>
     <file>stylesheet/decryptdlg.qss</file>
     <file>icon_svg/wxchat.svg</file>
+    <file>icon_svg/wechat-friend-gray.svg</file>
+    <file>icon_svg/wechat-friend-green.svg</file>
+    <file>icon_svg/wechat-msg-gray.svg</file>
+    <file>icon_svg/wechat-msg-green.svg</file>
+    <file>stylesheet/wechatmsgdialog.qss</file>
   </qresource>
 </RCC>
