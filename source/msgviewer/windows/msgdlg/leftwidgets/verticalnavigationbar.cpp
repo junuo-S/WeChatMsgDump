@@ -15,15 +15,33 @@ struct VerticalNavigationBar::Data
 		q->setFixedWidth(DPI(56));
 		q->setAutoFillBackground(true);
 		mainVLayout = new QVBoxLayout(q);
-		mainVLayout->setContentsMargins(0, DPI(30), 0, 0);
-		//headImageButton = new QPushButton(q);
-		//mainVLayout->addWidget(headImageButton);
-		//mainVLayout->addStretch();
+		mainVLayout->setAlignment(Qt::AlignHCenter);
+		mainVLayout->setContentsMargins(DPI(13), DPI(35), DPI(13), 0);
+		headImageButton = new QPushButton(q);
+		headImageButton->setObjectName("headImageButton");
+		headImageButton->setFixedSize(DPI(30), DPI(30));
+		headImageButton->setIcon(QIcon(":/icon_svg/head-image-none.svg"));
+		headImageButton->setIconSize(QSize(DPI(30), DPI(30)));
+		mainVLayout->addWidget(headImageButton);
+		mainVLayout->addSpacing(DPI(20));
+
+		msgRadioButton = new QRadioButton(q);
+		msgRadioButton->setObjectName("msgRadioButton");
+		mainVLayout->addWidget(msgRadioButton, 0, Qt::AlignHCenter);
+		mainVLayout->addSpacing(DPI(12));
+
+		friendRadioButton = new QRadioButton(q);
+		friendRadioButton->setObjectName("friendRadioButton");
+		mainVLayout->addWidget(friendRadioButton);
+
+		mainVLayout->addStretch();
 	}
 
 	VerticalNavigationBar* q = nullptr;
 	QVBoxLayout* mainVLayout = nullptr;
 	QPushButton* headImageButton = nullptr;
+	QRadioButton* msgRadioButton = nullptr;
+	QRadioButton* friendRadioButton = nullptr;
 	QPoint lastPos;
 	bool bLeftButtonDown = false;
 };

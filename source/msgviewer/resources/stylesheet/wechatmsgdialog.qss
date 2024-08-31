@@ -9,3 +9,31 @@ WechatMsgDialog VerticalNavigationBar {
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
 }
+
+WechatMsgDialog VerticalNavigationBar QAbstractButton {
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+}
+
+WechatMsgDialog VerticalNavigationBar QRadioButton::indicator {
+    width: 26px;
+    height: 26px;
+    padding-left: 4px;
+}
+
+WechatMsgDialog VerticalNavigationBar #msgRadioButton::indicator:unchecked {
+    image: url(:/icon_svg/wechat-msg-gray.svg);
+}
+
+WechatMsgDialog VerticalNavigationBar #msgRadioButton::indicator:checked {
+    image: url(:/icon_svg/wechat-msg-green.svg);
+}
+
+WechatMsgDialog VerticalNavigationBar #friendRadioButton::indicator:unchecked {
+    image: url(:/icon_svg/wechat-friend-gray.svg);
+}
+
+WechatMsgDialog VerticalNavigationBar #friendRadioButton::indicator:checked {
+    image: url(:/icon_svg/wechat-friend-green.svg);
+}

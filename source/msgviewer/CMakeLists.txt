@@ -36,6 +36,7 @@ set(resource_files
     resources/icon_svg/wechat-msg-gray.svg
     resources/icon_svg/wechat-msg-green.svg
     resources/stylesheet/wechatmsgdialog.qss
+    resources/icon_svg/head-image-none.svg
 )
 
 set(ts_files 
