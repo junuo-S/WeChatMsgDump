@@ -16,8 +16,8 @@ int MSGVIEWER_EXPORT msgViewerExec(int argc, char** argv)
 	QTranslator translator;
 	translator.load(currentDir.absoluteFilePath("msgviewer_zh_CN.qm"));
 	app.installTranslator(&translator);
-	MsgManager msgManager;
-	msgManager.startWork();
+	QObject::connect(qApp, &QApplication::aboutToQuit, MsgManager::instance(), &QObject::deleteLater);
+	MsgManager::instance()->startWork();
 	return app.exec();
 }
 

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <memory>
+#include <functional>
 
 #include "junuoui/customwidget/framelesswidget.h"
 
@@ -10,9 +10,14 @@ class WechatMsgDialog : public JunuoFrameLessWidget
 public:
 	WechatMsgDialog(QWidget* parent = nullptr);
 	~WechatMsgDialog();
-	void initUI();
+	void startWork();
 
 private:
+	void initUI();
+	void updateCurrentUserHeadImage();
+	void selectHeadImageUrlByUserName(const QString& userName, const QVariant& context = QVariant());
+	Q_INVOKABLE void onGotHeadImageUrl(QVariantList result, const QVariant& context = QVariant());
+
 	struct Data;
 	std::unique_ptr<Data> data = nullptr;
 };

@@ -4,7 +4,15 @@
 
 #include <QHBoxLayout>
 #include <QFile>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QCache>
+#include <functional>
 
+#include "dbreader/wechatdbreader.h"
+
+#include "utils/utils.h"
+#include "msgmanager/msgmanager.h"
 #include "leftwidgets/verticalnavigationbar.h"
 
 struct WechatMsgDialog::Data
@@ -35,13 +43,19 @@ struct WechatMsgDialog::Data
 	QWidget* mainWidget = nullptr;
 	QHBoxLayout* mainHLayout = nullptr;
 	VerticalNavigationBar* verticalNavigationBar = nullptr;
+
+	QCache<QString, QIcon> cache;
+	QNetworkAccessManager* networkManager = nullptr;
 };
+
+Q_DECLARE_METATYPE(std::function<void()>)
 
 WechatMsgDialog::WechatMsgDialog(QWidget* parent /*= nullptr*/)
 	: JunuoFrameLessWidget(parent)
 	, data(new Data)
 {
 	data->q = this;
+	data->networkManager = new QNetworkAccessManager(this);
 	setWindowIcon(QIcon(":/icon_svg/wxchat.svg"));
 }
 
@@ -50,9 +64,66 @@ WechatMsgDialog::~WechatMsgDialog()
 
 }
 
+void WechatMsgDialog::startWork()
+{
+	initUI();
+	show();
+	updateCurrentUserHeadImage();
+}
+
 void WechatMsgDialog::initUI()
 {
 	data->initUI();
 	setMinimumSize(DPI(680), DPI(560));
+}
+
+void WechatMsgDialog::updateCurrentUserHeadImage()
+{
+	QIcon* icon = data->cache.object(MsgManager::instance()->getCurrentUserWxid());
+	if (icon)
+	{
+		data->verticalNavigationBar->setHeadImage(*icon);
+	}
+	else
+	{
+		std::function<void()> callback = [this]() { updateCurrentUserHeadImage(); };
+		selectHeadImageUrlByUserName(MsgManager::instance()->getCurrentUserWxid(), QVariant::fromValue(callback));
+	}
+}
+
+void WechatMsgDialog::selectHeadImageUrlByUserName(const QString& userName, const QVariant& context /*= QVariant()*/)
+{
+	QVariantMap param;
+	param.insert("userName", userName);
+	MsgManager::instance()->getWechatDbReader()->selectHeadImageByUserName(this, "onGotHeadImageUrl", param, context);
+}
+
+void WechatMsgDialog::onGotHeadImageUrl(QVariantList result, const QVariant& context /*= QVariant()*/)
+{
+	if (result.size() != 1)
+		return;
+	QString userName = result.at(0).toMap().value("usrName").toString();
+	QString smallUrl = result.at(0).toMap().value("smallHeadImgUrl").toString();
+	if (smallUrl.isEmpty() || userName.isEmpty())
+		return;
+	QNetworkRequest requst(smallUrl);
+	auto reply = data->networkManager->get(requst);
+	connect(reply, &QNetworkReply::finished, this, [this, userName, context, reply]()
+		{
+			do 
+			{
+				if (reply->error() != QNetworkReply::NoError)
+					break;
+				QPixmap pixmap;
+				if (!pixmap.loadFromData(reply->readAll()))
+					break;
+				data->cache.insert(userName, new QIcon(utils::CreateRoundedIcon(pixmap.scaled(DPI(30), DPI(30)))));
+				if (!context.canConvert<std::function<void()>>())
+					break;
+				context.value<std::function<void()>>()();
+			} while (false);
+			reply->deleteLater();
+		}
+	);
 }
 

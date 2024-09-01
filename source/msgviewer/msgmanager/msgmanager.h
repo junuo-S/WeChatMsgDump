@@ -13,13 +13,18 @@ class MsgManager : public QObject
 {
 	Q_OBJECT
 public:
-	MsgManager();
 	~MsgManager();
 	void startWork();
 	void setInputPath(const QString& inputPath);
 	QString getInputPath() const;
 	void setOutputPath(const QString& outputPath);
 	QString getOutputPath() const;
+	static MsgManager* instance();
+	QString getCurrentUserWxid() const;
+	WechatDbReader* getWechatDbReader() const;
+
+protected:
+	MsgManager();
 
 private:
 	void startReadWxMemory();
@@ -29,6 +34,7 @@ private:
 	void onBeginMsgView();
 	void createWechatDbReader();
 
+	static MsgManager* s_msgManager;
 	QScopedPointer<DecryptDialog> m_decryptDialog;
 	WxMemoryReadThread* m_wxReadThread = nullptr;
 	WxDBDecryptThread* m_wxDbDecryptThread = nullptr;

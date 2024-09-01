@@ -33,7 +33,7 @@ void DatabaseWorker::initializeDatabaseConnection()
 	}
 }
 
-void DatabaseWorker::executeQuery(const QString& sql, QObject* receiver, const char* method)
+void DatabaseWorker::executeQuery(const QString& sql, QObject* receiver, const char* method, const QVariant& context /*= QVariant()*/)
 {
 	QSqlDatabase db = QSqlDatabase::database(m_connectionName);
 	QSqlQuery query(db);
@@ -52,6 +52,6 @@ void DatabaseWorker::executeQuery(const QString& sql, QObject* receiver, const c
 			result.append(row);
 		}
 	} while (false);
-	QMetaObject::invokeMethod(receiver, method, Qt::QueuedConnection, Q_ARG(QVariantList, result));
+	QMetaObject::invokeMethod(receiver, method, Qt::QueuedConnection, Q_ARG(QVariantList, result), Q_ARG(const QVariant&, context));
 	emit sigQueryFinished();
 }

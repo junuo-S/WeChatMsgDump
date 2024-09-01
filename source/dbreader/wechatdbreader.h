@@ -21,11 +21,11 @@ public:
 	WechatDbReader(const QString& dbName, QObject* parent = nullptr);
 	~WechatDbReader();
 	// 获取所有有聊天记录的微信号
-	void selectAllStrTalkerFromMSG(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap());
+	void selectAllStrTalkerFromMSG(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
 	// 根据userName获取头像链接
-	void selectHeadImageByUserName(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap());
+	void selectHeadImageByUserName(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
 	// 根据userName获取昵称
-	void selectRemarkByUserName(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap());
+	void selectRemarkByUserName(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
 
 private:
 	struct Data;

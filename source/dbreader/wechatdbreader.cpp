@@ -21,21 +21,21 @@ WechatDbReader::~WechatDbReader()
 
 }
 
-void WechatDbReader::selectAllStrTalkerFromMSG(QObject* receiver, const char* method, const QVariantMap& param /* = QVariantMap()*/)
+void WechatDbReader::selectAllStrTalkerFromMSG(QObject* receiver, const char* method, const QVariantMap& param /* = QVariantMap()*/, const QVariant& context /*= QVariant()*/)
 {
 	const QString sql = "select distinct(strTalker) from MSG;";
-	data->dbThreadPool->executeQuery(sql, receiver, method);
+	data->dbThreadPool->executeQuery(sql, receiver, method, context);
 }
 
-void WechatDbReader::selectHeadImageByUserName(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/)
+void WechatDbReader::selectHeadImageByUserName(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/, const QVariant& context /*= QVariant()*/)
 {
-	const QString sql = "select bigHeadImgUrl, smallHeadImgUrl from ContactHeadImgUrl where usrName = '%1';";
-	data->dbThreadPool->executeQuery(sql.arg(param.value("userName").toString()), receiver, method);
+	const QString sql = "select usrName, bigHeadImgUrl, smallHeadImgUrl from ContactHeadImgUrl where usrName = '%1';";
+	data->dbThreadPool->executeQuery(sql.arg(param.value("userName").toString()), receiver, method, context);
 }
 
-void WechatDbReader::selectRemarkByUserName(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/)
+void WechatDbReader::selectRemarkByUserName(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/, const QVariant& context /*= QVariant()*/)
 {
 	const QString sql = "elect Remark from Contact where UserName = '%1';";
-	data->dbThreadPool->executeQuery(sql.arg(param.value("userName").toString()), receiver, method);
+	data->dbThreadPool->executeQuery(sql.arg(param.value("userName").toString()), receiver, method, context);
 }
 

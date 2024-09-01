@@ -22,16 +22,19 @@ struct VerticalNavigationBar::Data
 		headImageButton->setFixedSize(DPI(30), DPI(30));
 		headImageButton->setIcon(QIcon(":/icon_svg/head-image-none.svg"));
 		headImageButton->setIconSize(QSize(DPI(30), DPI(30)));
+		headImageButton->setCursor(Qt::PointingHandCursor);
 		mainVLayout->addWidget(headImageButton);
 		mainVLayout->addSpacing(DPI(20));
 
 		msgRadioButton = new QRadioButton(q);
 		msgRadioButton->setObjectName("msgRadioButton");
+		msgRadioButton->setCursor(Qt::PointingHandCursor);
 		mainVLayout->addWidget(msgRadioButton, 0, Qt::AlignHCenter);
 		mainVLayout->addSpacing(DPI(12));
 
 		friendRadioButton = new QRadioButton(q);
 		friendRadioButton->setObjectName("friendRadioButton");
+		friendRadioButton->setCursor(Qt::PointingHandCursor);
 		mainVLayout->addWidget(friendRadioButton);
 
 		mainVLayout->addStretch();
@@ -57,6 +60,11 @@ VerticalNavigationBar::VerticalNavigationBar(QWidget* parent /*= nullptr*/)
 VerticalNavigationBar::~VerticalNavigationBar()
 {
 
+}
+
+void VerticalNavigationBar::setHeadImage(const QIcon& icon)
+{
+	data->headImageButton->setIcon(icon);
 }
 
 void VerticalNavigationBar::mousePressEvent(QMouseEvent* event)

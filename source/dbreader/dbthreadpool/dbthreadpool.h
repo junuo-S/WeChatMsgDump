@@ -12,6 +12,7 @@
 
 #include <QObject>
 #include <memory>
+#include <QVariant>
 
 class DBREADER_EXPORT JunuoDbThreadPool : public QObject
 {
@@ -19,7 +20,7 @@ class DBREADER_EXPORT JunuoDbThreadPool : public QObject
 public:
 	JunuoDbThreadPool(const QString& dbName, int maxCount = -1, QObject* parent = nullptr);
 	~JunuoDbThreadPool();
-	void executeQuery(const QString& sql, QObject* receiver, const char* method);
+	void executeQuery(const QString& sql, QObject* receiver, const char* method, const QVariant& context = QVariant());
 
 private:
 	void onQueryFinished();

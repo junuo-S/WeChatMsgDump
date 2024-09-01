@@ -9,6 +9,7 @@ class VerticalNavigationBar : public QFrame
 public:
 	VerticalNavigationBar(QWidget* parent = nullptr);
 	~VerticalNavigationBar();
+	void setHeadImage(const QIcon& icon);
 
 protected:
 	void mousePressEvent(QMouseEvent* event) override;

@@ -13,6 +13,8 @@
 #include "dbdecryptor/threads/wxdbdecryptthread.h"
 #include "dbreader/wechatdbreader.h"
 
+MsgManager* MsgManager::s_msgManager = nullptr;
+
 MsgManager::MsgManager()
 	: m_outputPath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation))
 {
@@ -56,6 +58,23 @@ void MsgManager::setOutputPath(const QString& outputPath)
 QString MsgManager::getOutputPath() const
 {
 	return m_outputPath;
+}
+
+MsgManager* MsgManager::instance()
+{
+	if (!s_msgManager)
+		s_msgManager = new MsgManager;
+	return s_msgManager;
+}
+
+QString MsgManager::getCurrentUserWxid() const
+{
+	return QString::fromStdString(WxMemoryReader::instance()->getWxids().at(0));
+}
+
+WechatDbReader* MsgManager::getWechatDbReader() const
+{
+	return m_wechatDbReader;
 }
 
 void MsgManager::startReadWxMemory()
@@ -106,8 +125,7 @@ void MsgManager::onBeginMsgView()
 		return;
 	}
 	m_decryptDialog->close();
-	m_msgDialog->initUI();
-	m_msgDialog->show();
+	m_msgDialog->startWork();
 }
 
 void MsgManager::createWechatDbReader()

@@ -18,6 +18,9 @@
     windows/msgdlg/leftwidgets/verticalnavigationbar.h
     windows/msgdlg/leftwidgets/verticalnavigationbar.cpp
 
+    utils/utils.h
+    utils/utils.cpp
+
     msgmanager/msgmanager.h
     msgmanager/msgmanager.cpp
 )
@@ -46,7 +49,7 @@ set(ts_files
 set(target_name msgviewer)
 
 junuo_add_library(${target_name} SHARED ${sources} ${ts_files} ${qrc_files} ${resource_files})
-junuo_use_Qt(${target_name} Core Widgets Gui)
+junuo_use_Qt(${target_name} Core Widgets Gui Network)
 junuo_auto_moc(${target_name} ${sources})
 junuo_auto_rcc(${target_name} ${qrc_files} ${resource_files})
 junuo_link_libraries(${target_name} dbdecryptor)

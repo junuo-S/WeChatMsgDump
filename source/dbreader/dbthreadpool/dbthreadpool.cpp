@@ -85,13 +85,13 @@ JunuoDbThreadPool::~JunuoDbThreadPool()
 	
 }
 
-void JunuoDbThreadPool::executeQuery(const QString& sql, QObject* receiver, const char* method)
+void JunuoDbThreadPool::executeQuery(const QString& sql, QObject* receiver, const char* method, const QVariant& context /*= QVariant()*/)
 {
-	auto queryAsyncCall = [this, sql, receiver, method]()
+	auto queryAsyncCall = [this, sql, receiver, method, context]()
 		{
 			auto worker = data->workerPool->acquire();
 			if (worker)
-				QMetaObject::invokeMethod(worker, "executeQuery", Qt::QueuedConnection, Q_ARG(const QString&, sql), Q_ARG(QObject*, receiver), Q_ARG(const char*, method));
+				QMetaObject::invokeMethod(worker, "executeQuery", Qt::QueuedConnection, Q_ARG(const QString&, sql), Q_ARG(QObject*, receiver), Q_ARG(const char*, method), Q_ARG(const QVariant&, context));
 		};
 	QThreadPool::globalInstance()->start(queryAsyncCall);
 }
