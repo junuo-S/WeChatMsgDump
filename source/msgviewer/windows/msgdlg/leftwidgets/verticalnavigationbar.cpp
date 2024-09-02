@@ -22,9 +22,9 @@ struct VerticalNavigationBar::Data
 		mainVLayout->setContentsMargins(DPI(13), DPI(35), DPI(13), 0);
 		headImageButton = new QPushButton(q);
 		headImageButton->setObjectName("headImageButton");
-		headImageButton->setFixedSize(DPI(30), DPI(30));
+		headImageButton->setFixedSize(HEAD_IMAGE_ICON_SIZE);
 		headImageButton->setIcon(QIcon(":/icon_svg/head-image-none.svg"));
-		headImageButton->setIconSize(QSize(DPI(30), DPI(30)));
+		headImageButton->setIconSize(HEAD_IMAGE_ICON_SIZE);
 		headImageButton->setCursor(Qt::PointingHandCursor);
 		mainVLayout->addWidget(headImageButton);
 		mainVLayout->addSpacing(DPI(20));

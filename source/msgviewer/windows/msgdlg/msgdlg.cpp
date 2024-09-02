@@ -131,7 +131,7 @@ void WechatMsgDialog::onGotHeadImageUrl(QVariantList result, const QVariant& con
 				QPixmap pixmap;
 				if (!pixmap.loadFromData(reply->readAll()))
 					break;
-				data->cache.insert(userName, new QIcon(utils::CreateRoundedIcon(pixmap.scaled(DPI(30), DPI(30)))));
+				data->cache.insert(userName, new QIcon(utils::CreateRoundedIcon(pixmap.scaled(HEAD_IMAGE_ICON_SIZE))));
 				if (!context.canConvert<std::function<void()>>())
 					break;
 				context.value<std::function<void()>>()();
