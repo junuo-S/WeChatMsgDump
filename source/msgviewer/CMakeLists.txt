@@ -13,6 +13,7 @@
     windows/decryptdlg/widgets/decryptingpage.h
     windows/decryptdlg/widgets/decryptingpage.cpp
 
+    windows/msgdlg/global.h
     windows/msgdlg/msgdlg.h
     windows/msgdlg/msgdlg.cpp
     windows/msgdlg/leftwidgets/verticalnavigationbar.h

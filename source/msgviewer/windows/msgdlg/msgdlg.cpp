@@ -28,6 +28,7 @@ struct WechatMsgDialog::Data
 		mainHLayout->setContentsMargins(0, 0, 0, 0);
 		verticalNavigationBar = new VerticalNavigationBar(q);
 		mainHLayout->addWidget(verticalNavigationBar);
+		WechatMsgDialog::connect(verticalNavigationBar, &VerticalNavigationBar::sigCurrentPageChanged, q, &WechatMsgDialog::onCurrentPageChanged);
 		mainHLayout->addStretch();
 
 		QFile qssFile(":/stylesheet/wechatmsgdialog.qss");
@@ -46,6 +47,7 @@ struct WechatMsgDialog::Data
 
 	QCache<QString, QIcon> cache;
 	QNetworkAccessManager* networkManager = nullptr;
+	WechatPage currentPage = ChatPage;
 };
 
 Q_DECLARE_METATYPE(std::function<void()>)
@@ -69,12 +71,24 @@ void WechatMsgDialog::startWork()
 	initUI();
 	show();
 	updateCurrentUserHeadImage();
+	turnToPage(data->currentPage);
+}
+
+void WechatMsgDialog::onCurrentPageChanged(unsigned int index)
+{
+	data->currentPage = static_cast<WechatPage>(index);
+	turnToPage(data->currentPage);
 }
 
 void WechatMsgDialog::initUI()
 {
 	data->initUI();
 	setMinimumSize(DPI(680), DPI(560));
+}
+
+void WechatMsgDialog::turnToPage(WechatPage page)
+{
+	data->verticalNavigationBar->setCurrentPage(page);
 }
 
 void WechatMsgDialog::updateCurrentUserHeadImage()

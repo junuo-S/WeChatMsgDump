@@ -6,6 +6,9 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QMouseEvent>
+#include <QButtonGroup>
+
+constexpr static const char* const gs_strIndex = "index";
 
 struct VerticalNavigationBar::Data
 {
@@ -26,15 +29,20 @@ struct VerticalNavigationBar::Data
 		mainVLayout->addWidget(headImageButton);
 		mainVLayout->addSpacing(DPI(20));
 
+		VerticalNavigationBar::connect(&radioButtonGroup, &QButtonGroup::buttonClicked, q, &VerticalNavigationBar::onRadioButtonClicked);
 		msgRadioButton = new QRadioButton(q);
 		msgRadioButton->setObjectName("msgRadioButton");
 		msgRadioButton->setCursor(Qt::PointingHandCursor);
+		msgRadioButton->setProperty(gs_strIndex, 0);
+		radioButtonGroup.addButton(msgRadioButton, 0);
 		mainVLayout->addWidget(msgRadioButton, 0, Qt::AlignHCenter);
 		mainVLayout->addSpacing(DPI(12));
 
 		friendRadioButton = new QRadioButton(q);
 		friendRadioButton->setObjectName("friendRadioButton");
 		friendRadioButton->setCursor(Qt::PointingHandCursor);
+		friendRadioButton->setProperty(gs_strIndex, 1);
+		radioButtonGroup.addButton(friendRadioButton, 1);
 		mainVLayout->addWidget(friendRadioButton);
 
 		mainVLayout->addStretch();
@@ -45,6 +53,7 @@ struct VerticalNavigationBar::Data
 	QPushButton* headImageButton = nullptr;
 	QRadioButton* msgRadioButton = nullptr;
 	QRadioButton* friendRadioButton = nullptr;
+	QButtonGroup radioButtonGroup;
 	QPoint lastPos;
 	bool bLeftButtonDown = false;
 };
@@ -65,6 +74,12 @@ VerticalNavigationBar::~VerticalNavigationBar()
 void VerticalNavigationBar::setHeadImage(const QIcon& icon)
 {
 	data->headImageButton->setIcon(icon);
+}
+
+void VerticalNavigationBar::setCurrentPage(unsigned int index)
+{
+	if (auto button = data->radioButtonGroup.button(index))
+		button->setChecked(true);
 }
 
 void VerticalNavigationBar::mousePressEvent(QMouseEvent* event)
@@ -88,4 +103,10 @@ void VerticalNavigationBar::mouseMoveEvent(QMouseEvent* event)
 	QWidget* dialog = parent() && parent()->parent() ? qobject_cast<QWidget*>(parent()->parent()) : nullptr;
 	if (dialog)
 		dialog->move(dialog->pos() + delta);
+}
+
+void VerticalNavigationBar::onRadioButtonClicked(QAbstractButton* button)
+{
+	if (button)
+		emit sigCurrentPageChanged(button->property(gs_strIndex).toUInt());
 }
