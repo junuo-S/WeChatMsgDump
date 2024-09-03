@@ -8,12 +8,14 @@
 #include <QNetworkReply>
 #include <QCache>
 #include <functional>
+#include <QSplitter>
 
 #include "dbreader/wechatdbreader.h"
 
 #include "utils/utils.h"
 #include "msgmanager/msgmanager.h"
 #include "leftwidgets/verticalnavigationbar.h"
+#include "middlewidgets/middlepage.h"
 
 struct WechatMsgDialog::Data
 {
@@ -26,11 +28,17 @@ struct WechatMsgDialog::Data
 		shellLayout->addWidget(mainWidget);
 		mainHLayout = new QHBoxLayout(mainWidget);
 		mainHLayout->setContentsMargins(0, 0, 0, 0);
+		mainHLayout->setSpacing(0);
 		verticalNavigationBar = new VerticalNavigationBar(q);
 		mainHLayout->addWidget(verticalNavigationBar);
 		WechatMsgDialog::connect(verticalNavigationBar, &VerticalNavigationBar::sigCurrentPageChanged, q, &WechatMsgDialog::onCurrentPageChanged);
-		mainHLayout->addStretch();
+		
+		splitter = new QSplitter(Qt::Horizontal, q);
+		middlePage = new MiddlePage(splitter);
+		splitter->addWidget(middlePage);
 
+		mainHLayout->addWidget(splitter);
+		mainHLayout->addStretch();
 		QFile qssFile(":/stylesheet/wechatmsgdialog.qss");
 		if (qssFile.open(QIODevice::ReadOnly | QIODevice::Text))
 		{
@@ -44,6 +52,8 @@ struct WechatMsgDialog::Data
 	QWidget* mainWidget = nullptr;
 	QHBoxLayout* mainHLayout = nullptr;
 	VerticalNavigationBar* verticalNavigationBar = nullptr;
+	QSplitter* splitter = nullptr;
+	MiddlePage* middlePage = nullptr;
 
 	QCache<QString, QIcon> cache;
 	QNetworkAccessManager* networkManager = nullptr;

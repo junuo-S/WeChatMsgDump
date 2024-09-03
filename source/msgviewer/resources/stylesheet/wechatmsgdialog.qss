@@ -37,3 +37,8 @@ WechatMsgDialog VerticalNavigationBar #friendRadioButton::indicator:unchecked {
 WechatMsgDialog VerticalNavigationBar #friendRadioButton::indicator:checked {
     image: url(:/icon_svg/wechat-friend-green.svg);
 }
+
+WechatMsgDialog MiddlePage QScrollArea {
+    background-color: #f7f7f7;
+    border: none;
+}

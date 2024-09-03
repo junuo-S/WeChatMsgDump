@@ -15,17 +15,20 @@ struct MiddlePage::Data
 	void initUI()
 	{
 		mainStackedLayout = new QStackedLayout(q);
+		mainStackedLayout->setContentsMargins(0, 0, 0, 0);
 		msgWidget = new QWidget(q);
-		msgScrollArea = new QScrollArea(msgWidget);
+		msgScrollArea = new QScrollArea(q);
 		msgScrollArea->setWidget(msgWidget);
-		msgVLayout = new QVBoxLayout(msgWidget);
-		mainStackedLayout->addWidget(msgWidget);
+		msgVLayout = new QVBoxLayout(msgScrollArea);
+		msgVLayout->setContentsMargins(0, 0, 0, 0);
+		mainStackedLayout->addWidget(msgScrollArea);
 
 		friendWidget = new QWidget(q);
-		friendScrollArea = new QScrollArea(friendWidget);
+		friendScrollArea = new QScrollArea(q);
 		friendScrollArea->setWidget(friendWidget);
-		friendVLayout = new QVBoxLayout(friendWidget);
-		mainStackedLayout->addWidget(friendWidget);
+		friendVLayout = new QVBoxLayout(friendScrollArea);
+		friendVLayout->setContentsMargins(0, 0, 0, 0);
+		mainStackedLayout->addWidget(friendScrollArea);
 	}
 
 	void addSessionCard(const QVariantMap& cardInfoMap)
