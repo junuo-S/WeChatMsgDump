@@ -18,6 +18,10 @@
     windows/msgdlg/msgdlg.cpp
     windows/msgdlg/leftwidgets/verticalnavigationbar.h
     windows/msgdlg/leftwidgets/verticalnavigationbar.cpp
+    windows/msgdlg/middlewidgets/middlepage.h
+    windows/msgdlg/middlewidgets/middlepage.cpp
+    windows/msgdlg/middlewidgets/sessionoverviewcard.h
+    windows/msgdlg/middlewidgets/sessionoverviewcard.cpp
 
     utils/utils.h
     utils/utils.cpp
