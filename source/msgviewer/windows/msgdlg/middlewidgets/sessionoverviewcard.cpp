@@ -18,6 +18,9 @@ struct SessionOverviewCard::Data
 {
 	void initUI()
 	{
+		q->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+		q->setFixedHeight(DPI(78));
+		q->setMinimumWidth(DPI(230));
 		mainHLayout = new QHBoxLayout(q);
 		mainHLayout->setContentsMargins(DPI(8), DPI(12), DPI(8), DPI(12));
 		headImageLabel = new QLabel(q);

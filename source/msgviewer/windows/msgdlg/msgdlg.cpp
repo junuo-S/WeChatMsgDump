@@ -81,6 +81,7 @@ void WechatMsgDialog::startWork()
 	initUI();
 	show();
 	updateCurrentUserHeadImage();
+	selectSessionInfo();
 	turnToPage(data->currentPage);
 }
 
@@ -122,6 +123,11 @@ void WechatMsgDialog::selectHeadImageUrlByUserName(const QString& userName, cons
 	MsgManager::instance()->getWechatDbReader()->selectHeadImageByUserName(this, "onGotHeadImageUrl", param, context);
 }
 
+void WechatMsgDialog::selectSessionInfo()
+{
+	MsgManager::instance()->getWechatDbReader()->selectAllSessionInfo(this, "onSessionInfoReady");
+}
+
 void WechatMsgDialog::onGotHeadImageUrl(QVariantList result, const QVariant& context /*= QVariant()*/)
 {
 	if (result.size() != 1)
@@ -149,5 +155,10 @@ void WechatMsgDialog::onGotHeadImageUrl(QVariantList result, const QVariant& con
 			reply->deleteLater();
 		}
 	);
+}
+
+Q_INVOKABLE void WechatMsgDialog::onSessionInfoReady(QVariantList result, const QVariant& context /*= QVariant()*/)
+{
+	data->middlePage->addSessionCard(result);
 }
 

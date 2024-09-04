@@ -39,3 +39,14 @@ void WechatDbReader::selectRemarkByUserName(QObject* receiver, const char* metho
 	data->dbThreadPool->executeQuery(sql.arg(param.value("userName").toString()), receiver, method, context);
 }
 
+void WechatDbReader::selectAllSessionInfo(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/, const QVariant& context /*= QVariant()*/)
+{
+	const QString sql =
+		"select Contact.Remark, Contact.NickName, Contact.Alias, MSG.strTalker, count(MSG.strTalker) as chatCount "
+		"from MSG "
+		"join Contact on MSG.strTalker = Contact.UserName "
+		"group by strTalker "
+		"order by chatCount desc;";
+	data->dbThreadPool->executeQuery(sql, receiver, method, context);
+}
+
