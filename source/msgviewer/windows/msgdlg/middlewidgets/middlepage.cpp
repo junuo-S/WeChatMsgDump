@@ -18,6 +18,7 @@ struct MiddlePage::Data
 		mainStackedLayout = new QStackedLayout(q);
 		mainStackedLayout->setContentsMargins(0, 0, 0, 0);
 		msgWidget = new QWidget(q);
+		msgWidget->setObjectName("msgWidget");
 		msgWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		msgScrollArea = new QScrollArea(q);
 		msgScrollArea->setMinimumWidth(DPI(230));
@@ -29,11 +30,13 @@ struct MiddlePage::Data
 		mainStackedLayout->addWidget(msgScrollArea);
 
 		friendWidget = new QWidget(q);
+		friendWidget->setObjectName("friendWidget");
 		friendWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		friendScrollArea = new QScrollArea(q);
 		friendScrollArea->setMinimumWidth(DPI(230));
 		friendScrollArea->setWidgetResizable(true);
 		friendScrollArea->setWidget(friendWidget);
+		friendScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		friendVLayout = new QVBoxLayout(friendWidget);
 		friendVLayout->setContentsMargins(0, 0, 0, 0);
 		mainStackedLayout->addWidget(friendScrollArea);
