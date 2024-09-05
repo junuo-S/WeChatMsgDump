@@ -27,6 +27,7 @@ struct MiddlePage::Data
 		msgScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		msgVLayout = new QVBoxLayout(msgWidget);
 		msgVLayout->setContentsMargins(0, 0, 0, 0);
+		msgVLayout->setSpacing(DPI(1));
 		mainStackedLayout->addWidget(msgScrollArea);
 
 		friendWidget = new QWidget(q);

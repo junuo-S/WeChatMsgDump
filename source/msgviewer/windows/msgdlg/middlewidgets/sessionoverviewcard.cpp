@@ -19,10 +19,10 @@ struct SessionOverviewCard::Data
 	void initUI()
 	{
 		q->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-		q->setFixedHeight(DPI(78));
+		q->setFixedHeight(DPI(60));
 		q->setMinimumWidth(DPI(230));
 		mainHLayout = new QHBoxLayout(q);
-		mainHLayout->setContentsMargins(DPI(8), DPI(12), DPI(8), DPI(12));
+		mainHLayout->setContentsMargins(DPI(8), DPI(8), DPI(8), DPI(8));
 		headImageLabel = new QLabel(q);
 		headImageLabel->setFixedSize(HEAD_IMAGE_ICON_SIZE);
 		headImageLabel->setScaledContents(true);
@@ -37,7 +37,7 @@ struct SessionOverviewCard::Data
 		lastMessageLabel = new QLabel(cardInfo.m_lastMessage.isEmpty() ? gs_strLoading : cardInfo.m_lastMessage, q);
 		lastMessageLabel->setObjectName("lastMessageLabel");
 		middleVLayout->addWidget(lastMessageLabel);
-		mainHLayout->addLayout(middleVLayout);
+		mainHLayout->addLayout(middleVLayout, 10);
 
 		rightVLayout = new QVBoxLayout(q);
 		rightVLayout->setContentsMargins(0, 0, 0, 0);
@@ -47,7 +47,7 @@ struct SessionOverviewCard::Data
 		msgCountLabel = new QLabel(QString::number(cardInfo.m_chatCount), q);
 		msgCountLabel->setObjectName("msgCountLabel");
 		rightVLayout->addWidget(msgCountLabel);
-		mainHLayout->addLayout(rightVLayout);
+		mainHLayout->addLayout(rightVLayout, 1);
 	}
 
 	void updateHeadImage(const QPixmap& pixmap)
@@ -80,8 +80,8 @@ struct SessionOverviewCard::Data
 	QVBoxLayout* rightVLayout = nullptr;
 };
 
-SessionOverviewCard::SessionOverviewCard(const SessionCardInfo& cardInfo, Base* parent /*= nullptr*/)
-	: Base(parent)
+SessionOverviewCard::SessionOverviewCard(const SessionCardInfo& cardInfo, QWidget* parent /*= nullptr*/)
+	: QFrame(parent)
 	, data(new Data)
 {
 	data->q = this;

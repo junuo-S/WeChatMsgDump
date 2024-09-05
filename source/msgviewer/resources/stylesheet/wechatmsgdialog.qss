@@ -71,3 +71,29 @@ WechatMsgDialog MiddlePage QScrollBar::sub-line:vertical {
     height: 0px;
     width: 0px;
 }
+
+WechatMsgDialog MiddlePage SessionOverviewCard {
+    border-radius: 10px;
+}
+
+WechatMsgDialog MiddlePage SessionOverviewCard:hover {
+    background-color: #e4e4e4;
+}
+
+/* 选中态，待完善 */
+/* WechatMsgDialog MiddlePage SessionOverviewCard:selected {
+    background-color: #dedede;
+} */
+
+WechatMsgDialog MiddlePage SessionOverviewCard #remarkLabel {
+    font-family: '仿宋';
+    font-size: 16px;
+    font-weight: bold;
+}
+
+WechatMsgDialog MiddlePage SessionOverviewCard #lastMessageLabel,
+WechatMsgDialog MiddlePage SessionOverviewCard #lastMsgTimeLabel,
+WechatMsgDialog MiddlePage SessionOverviewCard #msgCountLabel {
+    font-size: 12px;
+    color: #b9b9b9;
+}

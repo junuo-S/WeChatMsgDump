@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <QWidget>
+#include <QFrame>
 #include <QScopedPointer>
 
 class SessionCardInfo
@@ -21,12 +21,11 @@ public:
 	QPixmap m_headImage;
 };
 
-class SessionOverviewCard : public QWidget
+class SessionOverviewCard : public QFrame
 {
-	using Base = QWidget;
 	Q_OBJECT
 public:
-	SessionOverviewCard(const SessionCardInfo& cardInfo, Base* parent = nullptr);
+	SessionOverviewCard(const SessionCardInfo& cardInfo, QWidget* parent = nullptr);
 	~SessionOverviewCard();
 	void setHeadImage(const QPixmap& pixmap);
 	void setLastMessage(const QString& msg);
