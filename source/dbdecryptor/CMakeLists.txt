@@ -5,8 +5,6 @@
     wxdbdecryptor/wxdbdecryptor.cpp
     wxdbcombiner/wxdbcombiner.h
     wxdbcombiner/wxdbcombiner.cpp
-    threads/wxdbdecryptthread.h
-    threads/wxdbdecryptthread.cpp
     defines.h
 
     configs/versionconfig.json

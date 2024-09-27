@@ -9,28 +9,21 @@
 
 #include "wxmemoryreader/wxmemoryreader.h"
 
-static constexpr const char* gs_mergeDBConnectionName = "merge_db";
-static constexpr const char* gs_decryptedDBConnectionName = "decrypted_db";
-static constexpr const char* gs_sqliteType = "QSQLITE";
+static constexpr const char* const gs_mergeDBConnectionName = "merge_db";
+static constexpr const char* const gs_decryptedDBConnectionName = "decrypted_db";
+static constexpr const char* const gs_sqliteType = "QSQLITE";
 
 WxDBCombiner::WxDBCombiner(const QStringList& decryptedFilesPath, const QString& mergeOutputFilePath, QObject* parent /*= nullptr*/)
 	: QObject(parent)
 	, m_decryptedFilesPath(decryptedFilesPath)
 	, m_mergeOutputFilePath(mergeOutputFilePath)
 {
-	if (m_mergeOutputFilePath.isEmpty() && !m_decryptedFilesPath.isEmpty())
-	{
-		auto firstFilePath = m_decryptedFilesPath.at(0);
-		firstFilePath = firstFilePath.replace("\\\\", "/").replace("\\", "/");
-		size_t wxidIndex = firstFilePath.indexOf("/wxid_");
-		size_t nextSeparatorIndex = firstFilePath.indexOf("/", wxidIndex + 1);
-		m_mergeOutputFilePath = firstFilePath.left(nextSeparatorIndex) % "/merge_db.db";
-	}
 }
 
 QString WxDBCombiner::beginCombine()
 {
-	emit sigCombineStarted(m_decryptedFilesPath.size());
+	m_currentProgress = 0;
+	emit sigCombineStarted();
 	std::remove(m_mergeOutputFilePath.toStdString().c_str());
 	auto mergeDb = QSqlDatabase::addDatabase(gs_sqliteType, gs_mergeDBConnectionName);
 	mergeDb.setDatabaseName(m_mergeOutputFilePath);
@@ -53,6 +46,7 @@ QString WxDBCombiner::beginCombine()
 
 void WxDBCombiner::combineDBFile(const QString& path)
 {
+	m_currentProgress++;
 	QSqlQuery mergeQuery(QSqlDatabase::database(gs_mergeDBConnectionName));
 	auto decryptedDB = QSqlDatabase::addDatabase(gs_sqliteType, gs_decryptedDBConnectionName);
 	decryptedDB.setDatabaseName(path);
@@ -134,6 +128,6 @@ void WxDBCombiner::combineDBFile(const QString& path)
 	} while (false);
 	decryptedDB.close();
 	QSqlDatabase::removeDatabase(gs_decryptedDBConnectionName);
-	emit sigCombineOneFinished(isSuccess);
+	emit sigUpdateProgress(m_currentProgress, m_decryptedFilesPath.size());
 }
 

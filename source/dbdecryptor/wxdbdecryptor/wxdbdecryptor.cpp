@@ -16,29 +16,26 @@ static constexpr int gs_keySize = 32;
 static constexpr int gs_pageSize = 4096;
 static constexpr const char* gs_sqliteFileHeaderHex = "53514c69746520666f726d6174203300";
 
-WxDBDecryptor::WxDBDecryptor(WeChatDbTypeList typeList, const QString& inputPath /* = QString()*/, const QString& outputPath /*= QString()*/)
+WxDBDecryptor::WxDBDecryptor(WeChatDbTypeList typeList, const QString& inputPath, const QString& outputPath)
 	: m_typeList(typeList)
 	, m_outputPath(outputPath)
 	, m_inputPath(inputPath)
 {
-	if (outputPath.isEmpty() || !QDir(outputPath).exists())
-		m_outputPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-	if (inputPath.isEmpty() || !QDir(inputPath).exists())
-		m_inputPath = QString::fromStdWString(WxMemoryReader::instance()->getWxDataPaths().at(0));
 }
 
 void WxDBDecryptor::beginDecrypt()
 {
+	m_currentProgress.store(0);
 	auto threadPool = QThreadPool::globalInstance();
 	for (const auto& file : m_inputDBFileList)
 	{
 		threadPool->start([&file, this]() 
 			{ 
-				decrypt(file, m_outputPath + file.mid(file.lastIndexOf("/wxid_")));
+				decryptFile(file, m_outputPath + file.mid(file.lastIndexOf("/wxid_")));
 			});
 	}
 	threadPool->waitForDone();
-	emit sigDecryptAllDone();
+	emit sigDecryptFinished();
 }
 
 bool WxDBDecryptor::beforeDecrypt()
@@ -115,24 +112,25 @@ QStringList WxDBDecryptor::getDbFiles(const QString& pattern, bool isRegular /*=
 	return ret;
 }
 
-bool WxDBDecryptor::decrypt(const QString& inputFilePath, const QString& outputFilePath)
+bool WxDBDecryptor::decryptFile(const QString& inputFilePath, const QString& outputFilePath)
 {
+	m_currentProgress++;
 	if (!QFileInfo::exists(inputFilePath))
 	{
-		emit sigDecryptDoneOneFile(false);
+		emit sigUpdateProgress(m_currentProgress.load(), getTotalDBFileCount());
 		return false;
 	}
 	const std::string key = WxMemoryReader::instance()->getSecretKey();
 	if (key.length() != 64)
 	{
-		emit sigDecryptDoneOneFile(false);
+		emit sigUpdateProgress(m_currentProgress.load(), getTotalDBFileCount());
 		return false;
 	}
 	QFile inputFile(inputFilePath);
 	if (!inputFile.open(QIODevice::ReadOnly))
 	{
 		inputFile.close();
-		emit sigDecryptDoneOneFile(false);
+		emit sigUpdateProgress(m_currentProgress.load(), getTotalDBFileCount());
 		return false;
 	}
 	size_t inputFileSize = inputFile.size();
@@ -154,7 +152,7 @@ bool WxDBDecryptor::decrypt(const QString& inputFilePath, const QString& outputF
 	hashMac.addData(QByteArray::fromHex("01000000"));
 	if (hashMac.result().compare(first.mid(first.size() - 32, 20)) != 0)
 	{
-		emit sigDecryptDoneOneFile(false);
+		emit sigUpdateProgress(m_currentProgress.load(), getTotalDBFileCount());
 		return false;
 	}
 	QFile outputFile(outputFilePath);
@@ -164,7 +162,7 @@ bool WxDBDecryptor::decrypt(const QString& inputFilePath, const QString& outputF
 	if (!outputFile.open(QIODevice::WriteOnly))
 	{
 		outputFile.close();
-		emit sigDecryptDoneOneFile(false);
+		emit sigUpdateProgress(m_currentProgress.load(), getTotalDBFileCount());
 		return false;
 	}
 	outputFile.write(QByteArray::fromHex(gs_sqliteFileHeaderHex));
@@ -178,7 +176,7 @@ bool WxDBDecryptor::decrypt(const QString& inputFilePath, const QString& outputF
 		outputFile.write(tbList.right(48));
 	}
 	outputFile.close();
-	emit sigDecryptDoneOneFile(true);
+	emit sigUpdateProgress(m_currentProgress.load(), getTotalDBFileCount());
 	m_mutex.lock();
 	m_outputDBFileList.append(outputFilePath);
 	m_mutex.unlock();

@@ -11,12 +11,13 @@ public:
 
 signals:
 	void sigCombineFinished(bool isSuccess);
-	void sigCombineOneFinished(bool isSuccess);
-	void sigCombineStarted(int totalCount);
+	void sigUpdateProgress(int current, int total);
+	void sigCombineStarted();
 
 private:
 	void combineDBFile(const QString& path);
 
 	QStringList m_decryptedFilesPath;
 	QString m_mergeOutputFilePath;
+	int m_currentProgress = 0;
 };
