@@ -4,3 +4,6 @@
 [submodule "source/junuoui"]
 	path = source/junuoui
 	url = git@github.com:junuo-S/junuoui.git
+[submodule "source/junuobase"]
+	path = source/junuobase
+	url = git@github.com:junuo-S/junuobase.git
