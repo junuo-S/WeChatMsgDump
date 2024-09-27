@@ -24,9 +24,9 @@ public:
 	std::wstring getWxUserName() const;
 	std::string getWxNumber() const;
 	std::string getSecretKey() const;
-	std::vector<std::string> getWxids() const;
-	std::vector<std::wstring> getWxDataPaths() const;
-	BOOL reset();
+	std::string getWxid() const;
+	std::wstring getWxDataPath() const;
+	BOOL reRead();
 	bool isSuccessFulRead() const;
 	DWORD getWxProcessId() const;
 	static WxMemoryReader* instance();
@@ -58,8 +58,8 @@ private:
 	std::wstring m_userName;
 	std::string m_wxNumber;
 	std::string m_secretKey;
-	std::vector<std::string> m_wxids;
-	std::vector<std::wstring> m_wxDataPaths;
+	std::string m_wxid;
+	std::wstring m_wxDataPath;
 	std::vector<DWORD_PTR> m_patternScanAddressRet;
 	bool m_isSuccessed = false;
 };

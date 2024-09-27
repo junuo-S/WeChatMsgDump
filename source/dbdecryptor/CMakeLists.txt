@@ -5,10 +5,6 @@
     wxdbdecryptor/wxdbdecryptor.cpp
     wxdbcombiner/wxdbcombiner.h
     wxdbcombiner/wxdbcombiner.cpp
-    utils/winprocessutils.h
-    utils/winprocessutils.cpp
-    threads/wxmemorythread.h
-    threads/wxmemorythread.cpp
     threads/wxdbdecryptthread.h
     threads/wxdbdecryptthread.cpp
     defines.h
@@ -21,12 +17,13 @@
 set(target_name dbdecryptor)
 
 junuo_add_library(${target_name} SHARED ${sources})
-junuo_include_directories(${target_name} .)
+junuo_include_directories(${target_name} . ../include)
 junuo_compile_definitions(${target_name} _DB_DECRYPTOR_MODULE_)
 junuo_use_Qt(${target_name} Core Sql)
 junuo_auto_moc(${target_name} ${sources})
 junuo_use_Python3(${target_name})
 junuo_use_OpenSSL(${target_name})
+junuo_link_libraries(${target_name} junuobase)
 
 add_custom_command(
     TARGET ${target_name} POST_BUILD

@@ -8,19 +8,20 @@
 #include <algorithm>
 #include <sys/stat.h>
 
-#include "utils/winprocessutils.h"
+#include <junuobase/utils/winfunc.h>
+using namespace junuobase;
 
-static const char* const gs_wxProcessName = "WeChat.exe";
-static const char* const gs_wxDllName = "WeChatWin.dll";
+static constexpr const char* const gs_wxProcessName = "WeChat.exe";
+static constexpr const char* const gs_wxDllName = "WeChatWin.dll";
 
 BOOL WxMemoryReader::readWxProcessMemory()
 {
 	if (m_hProcess == NULL)
 		return FALSE;
-	m_wxVersion = utils::GetFileVersion(utils::GetExecutablePath(gs_wxProcessName).c_str());
+	m_wxVersion = utils::win::GetFileVersion(utils::win::GetExecutablePath(gs_wxProcessName).c_str());
 	if (m_wxVersion.empty())
 		return FALSE;
-	QFile jsonFile(QString::fromStdWString(utils::GetMoudlePath()) + "/../cfgs/versionconfig.json");
+	QFile jsonFile(QString::fromStdWString(utils::win::GetCurrentMoudlePath()) + "/../cfgs/versionconfig.json");
 	if (!jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
 		return FALSE;
 	QByteArray jsonData = jsonFile.readAll();
@@ -111,7 +112,7 @@ BOOL WxMemoryReader::readSecretKey(DWORD_PTR address)
 
 BOOL WxMemoryReader::readWxid()
 {
-	m_wxids.clear();
+	m_wxid.clear();
 	for (auto cit = m_patternScanAddressRet.cbegin(); cit != m_patternScanAddressRet.cend(); cit++)
 	{
 		BYTE buffer[80];
@@ -120,15 +121,18 @@ BOOL WxMemoryReader::readWxid()
 		QString bufferString = reinterpret_cast<const char*>(buffer);
 		QStringList splitTemp = bufferString.split("\\Msg");
 		std::string wxid = splitTemp.first().split("\\").last().toStdString();
-		if (isWxidFormat(wxid) && std::find(m_wxids.cbegin(), m_wxids.cend(), wxid) == m_wxids.cend())
-			m_wxids.push_back(wxid);
+		if (isWxidFormat(wxid))
+		{
+			m_wxid = wxid;
+			break;
+		}
 	}
-	return !m_wxids.empty();
+	return !m_wxid.empty();
 }
 
 BOOL WxMemoryReader::readWxDataPath()
 {
-	m_wxDataPaths.clear();
+	m_wxDataPath.clear();
 	static BYTE rootTarget[] = {':', '\\'};
 	static BYTE endTarget[] = {'\\', 'M', 's', 'g'};
 	for (auto cit = m_patternScanAddressRet.cbegin(); cit != m_patternScanAddressRet.cend(); cit++)
@@ -146,20 +150,23 @@ BOOL WxMemoryReader::readWxDataPath()
 		std::wstring path = wideCharArray;
 		delete[] wideCharArray;
 		struct _stat __stat;
-		if (_wstat(path.c_str(), &__stat) == 0 && std::find(m_wxDataPaths.cbegin(), m_wxDataPaths.cend(), path) == m_wxDataPaths.cend())
-			m_wxDataPaths.push_back(path);
+		if (_wstat(path.c_str(), &__stat) == 0)
+		{
+			m_wxDataPath = path;
+			break;
+		}
 	}
-	return !m_wxDataPaths.empty();
+	return !m_wxDataPath.empty();
 }
 
 BOOL WxMemoryReader::patternScanForAddress()
 {
 	static std::string patternStr = "\\\\Msg\\\\FTSContact";
 	static size_t patternStrLength = patternStr.length();
-	static DWORD_PTR maxAddress = utils::IsWx64BitExecutable(m_wxExePath = utils::GetExecutablePath(gs_wxProcessName)) ? 0x7FFFFFFF0000 : 0x7fff0000;
+	static DWORD_PTR maxAddress = utils::win::IsWx64BitExecutable(m_wxExePath = utils::win::GetExecutablePath(gs_wxProcessName)) ? 0x7FFFFFFF0000 : 0x7fff0000;
 	m_patternScanAddressRet.clear();
 	Py_Initialize();
-	_bstr_t currentPath = utils::GetMoudlePath().c_str();
+	_bstr_t currentPath = utils::win::GetCurrentMoudlePath().c_str();
 	PyObject* sysPath = PySys_GetObject("path");
 	PyList_Append(sysPath, PyUnicode_FromString(currentPath));
 	PyObject* pModule = PyImport_ImportModule("pymemutils");
@@ -211,9 +218,9 @@ BOOL WxMemoryReader::patternScanForAddress()
 
 void WxMemoryReader::resetWxProcessInfo()
 {
-	m_processId = utils::GetProcessIdByName(gs_wxProcessName);
+	m_processId = utils::win::GetProcessIdByName(gs_wxProcessName);
 	m_hProcess = OpenProcess(PROCESS_VM_READ, FALSE, m_processId);
-	m_weChatDllAdress = utils::GetModuleAddress(gs_wxProcessName, gs_wxDllName);
+	m_weChatDllAdress = utils::win::GetModuleAddress(gs_wxProcessName, gs_wxDllName);
 }
 
 std::string WxMemoryReader::decToHex(size_t dec) const
@@ -295,17 +302,17 @@ std::string WxMemoryReader::getSecretKey() const
 	return m_secretKey;
 }
 
-std::vector<std::string> WxMemoryReader::getWxids() const
+std::string WxMemoryReader::getWxid() const
 {
-	return m_wxids;
+	return m_wxid;
 }
 
-std::vector<std::wstring> WxMemoryReader::getWxDataPaths() const
+std::wstring WxMemoryReader::getWxDataPath() const
 {
-	return m_wxDataPaths;
+	return m_wxDataPath;
 }
 
-BOOL WxMemoryReader::reset()
+BOOL WxMemoryReader::reRead()
 {
 	resetWxProcessInfo();
 	m_isSuccessed = readWxProcessMemory();
