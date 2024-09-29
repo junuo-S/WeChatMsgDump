@@ -5,7 +5,6 @@
     wxdbdecryptor/wxdbdecryptor.cpp
     wxdbcombiner/wxdbcombiner.h
     wxdbcombiner/wxdbcombiner.cpp
-    defines.h
 
     configs/versionconfig.json
 

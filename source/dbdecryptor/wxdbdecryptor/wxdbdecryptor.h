@@ -1,5 +1,15 @@
 ﻿#pragma once
 
+#ifndef DBDECRYPTOR_EXPORT
+
+#ifdef _DB_DECRYPTOR_MODULE_
+#define DBDECRYPTOR_EXPORT __declspec(dllexport)
+#else
+#define DBDECRYPTOR_EXPORT __declspec(dllimport)
+#endif // _DB_DECRYPTOR_MODULE_
+
+#endif // DBDECRYPTOR_EXPORT
+
 #include "defines.h"
 
 #include <QStringList>
@@ -7,7 +17,7 @@
 #include <vector>
 #include <QMutex>
 
-class WxDBDecryptor : public QObject
+class DBDECRYPTOR_EXPORT WxDBDecryptor : public QObject
 {
 	Q_OBJECT
 
