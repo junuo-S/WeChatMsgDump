@@ -20,12 +20,13 @@ signals:
 	void sigBeginMsgView();
 
 private:
-	void onBeginDecrypt(int totalCount);
-	void onDecryptDoneOneFile(bool isSuccess);
+	void onUpdateProgress(int current, int total);
+	void onDecryptFailed();
 	void onDecryptFinished();
-	void onCombineFinished(bool isSuccess);
-	void onCombineOneFinished(bool isSuccess);
-	void onCombineStarted(int totalCount);
+	void onCombineFailed();
+	void onCombineFinished();
+	void disableButtons();
+	void enableButtons();
 
 	struct Data;
 	QScopedPointer<Data> data;

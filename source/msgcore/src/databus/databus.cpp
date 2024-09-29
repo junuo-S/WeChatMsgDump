@@ -1,5 +1,8 @@
 ﻿#include "databus.h"
 
+#include <QStandardPaths>
+#include <QDir>
+
 #include "defines.h"
 
 DataBus* DataBus::s_instance = new DataBus;
@@ -114,8 +117,29 @@ quint64 DataBus::getWxProcessId() const
 	return m_wxInfo.value(STR_WX_PROCESS_ID).toULongLong();
 }
 
+void DataBus::setDecryptOutputPath(const QString& path)
+{
+	m_decryptOutputPath = path;
+}
+
+QString DataBus::getDecryptOutputPath() const
+{
+	return m_decryptOutputPath;
+}
+
+void DataBus::setMergedDbFilePath(const QString& path)
+{
+	m_mergedDbFilePath = path;
+}
+
+QString DataBus::getMergedDbFilePath() const
+{
+	return m_mergedDbFilePath;
+}
+
 DataBus::DataBus()
 {
-
+	m_decryptOutputPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+	m_mergedDbFilePath = m_decryptOutputPath + QDir::separator() + getWxid() + QDir::separator() + "merged_db.db";
 }
 

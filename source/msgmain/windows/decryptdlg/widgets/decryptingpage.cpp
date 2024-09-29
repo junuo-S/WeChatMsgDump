@@ -4,6 +4,7 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QTimer>
 
 #include "junuoui/progressbar/junuowaterprogressbar.h"
 #include "junuoui/button/buttons.h"
@@ -68,6 +69,11 @@ DecryptingPage::DecryptingPage(DecryptorWapper* wapper, QWidget* parent)
 	data->q = this;
 	data->initUI();
 	data->initStyle();
+	connect(wapper, &DecryptorWapper::sigUpdateProgress, this, &DecryptingPage::onUpdateProgress);
+	connect(wapper, &DecryptorWapper::sigDecryptFailed, this, &DecryptingPage::onDecryptFailed);
+	connect(wapper, &DecryptorWapper::sigDecryptFinished, this, &DecryptingPage::onDecryptFinished);
+	connect(wapper, &DecryptorWapper::sigCombineFailed, this, &DecryptingPage::onCombineFailed);
+	connect(wapper, &DecryptorWapper::sigCombineFinished, this, &DecryptingPage::onCombineFinished);
 }
 
 DecryptingPage::~DecryptingPage()
@@ -77,53 +83,58 @@ DecryptingPage::~DecryptingPage()
 
 void DecryptingPage::startWork()
 {
-
-}
-
-void DecryptingPage::onBeginDecrypt(int totalCount)
-{
-	data->beginViewButton->setDisabled(true);
-	data->reDecryptButton->setDisabled(true);
+	disableButtons();
 	data->tipLabel->setText(tr("decrypting..."));
-	data->progressBar->setMaxmumValue(totalCount);
-	data->progressBar->setValue(data->progressBar->getMinimumValue());
+	data->wapper->decryptAndCombine();
 	data->progressBar->startTimer();
 }
 
-void DecryptingPage::onDecryptDoneOneFile(bool isSuccess)
+void DecryptingPage::onUpdateProgress(int current, int total)
 {
-	data->progressBar->setValue(data->progressBar->getValue() + 1);
+	data->progressBar->setMaxmumValue(total);
+	data->progressBar->setValue(current);
+}
+
+void DecryptingPage::onDecryptFailed()
+{
+	data->tipLabel->setText(tr("decrypt failed"));
+	data->progressBar->setMaxmumValue(0);
+	data->progressBar->setValue(0);
+	data->progressBar->stopTimer();
 }
 
 void DecryptingPage::onDecryptFinished()
 {
 	data->tipLabel->setText(tr("decrypt success"));
-	data->progressBar->setValue(data->progressBar->getMaxmumValue());
+	QTimer::singleShot(100, this, [this]() { data->tipLabel->setText(tr("merging...")); });
+}
+
+void DecryptingPage::onCombineFailed()
+{
+	data->tipLabel->setText(tr("merge failed"));
+	data->progressBar->setMaxmumValue(0);
+	data->progressBar->setValue(0);
 	data->progressBar->stopTimer();
 }
 
-void DecryptingPage::onCombineFinished(bool isSuccess)
+void DecryptingPage::onCombineFinished()
 {
-	data->beginViewButton->setDisabled(false);
-	data->reDecryptButton->setDisabled(false);
+	enableButtons();
 	data->tipLabel->setText(tr("merge success"));
 	data->progressBar->setValue(data->progressBar->getMaxmumValue());
 	data->progressBar->stopTimer();
 }
 
-void DecryptingPage::onCombineOneFinished(bool isSuccess)
-{
-	data->progressBar->setValue(data->progressBar->getValue() + 1);
-}
-
-void DecryptingPage::onCombineStarted(int totalCount)
+void DecryptingPage::disableButtons()
 {
 	data->beginViewButton->setDisabled(true);
 	data->reDecryptButton->setDisabled(true);
-	data->tipLabel->setText(tr("merging..."));
-	data->progressBar->setMaxmumValue(totalCount);
-	data->progressBar->setValue(data->progressBar->getMinimumValue());
-	data->progressBar->startTimer();
+}
+
+void DecryptingPage::enableButtons()
+{
+	data->beginViewButton->setDisabled(false);
+	data->reDecryptButton->setDisabled(false);
 }
 
 void DecryptingPage::showEvent(QShowEvent* event)

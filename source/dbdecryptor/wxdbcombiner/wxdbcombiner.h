@@ -16,13 +16,13 @@ class DBDECRYPTOR_EXPORT WxDBCombiner : public QObject
 {
 	Q_OBJECT
 public:
-	WxDBCombiner(const QStringList& decryptedFilesPath, const QString& mergeOutputFilePath = QString(), QObject* parent = nullptr);
+	WxDBCombiner(const QStringList& decryptedFilesPath, const QString& mergeOutputFilePath, QObject* parent = nullptr);
 	QString beginCombine();
 
 signals:
-	void sigCombineFinished(bool isSuccess);
+	void sigCombineFinished();
+	void sigCombineFailed();
 	void sigUpdateProgress(int current, int total);
-	void sigCombineStarted();
 
 private:
 	void combineDBFile(const QString& path);

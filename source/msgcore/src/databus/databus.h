@@ -37,6 +37,10 @@ public:
 	QString getWxDataPath() const;
 	void setWxProcessId(quint64 id);
 	quint64 getWxProcessId() const;
+	void setDecryptOutputPath(const QString& path);
+	QString getDecryptOutputPath() const;
+	void setMergedDbFilePath(const QString& path);
+	QString getMergedDbFilePath() const;
 
 protected:
 	DataBus();
@@ -45,6 +49,8 @@ private:
 	static DataBus* s_instance;
 	QVariantMap m_wxInfo;
 	bool m_memoryReadSuc = false;
+	QString m_decryptOutputPath;
+	QString m_mergedDbFilePath;
 };
 
 #define DATA_BUS_INSTANCE DataBus::instance()

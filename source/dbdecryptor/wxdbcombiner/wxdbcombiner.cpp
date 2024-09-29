@@ -23,22 +23,22 @@ WxDBCombiner::WxDBCombiner(const QStringList& decryptedFilesPath, const QString&
 QString WxDBCombiner::beginCombine()
 {
 	m_currentProgress = 0;
-	emit sigCombineStarted();
 	std::remove(m_mergeOutputFilePath.toStdString().c_str());
 	auto mergeDb = QSqlDatabase::addDatabase(gs_sqliteType, gs_mergeDBConnectionName);
 	mergeDb.setDatabaseName(m_mergeOutputFilePath);
 	if (!mergeDb.open())
 	{
-		emit sigCombineFinished(false);
+		emit sigCombineFailed();
 		return QString();
 	}
+	emit sigUpdateProgress(m_currentProgress, m_decryptedFilesPath.size());
 	for (const auto& dbFilePath : m_decryptedFilesPath)
 	{
 		mergeDb.transaction();
 		combineDBFile(dbFilePath);
 		mergeDb.commit();
 	}
-	emit sigCombineFinished(true);
+	emit sigCombineFinished();
 	mergeDb.close();
 	QSqlDatabase::removeDatabase(gs_mergeDBConnectionName);
 	return m_mergeOutputFilePath;

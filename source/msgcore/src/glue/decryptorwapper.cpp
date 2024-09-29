@@ -4,7 +4,10 @@
 
 #include "../databus/databus.h"
 
-#include "dbdecryptor/wxmemoryreader/wxmemoryreader.h"
+#include "defines.h"
+#include "dbdecryptor/wxmemoryreader.h"
+#include "dbdecryptor/wxdbdecryptor.h"
+#include "dbdecryptor/wxdbcombiner.h"
 
 DecryptorWapper::DecryptorWapper(QObject* parent)
 	: QObject(parent)
@@ -35,4 +38,35 @@ void DecryptorWapper::readMemory()
 			DATA_BUS_INSTANCE->setWxProcessId(memoryReader.getWxProcessId());
 			emit sigReadMemoryFinished(suc);
 		});
+}
+
+void DecryptorWapper::decryptAndCombine()
+{
+	QThread* th = QThread::create([this]()
+		{
+			WxDBDecryptor decryptor({ WeChatDbType::_MSG, WeChatDbType::MediaMSG, WeChatDbType::MicroMsg, WeChatDbType::OpenIMContact, WeChatDbType::OpenIMMedia, WeChatDbType::OpenIMMsg }, DATA_BUS_INSTANCE->getWxDataPath(), DATA_BUS_INSTANCE->getDecryptOutputPath(), DATA_BUS_INSTANCE->getSecretKey());
+			if (!decryptor.beforeDecrypt())
+			{
+				emit sigDecryptFailed();
+				return;
+			}
+			connect(&decryptor, &WxDBDecryptor::sigUpdateProgress, this, &DecryptorWapper::sigUpdateProgress);
+			connect(&decryptor, &WxDBDecryptor::sigDecryptFinished, this, &DecryptorWapper::sigDecryptFinished);
+			connect(&decryptor, &WxDBDecryptor::sigDecryptFailed, this, &DecryptorWapper::sigDecryptFailed);
+			decryptor.beginDecrypt();
+			QStringList decryptedDbFiles = decryptor.getOutputDBFiles();
+			if (decryptedDbFiles.isEmpty())
+			{
+				emit sigDecryptFailed();
+				return;
+			}
+
+			WxDBCombiner combiner(decryptedDbFiles, DATA_BUS_INSTANCE->getMergedDbFilePath());
+			connect(&combiner, &WxDBCombiner::sigUpdateProgress, this, &DecryptorWapper::sigUpdateProgress);
+			connect(&combiner, &WxDBCombiner::sigCombineFinished, this, &DecryptorWapper::sigCombineFinished);
+			connect(&combiner, &WxDBCombiner::sigCombineFailed, this, &DecryptorWapper::sigCombineFailed);
+			combiner.beginCombine();
+		});
+	connect(th, &QThread::finished, th, &QObject::deleteLater);
+	th->start();
 }

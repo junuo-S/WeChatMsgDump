@@ -31,7 +31,8 @@ public:
 
 signals:
 	void sigUpdateProgress(int current, int total);
-	void sigDecryptFinished() const;
+	void sigDecryptFinished();
+	void sigDecryptFailed();
 
 private:
 	QStringList getDbPathByWeChatDbType() const;

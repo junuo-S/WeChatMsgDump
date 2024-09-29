@@ -17,7 +17,13 @@ public:
 	DecryptorWapper(QObject* parent);
 	~DecryptorWapper();
 	void readMemory();
+	void decryptAndCombine();
 
 signals:
 	void sigReadMemoryFinished(bool isSuccess);
+	void sigUpdateProgress(int current, int total);
+	void sigDecryptFinished();
+	void sigDecryptFailed();
+	void sigCombineFinished();
+	void sigCombineFailed();
 };

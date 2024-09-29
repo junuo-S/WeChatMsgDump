@@ -4,7 +4,7 @@
 <context>
     <name>DecryptDialog</name>
     <message>
-        <location filename="../windows/decryptdlg/decryptdlg.cpp" line="44"/>
+        <location filename="../windows/decryptdlg/decryptdlg.cpp" line="25"/>
         <source>wechat db decrypt</source>
         <translation>微信数据库解密</translation>
     </message>
@@ -12,32 +12,42 @@
 <context>
     <name>DecryptingPage</name>
     <message>
-        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="26"/>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="29"/>
         <source>begin view msg</source>
         <translation>开始查阅</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="33"/>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="36"/>
         <source>re decrypt</source>
         <translation>重新解密</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="91"/>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="87"/>
         <source>decrypting...</source>
         <translation>解密中，请稍后...</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="104"/>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="100"/>
+        <source>decrypt failed</source>
+        <translation>解密失败</translation>
+    </message>
+    <message>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="108"/>
         <source>decrypt success</source>
         <translation>解密成功！</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="113"/>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="114"/>
+        <source>merge failed</source>
+        <translation>合并失败</translation>
+    </message>
+    <message>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="123"/>
         <source>merge success</source>
         <translation>合并成功！</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="127"/>
+        <location filename="../windows/decryptdlg/widgets/decryptingpage.cpp" line="109"/>
         <source>merging...</source>
         <translation>正在合并...</translation>
     </message>
@@ -45,17 +55,17 @@
 <context>
     <name>LoadingPage</name>
     <message>
-        <location filename="../windows/decryptdlg/widgets/loadingpage.cpp" line="19"/>
+        <location filename="../windows/decryptdlg/widgets/loadingpage.cpp" line="23"/>
         <source>welcome to wechat msg dump</source>
         <translation>欢迎使用微信数据查看工具</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/loadingpage.cpp" line="23"/>
+        <location filename="../windows/decryptdlg/widgets/loadingpage.cpp" line="28"/>
         <source>detecting wechat process</source>
         <translation>正在检测微信进程</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/loadingpage.cpp" line="23"/>
+        <location filename="../windows/decryptdlg/widgets/loadingpage.cpp" line="28"/>
         <source>please wait</source>
         <translation>请稍后...</translation>
     </message>
@@ -63,14 +73,12 @@
 <context>
     <name>MsgManager</name>
     <message>
-        <location filename="../msgmanager/msgmanager.cpp" line="98"/>
         <source>error</source>
-        <translation>错误</translation>
+        <translation type="vanished">错误</translation>
     </message>
     <message>
-        <location filename="../msgmanager/msgmanager.cpp" line="98"/>
         <source>result don&apos;t exists</source>
-        <translation>结果不存在</translation>
+        <translation type="vanished">结果不存在</translation>
     </message>
 </context>
 <context>
@@ -131,17 +139,17 @@
         <translation>使用旧结果继续</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="167"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="151"/>
         <source>read success tip</source>
         <translation>检测成功</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="186"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="166"/>
         <source>read failed tip</source>
         <translation>检测微信进程失败</translation>
     </message>
     <message>
-        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="187"/>
+        <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="167"/>
         <source>read failed</source>
         <translation>读取失败，请检查微信是否登录</translation>
     </message>

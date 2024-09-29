@@ -27,6 +27,7 @@ WxDBDecryptor::WxDBDecryptor(WeChatDbTypeList typeList, const QString& inputPath
 void WxDBDecryptor::beginDecrypt()
 {
 	m_currentProgress.store(0);
+	emit sigUpdateProgress(m_currentProgress.load(), getTotalDBFileCount());
 	auto threadPool = QThreadPool::globalInstance();
 	for (const auto& file : m_inputDBFileList)
 	{
@@ -36,7 +37,10 @@ void WxDBDecryptor::beginDecrypt()
 			});
 	}
 	threadPool->waitForDone();
-	emit sigDecryptFinished();
+	if (m_outputDBFileList.isEmpty())
+		emit sigDecryptFailed();
+	else
+		emit sigDecryptFinished();
 }
 
 bool WxDBDecryptor::beforeDecrypt()
