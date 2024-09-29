@@ -6,7 +6,7 @@
 
 #include "msgmanager/msgmanager.h"
 
-int MSGVIEWER_EXPORT msgViewerExec(int argc, char** argv)
+int MSGMAIN_EXPORT msgMainExec(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 	auto exePath = QCoreApplication::applicationDirPath();
@@ -14,7 +14,8 @@ int MSGVIEWER_EXPORT msgViewerExec(int argc, char** argv)
 	currentDir.cdUp();
 	currentDir.cd("translation");
 	QTranslator translator;
-	translator.load(currentDir.absoluteFilePath("msgviewer_zh_CN.qm"));
+	bool b = translator.load(currentDir.absoluteFilePath("msgmain_zh_CN.qm"));
+	Q_ASSERT(b);
 	app.installTranslator(&translator);
 	QObject::connect(qApp, &QApplication::aboutToQuit, MsgManager::instance(), &QObject::deleteLater);
 	MsgManager::instance()->startWork();

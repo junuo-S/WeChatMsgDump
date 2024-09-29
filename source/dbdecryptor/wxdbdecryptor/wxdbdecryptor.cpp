@@ -16,10 +16,11 @@ static constexpr int gs_keySize = 32;
 static constexpr int gs_pageSize = 4096;
 static constexpr const char* gs_sqliteFileHeaderHex = "53514c69746520666f726d6174203300";
 
-WxDBDecryptor::WxDBDecryptor(WeChatDbTypeList typeList, const QString& inputPath, const QString& outputPath)
+WxDBDecryptor::WxDBDecryptor(WeChatDbTypeList typeList, const QString& inputPath, const QString& outputPath, const QString& secretKey)
 	: m_typeList(typeList)
 	, m_outputPath(outputPath)
 	, m_inputPath(inputPath)
+	, m_secretKey(secretKey)
 {
 }
 
@@ -115,13 +116,7 @@ QStringList WxDBDecryptor::getDbFiles(const QString& pattern, bool isRegular /*=
 bool WxDBDecryptor::decryptFile(const QString& inputFilePath, const QString& outputFilePath)
 {
 	m_currentProgress++;
-	if (!QFileInfo::exists(inputFilePath))
-	{
-		emit sigUpdateProgress(m_currentProgress.load(), getTotalDBFileCount());
-		return false;
-	}
-	const std::string key = WxMemoryReader::instance()->getSecretKey();
-	if (key.length() != 64)
+	if (!QFileInfo::exists(inputFilePath) || m_secretKey.length() != 64)
 	{
 		emit sigUpdateProgress(m_currentProgress.load(), getTotalDBFileCount());
 		return false;
@@ -143,7 +138,7 @@ bool WxDBDecryptor::decryptFile(const QString& inputFilePath, const QString& out
 	{
 		macSalt.append(ch ^ 58);
 	}
-	QByteArray password = QByteArray::fromHex(QByteArray::fromStdString(key));
+	QByteArray password = QByteArray::fromHex(m_secretKey.toUtf8());
 	auto byteHMac = pbkdf2_hmac(password, salt, 64000, gs_keySize);
 	auto macKey = pbkdf2_hmac(byteHMac, macSalt, 2, gs_keySize);
 	QMessageAuthenticationCode hashMac(QCryptographicHash::Sha1);

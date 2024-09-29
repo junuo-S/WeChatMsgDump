@@ -23,7 +23,7 @@ class DBDECRYPTOR_EXPORT WxDBDecryptor : public QObject
 
 	using WeChatDbTypeList = std::vector<WeChatDbType>;
 public:
-	WxDBDecryptor(WeChatDbTypeList typeList, const QString& inputPath, const QString& outputPath);
+	WxDBDecryptor(WeChatDbTypeList typeList, const QString& inputPath, const QString& outputPath, const QString& secretKey);
 	bool beforeDecrypt();
 	void beginDecrypt();
 	size_t getTotalDBFileCount() const;
@@ -42,6 +42,7 @@ private:
 	WeChatDbTypeList m_typeList;
 	QString m_outputPath;
 	QString m_inputPath;
+	QString m_secretKey;
 	QStringList m_inputDBFileList;
 	QStringList m_outputDBFileList;
 	QMutex m_mutex;

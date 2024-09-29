@@ -265,8 +265,6 @@ DWORD_PTR WxMemoryReader::byteArrayToAddress(BYTE* byte, size_t pointerLen)
 	return address;
 }
 
-WxMemoryReader* WxMemoryReader::s_reader = new WxMemoryReader;
-
 WxMemoryReader::~WxMemoryReader()
 {
 	CloseHandle(m_hProcess);
@@ -327,11 +325,6 @@ bool WxMemoryReader::isSuccessFulRead() const
 DWORD WxMemoryReader::getWxProcessId() const
 {
 	return m_processId;
-}
-
-WxMemoryReader* WxMemoryReader::instance()
-{
-	return s_reader;
 }
 
 WxMemoryReader::WxMemoryReader()

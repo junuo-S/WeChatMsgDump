@@ -17,6 +17,7 @@
 class DBDECRYPTOR_EXPORT WxMemoryReader
 {
 public:
+	WxMemoryReader();
 	~WxMemoryReader();
 	std::string getWxVersion() const;
 	std::wstring getWxExePath() const;
@@ -29,10 +30,6 @@ public:
 	BOOL reRead();
 	bool isSuccessFulRead() const;
 	DWORD getWxProcessId() const;
-	static WxMemoryReader* instance();
-
-protected:
-	WxMemoryReader();
 
 private:
 	BOOL readWxProcessMemory();
@@ -48,7 +45,6 @@ private:
 	bool isWxidFormat(const std::string& wxid) const;
 	DWORD_PTR byteArrayToAddress(BYTE* byte, size_t pointerLen);
 
-	static WxMemoryReader* s_reader;
 	DWORD m_processId = NULL;
 	HANDLE m_hProcess = NULL;
 	DWORD_PTR m_weChatDllAdress = NULL;
