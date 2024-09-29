@@ -1,6 +1,6 @@
-﻿#include "msgviewer/entry.h"
+﻿#include "msgmain/entry.h"
 
 int main(int argc, char** argv)
 {
-    return msgViewerExec(argc, argv);
+    return msgMainExec(argc, argv);
 }

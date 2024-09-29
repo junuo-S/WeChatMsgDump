@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#ifdef _MSGVIEWER_MODULE_
-#define MSGVIEWER_EXPORT __declspec(dllexport)
+#ifdef _MSGMAIN_MODULE_
+#define MSGMAIN_EXPORT __declspec(dllexport)
 #else
-#define MSGVIEWER_EXPORT __declspec(dllimport)
-#endif // _MSGVIEWER_MODULE_
+#define MSGMAIN_EXPORT __declspec(dllimport)
+#endif // _MSGMAIN_MODULE_
 
-int MSGVIEWER_EXPORT msgViewerExec(int argc, char** argv);
+int MSGMAIN_EXPORT msgMainExec(int argc, char** argv);
