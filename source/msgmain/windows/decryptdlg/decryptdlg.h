@@ -11,22 +11,15 @@ class DecryptDialog : public JunuoFrameLessWidget
 public:
 	DecryptDialog(QWidget* parent);
 	~DecryptDialog();
-	void gotoLoadingPage();
-	void gotoWxProcessListPage();
-	void gotoDecryptingPage();
-	void onBeginDecrypt(size_t totalCount);
-	void onDecryptDoneOneFile(bool isSuccess);
-	void onDecryptFinished();
-	void onCombineFinished(bool isSuccess);
-	void onCombineOneFinished(bool isSuccess);
-	void onCombineStarted(int totalCount);
+	void startWork();
 
 signals:
-	void sigRefresh();
-	void sigStartDecrypt();
 	void sigBeginMsgView();
 
 private:
+	void gotoLoadingPage();
+	void gotoWxProcessListPage();
+	void gotoDecryptingPage();
 	void onPageChanged(int index);
 	struct Data;
 	QScopedPointer<Data> data;

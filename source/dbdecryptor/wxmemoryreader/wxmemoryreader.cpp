@@ -18,7 +18,7 @@ BOOL WxMemoryReader::readWxProcessMemory()
 {
 	if (m_hProcess == NULL)
 		return FALSE;
-	m_wxVersion = utils::win::GetFileVersion(utils::win::GetExecutablePath(gs_wxProcessName).c_str());
+	m_wxVersion = utils::win::GetFileVersion(m_wxExePath.c_str());
 	if (m_wxVersion.empty())
 		return FALSE;
 	QFile jsonFile(QString::fromStdWString(utils::win::GetCurrentMoudlePath()) + "/../cfgs/versionconfig.json");
@@ -163,7 +163,7 @@ BOOL WxMemoryReader::patternScanForAddress()
 {
 	static std::string patternStr = "\\\\Msg\\\\FTSContact";
 	static size_t patternStrLength = patternStr.length();
-	static DWORD_PTR maxAddress = utils::win::IsWx64BitExecutable(m_wxExePath = utils::win::GetExecutablePath(gs_wxProcessName)) ? 0x7FFFFFFF0000 : 0x7fff0000;
+	static DWORD_PTR maxAddress = utils::win::IsWx64BitExecutable(m_wxExePath) ? 0x7FFFFFFF0000 : 0x7fff0000;
 	m_patternScanAddressRet.clear();
 	Py_Initialize();
 	_bstr_t currentPath = utils::win::GetCurrentMoudlePath().c_str();
@@ -221,6 +221,7 @@ void WxMemoryReader::resetWxProcessInfo()
 	m_processId = utils::win::GetProcessIdByName(gs_wxProcessName);
 	m_hProcess = OpenProcess(PROCESS_VM_READ, FALSE, m_processId);
 	m_weChatDllAdress = utils::win::GetModuleAddress(gs_wxProcessName, gs_wxDllName);
+	m_wxExePath = utils::win::GetExecutablePath(m_processId);
 }
 
 std::string WxMemoryReader::decToHex(size_t dec) const

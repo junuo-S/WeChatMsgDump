@@ -20,7 +20,7 @@ public:
 	void setMemoryReadSuc(bool suc);
 	bool getMemoryReadSuc() const;
 	void setWxVersion(const QString& version);
-	QString getWxVersin() const;
+	QString getWxVersion() const;
 	void setWxExePath(const QString& path);
 	QString getWxExePath() const;
 	void setWxPhoneNumber(const QString& number);

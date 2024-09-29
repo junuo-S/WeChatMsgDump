@@ -1,1 +1,1 @@
-﻿#include "../../msgviewer/entry.h"
+﻿#include "../../msgmain/entry.h"

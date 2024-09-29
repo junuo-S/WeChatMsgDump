@@ -17,8 +17,9 @@ int MSGMAIN_EXPORT msgMainExec(int argc, char** argv)
 	bool b = translator.load(currentDir.absoluteFilePath("msgmain_zh_CN.qm"));
 	Q_ASSERT(b);
 	app.installTranslator(&translator);
-	QObject::connect(qApp, &QApplication::aboutToQuit, MsgManager::instance(), &QObject::deleteLater);
-	MsgManager::instance()->startWork();
+	MsgManager msgManager;
+	QObject::connect(qApp, &QApplication::aboutToQuit, &msgManager, &QObject::deleteLater);
+	msgManager.startWork();
 	return app.exec();
 }
 

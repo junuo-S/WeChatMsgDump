@@ -9,6 +9,8 @@
 #include <QPixmap>
 #include <QPainter>
 
+#include "msgcore/glue/decryptorwapper.h"
+
 struct LoadingPage::Data
 {
 	void initUI()
@@ -63,19 +65,28 @@ struct LoadingPage::Data
 	QTimer* timer = nullptr;
 	int angle = 0;
 	QPixmap pixmap = QPixmap(":/icon_svg/loading-light.svg");
+	DecryptorWapper* wapper = nullptr;
 };
 
-LoadingPage::LoadingPage(QWidget* parent)
+LoadingPage::LoadingPage(DecryptorWapper* wapper, QWidget* parent)
 	: QWidget(parent)
 	, data(new Data)
 {
 	data->q = this;
+	data->wapper = wapper;
 	data->initUI();
+	connect(data->wapper, &DecryptorWapper::sigReadMemoryFinished, this, &LoadingPage::onMemoryReadFinished);
 }
 
 LoadingPage::~LoadingPage()
 {
 
+}
+
+void LoadingPage::startWork()
+{
+	startLoadingMovie();
+	data->wapper->readMemory();
 }
 
 void LoadingPage::startLoadingMovie()
@@ -93,4 +104,13 @@ void LoadingPage::stopLoadingMovie()
 void LoadingPage::onTimeOut()
 {
 	data->nextRotation();
+}
+
+void LoadingPage::onMemoryReadFinished()
+{
+	QTimer::singleShot(2000, this, [this]()
+		{
+			stopLoadingMovie();
+			emit sigLoadingFinished();
+		});
 }

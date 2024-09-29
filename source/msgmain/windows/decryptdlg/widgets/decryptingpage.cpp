@@ -7,6 +7,7 @@
 
 #include "junuoui/progressbar/junuowaterprogressbar.h"
 #include "junuoui/button/buttons.h"
+#include "msgcore/glue/decryptorwapper.h"
 
 struct DecryptingPage::Data
 {
@@ -56,18 +57,25 @@ struct DecryptingPage::Data
 	QHBoxLayout* buttonHLayout = nullptr;
 	JunuoBaseButton* beginViewButton = nullptr;
 	JunuoBaseButton* reDecryptButton = nullptr;
+	DecryptorWapper* wapper = nullptr;
 };
 
-DecryptingPage::DecryptingPage(QWidget* parent)
+DecryptingPage::DecryptingPage(DecryptorWapper* wapper, QWidget* parent)
 	: QWidget(parent)
 	, data(new Data)
 {
+	data->wapper = wapper;
 	data->q = this;
 	data->initUI();
 	data->initStyle();
 }
 
 DecryptingPage::~DecryptingPage()
+{
+
+}
+
+void DecryptingPage::startWork()
 {
 
 }

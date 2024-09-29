@@ -10,7 +10,7 @@
 
 #include <QObject>
 
-class DecryptorWapper : public QObject
+class MSGCORE_EXPORT DecryptorWapper : public QObject
 {
 	Q_OBJECT
 public:

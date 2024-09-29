@@ -3,13 +3,15 @@
 #include <QWidget>
 #include <QScopedPointer>
 
+class DecryptorWapper;
+
 class WxProcessListPage : public QWidget
 {
 	Q_OBJECT
 public:
-	WxProcessListPage(QWidget* parent);
+	WxProcessListPage(DecryptorWapper* wapper, QWidget* parent);
 	~WxProcessListPage();
-	void resetContent();
+	void startWork();
 
 protected:
 	bool eventFilter(QObject* object, QEvent* event) override;
@@ -21,6 +23,7 @@ signals:
 	void sigReuseLastResultBeginMsgView();
 
 private:
+	void resetContent();
 	struct Data;
 	QScopedPointer<Data> data;
 };

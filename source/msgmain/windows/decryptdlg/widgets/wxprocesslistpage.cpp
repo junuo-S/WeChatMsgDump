@@ -6,9 +6,9 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QMouseEvent>
-#include <QComboBox>
 
-#include "dbdecryptor/wxmemoryreader/wxmemoryreader.h"
+#include "msgcore/databus/databus.h"
+#include "msgcore/glue/decryptorwapper.h"
 #include "junuoui/button/buttons.h"
 
 struct WxProcessListPage::Data
@@ -98,27 +98,27 @@ struct WxProcessListPage::Data
 		phoneNumberHLayout->setStretch(1, 3);
 		mainLayout->addLayout(phoneNumberHLayout);
 
-		wxidsLayout = new QHBoxLayout(q);
+		wxidLayout = new QHBoxLayout(q);
 		{
-			wxidsHintLabel = new QLabel(WxProcessListPage::tr("wxid: "), q);
-			wxidsComboBox = new QComboBox(q);
-			wxidsLayout->addWidget(wxidsHintLabel);
-			wxidsLayout->addWidget(wxidsComboBox);
+			wxidHintLabel = new QLabel(WxProcessListPage::tr("wxid: "), q);
+			wxidLabel = new QLabel(q);
+			wxidLayout->addWidget(wxidHintLabel);
+			wxidLayout->addWidget(wxidLabel);
 		}
-		wxidsLayout->setStretch(0, 1);
-		wxidsLayout->setStretch(1, 3);
-		mainLayout->addLayout(wxidsLayout);
+		wxidLayout->setStretch(0, 1);
+		wxidLayout->setStretch(1, 3);
+		mainLayout->addLayout(wxidLayout);
 
-		wxDataPathsLayout = new QHBoxLayout(q);
+		wxDataPathLayout = new QHBoxLayout(q);
 		{
-			wxDataPathsHintLabel = new QLabel(WxProcessListPage::tr("wechat path: "), q);
-			wxDataPathsComboBox = new QComboBox(q);
-			wxDataPathsLayout->addWidget(wxDataPathsHintLabel);
-			wxDataPathsLayout->addWidget(wxDataPathsComboBox);
+			wxDataPathHintLabel = new QLabel(WxProcessListPage::tr("wechat path: "), q);
+			wxDataPathLabel = new QLabel(q);
+			wxDataPathLayout->addWidget(wxDataPathHintLabel);
+			wxDataPathLayout->addWidget(wxDataPathLabel);
 		}
-		wxDataPathsLayout->setStretch(0, 1);
-		wxDataPathsLayout->setStretch(1, 3);
-		mainLayout->addLayout(wxDataPathsLayout);
+		wxDataPathLayout->setStretch(0, 1);
+		wxDataPathLayout->setStretch(1, 3);
+		mainLayout->addLayout(wxDataPathLayout);
 
 		buttonLayout = new QHBoxLayout(q);
 		{
@@ -146,24 +146,19 @@ struct WxProcessListPage::Data
 
 	void resetContent()
 	{
-		auto reader = WxMemoryReader::instance();
-		if (reader->isSuccessFulRead())
+		if (DATA_BUS_INSTANCE->getMemoryReadSuc())
 		{
 			tipLabel->setText(WxProcessListPage::tr("read success tip"));
-			wxVersionLabel->setText(QString::fromStdString(reader->getWxVersion()));
-			wxExePathLabel->setText(QString::fromStdWString(reader->getWxExePath()));
+			wxVersionLabel->setText(DATA_BUS_INSTANCE->getWxVersion());
+			wxExePathLabel->setText(DATA_BUS_INSTANCE->getWxExePath());
 			wxExePathLabel->setToolTip(wxExePathLabel->text());
-			processLabel->setText(QString::number(reader->getWxProcessId()));
-			userNameLabel->setText(QString::fromStdWString(reader->getWxUserName()));
-			wxNumberLabel->setText(QString::fromStdString(reader->getWxNumber()));
-			phoneNumberLabel->setText(QString::fromStdString(reader->getWxPhoneNumber()));
-			auto wxids = reader->getWxids();
-			for (auto cit = wxids.cbegin(); cit != wxids.cend(); cit++)
-				wxidsComboBox->addItem(QString::fromStdString(*cit));
-			auto wxDataPaths = reader->getWxDataPaths();
-			for (auto cit = wxDataPaths.cbegin(); cit != wxDataPaths.cend(); cit++)
-				wxDataPathsComboBox->addItem(QString::fromStdWString(*cit));
-			wxDataPathsComboBox->setToolTip(wxDataPathsComboBox->currentText());
+			processLabel->setText(QString::number(DATA_BUS_INSTANCE->getWxProcessId()));
+			userNameLabel->setText(DATA_BUS_INSTANCE->getWxUserName());
+			wxNumberLabel->setText(DATA_BUS_INSTANCE->getWxNumber());
+			phoneNumberLabel->setText(DATA_BUS_INSTANCE->getWxPhoneNumber());
+			wxidLabel->setText(DATA_BUS_INSTANCE->getWxid());
+			wxDataPathLabel->setText(DATA_BUS_INSTANCE->getWxDataPath());
+			wxDataPathLabel->setToolTip(wxDataPathLabel->text());
 			beginButton->setEnabled(true);
 		}
 		else
@@ -177,9 +172,8 @@ struct WxProcessListPage::Data
 			userNameLabel->setText(readFailed);
 			wxNumberLabel->setText(readFailed);
 			phoneNumberLabel->setText(readFailed);
-			wxidsComboBox->clear();
-			wxDataPathsComboBox->clear();
-			wxDataPathsComboBox->setToolTip(wxDataPathsComboBox->currentText());
+			wxidLabel->setText(readFailed);
+			wxDataPathLabel->setText(readFailed);
 			beginButton->setEnabled(false);
 		}
 	}
@@ -207,21 +201,23 @@ struct WxProcessListPage::Data
 	QHBoxLayout* phoneNumberHLayout = nullptr;
 	QLabel* phoneNumberHintLabel = nullptr;
 	QLabel* phoneNumberLabel = nullptr;
-	QHBoxLayout* wxidsLayout = nullptr;
-	QLabel* wxidsHintLabel = nullptr;
-	QComboBox* wxidsComboBox = nullptr;
-	QHBoxLayout* wxDataPathsLayout = nullptr;
-	QLabel* wxDataPathsHintLabel = nullptr;
-	QComboBox* wxDataPathsComboBox = nullptr;
+	QHBoxLayout* wxidLayout = nullptr;
+	QLabel* wxidHintLabel = nullptr;
+	QLabel* wxidLabel = nullptr;
+	QHBoxLayout* wxDataPathLayout = nullptr;
+	QLabel* wxDataPathHintLabel = nullptr;
+	QLabel* wxDataPathLabel = nullptr;
 	QHBoxLayout* buttonLayout = nullptr;
 	JunuoBaseButton* beginButton = nullptr;
 	JunuoBaseButton* reuseLastRetButton = nullptr;
+	DecryptorWapper* wapper = nullptr;
 };
 
-WxProcessListPage::WxProcessListPage(QWidget* parent)
+WxProcessListPage::WxProcessListPage(DecryptorWapper* wapper, QWidget* parent)
 	: QWidget(parent)
 	, data(new Data)
 {
+	data->wapper = wapper;
 	data->q = this;
 	data->initUI();
 	data->initStyle();
@@ -231,6 +227,11 @@ WxProcessListPage::WxProcessListPage(QWidget* parent)
 WxProcessListPage::~WxProcessListPage()
 {
 
+}
+
+void WxProcessListPage::startWork()
+{
+	resetContent();
 }
 
 void WxProcessListPage::resetContent()

@@ -29,7 +29,7 @@ void DataBus::setWxVersion(const QString& version)
 	m_wxInfo.insert(STR_WX_VERSION, version);
 }
 
-QString DataBus::getWxVersin() const
+QString DataBus::getWxVersion() const
 {
 	return m_wxInfo.value(STR_WX_VERSION).toString();
 }
