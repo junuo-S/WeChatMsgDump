@@ -20,7 +20,7 @@ private:
 	void startLoadingMovie();
 	void stopLoadingMovie();
 	void onTimeOut();
-	void onMemoryReadFinished();
+	void onMemoryReadFinished(bool suc);
 
 	struct Data;
 	QScopedPointer<Data> data;

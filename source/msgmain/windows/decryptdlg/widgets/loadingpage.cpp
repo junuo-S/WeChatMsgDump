@@ -106,7 +106,7 @@ void LoadingPage::onTimeOut()
 	data->nextRotation();
 }
 
-void LoadingPage::onMemoryReadFinished()
+void LoadingPage::onMemoryReadFinished(bool suc)
 {
 	QTimer::singleShot(2000, this, [this]()
 		{
