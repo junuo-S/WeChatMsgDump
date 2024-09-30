@@ -1,7 +1,12 @@
 ﻿#include "msgmanager.h"
 
+#include <QMessageBox>
+#include <QFile>
+
 #include "windows/decryptdlg/decryptdlg.h"
 //#include "windows/msgdlg/msgdlg.h"
+
+#include "msgcore/databus/databus.h"
 
 MsgManager::MsgManager()
 {
@@ -25,5 +30,8 @@ void MsgManager::startWork()
 
 void MsgManager::onBeginMsgViewer()
 {
-
+	if (!QFile::exists(DATA_BUS_INSTANCE->getMergedDbFilePath()))
+	{
+		QMessageBox::about(m_decryptDialog.get(), tr("error"), tr("result don't exists"));
+	}
 }

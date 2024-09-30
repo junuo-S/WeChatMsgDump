@@ -73,12 +73,14 @@
 <context>
     <name>MsgManager</name>
     <message>
+        <location filename="../msgmanager/msgmanager.cpp" line="35"/>
         <source>error</source>
-        <translation type="vanished">错误</translation>
+        <translation>错误</translation>
     </message>
     <message>
+        <location filename="../msgmanager/msgmanager.cpp" line="35"/>
         <source>result don&apos;t exists</source>
-        <translation type="vanished">结果不存在</translation>
+        <translation>结果不存在</translation>
     </message>
 </context>
 <context>
