@@ -1,6 +1,8 @@
 ﻿#include "msgmain/entry.h"
 
-int main(int argc, char** argv)
+#include <windows.h>
+
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    return msgMainExec(argc, argv);
+    return msgMainExec(0, nullptr);
 }
