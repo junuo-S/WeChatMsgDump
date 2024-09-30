@@ -160,6 +160,8 @@ void DataBus::autoSetDecryptPath()
 
 void DataBus::addHeadImage(const QString& wxid, QPixmap* pixmap, bool notifyAll/* = true*/)
 {
+	if (!pixmap)
+		return;
 	m_headImgCache.insert(wxid, pixmap);
 	if (notifyAll)
 		notifyHeadImage(wxid);
@@ -172,6 +174,8 @@ QPixmap* DataBus::getHeadImage(const QString& wxid) const
 
 void DataBus::attachHeadImageObserver(const QString& wxid, IHeadImageObserver* observer)
 {
+	if (!observer)
+		return;
 	if (m_headImageObservers.contains(wxid) && !m_headImageObservers[wxid].contains(observer))
 	{
 		m_headImageObservers[wxid].append(observer);
