@@ -137,9 +137,13 @@ QString DataBus::getMergedDbFilePath() const
 	return m_mergedDbFilePath;
 }
 
-DataBus::DataBus()
+void DataBus::autoSetDecryptPath()
 {
 	m_decryptOutputPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
 	m_mergedDbFilePath = m_decryptOutputPath + QDir::separator() + getWxid() + QDir::separator() + "merged_db.db";
+}
+
+DataBus::DataBus()
+{	
 }
 

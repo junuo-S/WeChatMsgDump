@@ -41,6 +41,7 @@ public:
 	QString getDecryptOutputPath() const;
 	void setMergedDbFilePath(const QString& path);
 	QString getMergedDbFilePath() const;
+	void autoSetDecryptPath();
 
 protected:
 	DataBus();

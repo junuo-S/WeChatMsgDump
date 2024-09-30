@@ -36,6 +36,8 @@ void DecryptorWapper::readMemory()
 			DATA_BUS_INSTANCE->setWxid(QString::fromStdString(memoryReader.getWxid()));
 			DATA_BUS_INSTANCE->setWxDataPath(QString::fromStdWString(memoryReader.getWxDataPath()));
 			DATA_BUS_INSTANCE->setWxProcessId(memoryReader.getWxProcessId());
+			if (suc)
+				DATA_BUS_INSTANCE->autoSetDecryptPath();
 			emit sigReadMemoryFinished(suc);
 		});
 }
