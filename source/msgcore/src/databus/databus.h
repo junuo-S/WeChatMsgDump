@@ -10,6 +10,10 @@
 
 #include <QObject>
 #include <QVariantMap>
+#include <QCache>
+#include <QPixmap>
+
+class IHeadImageObserver;
 
 class MSGCORE_EXPORT DataBus : public QObject
 {
@@ -42,16 +46,24 @@ public:
 	void setMergedDbFilePath(const QString& path);
 	QString getMergedDbFilePath() const;
 	void autoSetDecryptPath();
+	void addHeadImage(const QString& wxid, QPixmap* pixmap, bool notifyAll = true);
+	QPixmap* getHeadImage(const QString& wxid) const;
+	void attachHeadImageObserver(const QString& wxid, IHeadImageObserver* observer);
+	void detachHeadImageObserver(const QString& wxid, IHeadImageObserver* observer);
 
 protected:
 	DataBus();
 
 private:
+	void notifyHeadImage(const QString& wxid);
+
 	static DataBus* s_instance;
 	QVariantMap m_wxInfo;
 	bool m_memoryReadSuc = false;
 	QString m_decryptOutputPath;
 	QString m_mergedDbFilePath;
+	QCache<QString, QPixmap> m_headImgCache;
+	QHash<QString, QVector<IHeadImageObserver*>> m_headImageObservers;
 };
 
 #define DATA_BUS_INSTANCE DataBus::instance()

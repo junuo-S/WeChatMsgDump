@@ -1,0 +1,1 @@
+﻿#include "../../../msgcore/src/interface/interfacedecl.h"

@@ -5,6 +5,21 @@
 
 #include "defines.h"
 
+#include "../interface/interfacedecl.h"
+
+void DataBus::notifyHeadImage(const QString& wxid)
+{
+	if (!m_headImageObservers.contains(wxid))
+		return;
+	QPixmap* pixmap = m_headImgCache.object(wxid);
+	if (!pixmap)
+		return;
+	for (IHeadImageObserver* observer : m_headImageObservers.value(wxid))
+	{
+		observer->setHeadImage(*pixmap);
+	}
+}
+
 DataBus* DataBus::s_instance = new DataBus;
 
 DataBus::~DataBus()
@@ -141,6 +156,36 @@ void DataBus::autoSetDecryptPath()
 {
 	m_decryptOutputPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
 	m_mergedDbFilePath = m_decryptOutputPath + QDir::separator() + getWxid() + QDir::separator() + "merged_db.db";
+}
+
+void DataBus::addHeadImage(const QString& wxid, QPixmap* pixmap, bool notifyAll/* = true*/)
+{
+	m_headImgCache.insert(wxid, pixmap);
+	if (notifyAll)
+		notifyHeadImage(wxid);
+}
+
+QPixmap* DataBus::getHeadImage(const QString& wxid) const
+{
+	return m_headImgCache.object(wxid);
+}
+
+void DataBus::attachHeadImageObserver(const QString& wxid, IHeadImageObserver* observer)
+{
+	if (m_headImageObservers.contains(wxid) && !m_headImageObservers[wxid].contains(observer))
+	{
+		m_headImageObservers[wxid].append(observer);
+	}
+	else
+	{
+		m_headImageObservers.insert(wxid, { observer });
+	}
+}
+
+void DataBus::detachHeadImageObserver(const QString& wxid, IHeadImageObserver* observer)
+{
+	if (m_headImageObservers.contains(wxid))
+		m_headImageObservers[wxid].removeOne(observer);
 }
 
 DataBus::DataBus()
