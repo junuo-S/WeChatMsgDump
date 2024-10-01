@@ -1,8 +1,6 @@
 ﻿set(sources
     src/glue/decryptorwapper.h
     src/glue/decryptorwapper.cpp
-    src/glue/dbreaderwapper.h
-    src/glue/dbreaderwapper.cpp
     src/databus/databus.h
     src/databus/databus.cpp
     src/interface/interfacedecl.h

@@ -249,8 +249,20 @@ void DataBus::requestHeadImage(const QString& wxid, IHeadImageObserver* observer
 		return;
 	}
 	QVariantMap param;
-	param.insert("userName", wxid);
+	param.insert(STR_USERNAME, wxid);
 	m_dbReader->selectHeadImageByUserName(this, "onSelectHeadImageFinished", param);
+}
+
+void DataBus::requestContactInfo(const QString& wxid, QObject* receiver, const char* method)
+{
+	QVariantMap param;
+	param.insert(STR_USERNAME, wxid);
+	m_dbReader->selectContactByUserName(receiver, method, param);
+}
+
+void DataBus::requestAllStrTalker(QObject* receiver, const char* method)
+{
+	m_dbReader->selectAllStrTalkerFromMSG(receiver, method);
 }
 
 DataBus::DataBus()

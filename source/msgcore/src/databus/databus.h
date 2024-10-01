@@ -53,6 +53,8 @@ public:
 	void attachHeadImageObserver(const QString& wxid, IHeadImageObserver* observer);
 	void detachHeadImageObserver(const QString& wxid, IHeadImageObserver* observer);
 	void requestHeadImage(const QString& wxid, IHeadImageObserver* observer = nullptr);
+	void requestContactInfo(const QString& wxid, QObject* receiver, const char* method);
+	void requestAllStrTalker(QObject* receiver, const char* method);
 
 protected:
 	DataBus();

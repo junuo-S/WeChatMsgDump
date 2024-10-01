@@ -24,8 +24,8 @@ public:
 	void selectAllStrTalkerFromMSG(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
 	// 根据userName获取头像链接
 	void selectHeadImageByUserName(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
-	// 根据userName获取昵称
-	void selectRemarkByUserName(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
+	// 根据userName获取联系人信息
+	void selectContactByUserName(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
 	// 获取会话列表（头像、最后的消息、最后消息的时间不在这里面）
 	void selectAllSessionInfo(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
 

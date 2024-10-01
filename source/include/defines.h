@@ -19,3 +19,5 @@ enum WeChatDbType
 #define STR_WXID "wxid"
 #define STR_WX_DATA_PATH "wx_data_path"
 #define STR_WX_PROCESS_ID "wx_process_id"
+
+#define STR_USERNAME "userName"
