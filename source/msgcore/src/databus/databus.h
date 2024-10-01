@@ -14,6 +14,7 @@
 #include <QPixmap>
 
 class IHeadImageObserver;
+class WechatDbReader;
 
 class MSGCORE_EXPORT DataBus : public QObject
 {
@@ -46,16 +47,19 @@ public:
 	void setMergedDbFilePath(const QString& path);
 	QString getMergedDbFilePath() const;
 	void autoSetDecryptPath();
+	bool createDbReader();
 	void addHeadImage(const QString& wxid, QPixmap* pixmap, bool notifyAll = true);
 	QPixmap* getHeadImage(const QString& wxid) const;
 	void attachHeadImageObserver(const QString& wxid, IHeadImageObserver* observer);
 	void detachHeadImageObserver(const QString& wxid, IHeadImageObserver* observer);
+	void requestHeadImage(const QString& wxid, IHeadImageObserver* observer = nullptr);
 
 protected:
 	DataBus();
 
 private:
 	void notifyHeadImage(const QString& wxid);
+	Q_INVOKABLE void onSelectHeadImageFinished(const QVariantList& result, const QVariant& context = QVariant());
 
 	static DataBus* s_instance;
 	QVariantMap m_wxInfo;
@@ -64,6 +68,7 @@ private:
 	QString m_mergedDbFilePath;
 	QCache<QString, QPixmap> m_headImgCache;
 	QHash<QString, QVector<IHeadImageObserver*>> m_headImageObservers;
+	WechatDbReader* m_dbReader = nullptr;
 };
 
 #define DATA_BUS_INSTANCE DataBus::instance()

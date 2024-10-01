@@ -2,8 +2,13 @@
 
 #include <QStandardPaths>
 #include <QDir>
+#include <QFileInfo>
+#include <QNetworkRequest>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 #include "defines.h"
+#include "dbreader/wechatdbreader.h"
 
 #include "../interface/interfacedecl.h"
 
@@ -18,6 +23,36 @@ void DataBus::notifyHeadImage(const QString& wxid)
 	{
 		observer->setHeadImage(*pixmap);
 	}
+}
+
+void DataBus::onSelectHeadImageFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)
+{
+	if (result.size() != 1)
+		return;
+	QString userName = result.at(0).toMap().value("usrName").toString();
+	QString smallUrl = result.at(0).toMap().value("smallHeadImgUrl").toString();
+	if (smallUrl.isEmpty() || userName.isEmpty())
+		return;
+	QNetworkAccessManager manager;
+	QNetworkRequest requst(smallUrl);
+	auto reply = manager.get(requst);
+	connect(reply, &QNetworkReply::finished, this, [this, userName, context, reply]()
+		{
+			do
+			{
+				if (reply->error() != QNetworkReply::NoError)
+					break;
+				QPixmap* pixmap = new QPixmap;
+				if (!pixmap->loadFromData(reply->readAll()))
+					break;
+				addHeadImage(userName, pixmap);
+				if (!context.canConvert<std::function<void()>>())
+					break;
+				context.value<std::function<void()>>()();
+			} while (false);
+			reply->deleteLater();
+		}
+	);
 }
 
 DataBus* DataBus::s_instance = new DataBus;
@@ -158,6 +193,14 @@ void DataBus::autoSetDecryptPath()
 	m_mergedDbFilePath = m_decryptOutputPath + QDir::separator() + getWxid() + QDir::separator() + "merged_db.db";
 }
 
+bool DataBus::createDbReader()
+{
+	if (!QFileInfo::exists(m_mergedDbFilePath))
+		return false;
+	m_dbReader = new WechatDbReader(m_mergedDbFilePath, this);
+	return true;
+}
+
 void DataBus::addHeadImage(const QString& wxid, QPixmap* pixmap, bool notifyAll/* = true*/)
 {
 	if (!pixmap)
@@ -190,6 +233,24 @@ void DataBus::detachHeadImageObserver(const QString& wxid, IHeadImageObserver* o
 {
 	if (m_headImageObservers.contains(wxid))
 		m_headImageObservers[wxid].removeOne(observer);
+}
+
+void DataBus::requestHeadImage(const QString& wxid, IHeadImageObserver* observer /*= nullptr*/)
+{
+	if (!observer)
+	{
+		notifyHeadImage(wxid);
+		return;
+	}
+	QPixmap* pixmap = getHeadImage(wxid);
+	if (pixmap && observer)
+	{
+		observer->setHeadImage(*pixmap);
+		return;
+	}
+	QVariantMap param;
+	param.insert("userName", wxid);
+	m_dbReader->selectHeadImageByUserName(this, "onSelectHeadImageFinished", param);
 }
 
 DataBus::DataBus()

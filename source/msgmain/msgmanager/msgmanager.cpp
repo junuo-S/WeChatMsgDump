@@ -30,7 +30,7 @@ void MsgManager::startWork()
 
 void MsgManager::onBeginMsgViewer()
 {
-	if (!QFile::exists(DATA_BUS_INSTANCE->getMergedDbFilePath()))
+	if (!DATA_BUS_INSTANCE->createDbReader())
 	{
 		QMessageBox::about(m_decryptDialog.get(), tr("error"), tr("result don't exists"));
 	}
