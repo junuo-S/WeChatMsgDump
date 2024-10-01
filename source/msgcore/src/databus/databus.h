@@ -55,6 +55,8 @@ public:
 	void requestHeadImage(const QString& wxid, IHeadImageObserver* observer = nullptr);
 	void requestContactInfo(const QString& wxid, QObject* receiver, const char* method);
 	void requestAllStrTalker(QObject* receiver, const char* method);
+	void requestChatCount(const QString& wxid, QObject* receiver, const char* method);
+	void requestChatHistory(const QString& wxid, qint64 createTime, bool forward, size_t limit, QObject* receiver, const char* method);
 
 protected:
 	DataBus();

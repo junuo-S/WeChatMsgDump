@@ -21,3 +21,6 @@ enum WeChatDbType
 #define STR_WX_PROCESS_ID "wx_process_id"
 
 #define STR_USERNAME "userName"
+#define STR_FORWARD "forward"
+#define STR_CREATE_TIME "createTime"
+#define STR_LIMIT "limit"

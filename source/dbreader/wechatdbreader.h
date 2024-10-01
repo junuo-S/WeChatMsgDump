@@ -28,6 +28,10 @@ public:
 	void selectContactByUserName(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
 	// 获取会话列表（头像、最后的消息、最后消息的时间不在这里面）
 	void selectAllSessionInfo(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
+	// 获取某个wxid的聊天数量
+	void selectChatCountByUserName(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
+	// 获取聊天记录
+	void selectChatHistoryByUserName(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
 
 private:
 	struct Data;

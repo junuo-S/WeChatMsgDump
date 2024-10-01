@@ -1,5 +1,7 @@
 ﻿#include "wechatdbreader.h"
 
+#include "defines.h"
+
 #include "dbthreadpool/dbthreadpool.h"
 
 struct WechatDbReader::Data
@@ -30,13 +32,13 @@ void WechatDbReader::selectAllStrTalkerFromMSG(QObject* receiver, const char* me
 void WechatDbReader::selectHeadImageByUserName(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/, const QVariant& context /*= QVariant()*/)
 {
 	const QString sql = "select usrName, bigHeadImgUrl, smallHeadImgUrl from ContactHeadImgUrl where usrName = '%1';";
-	data->dbThreadPool->executeQuery(sql.arg(param.value("userName").toString()), receiver, method, context);
+	data->dbThreadPool->executeQuery(sql.arg(param.value(STR_USERNAME).toString()), receiver, method, context);
 }
 
 void WechatDbReader::selectContactByUserName(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/, const QVariant& context /*= QVariant()*/)
 {
 	const QString sql = "select UserName, Alias, NickName, Remark from Contact where UserName = '%1';";
-	data->dbThreadPool->executeQuery(sql.arg(param.value("userName").toString()), receiver, method, context);
+	data->dbThreadPool->executeQuery(sql.arg(param.value(STR_USERNAME).toString()), receiver, method, context);
 }
 
 void WechatDbReader::selectAllSessionInfo(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/, const QVariant& context /*= QVariant()*/)
@@ -47,6 +49,28 @@ void WechatDbReader::selectAllSessionInfo(QObject* receiver, const char* method,
 		"join Contact on MSG.strTalker = Contact.UserName "
 		"group by strTalker "
 		"order by chatCount desc;";
+	data->dbThreadPool->executeQuery(sql, receiver, method, context);
+}
+
+void WechatDbReader::selectChatCountByUserName(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/, const QVariant& context /*= QVariant()*/)
+{
+	const QString sql = "select count(*) from MSG where strTalker = '%1'";
+	data->dbThreadPool->executeQuery(sql.arg(param.value(STR_USERNAME).toString()), receiver, method, context);
+}
+
+void WechatDbReader::selectChatHistoryByUserName(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/, const QVariant& context /*= QVariant()*/)
+{
+	QString sql = "select * from MSG "
+		"where strTalker = '%1' "
+		"and CreateTime %2 '%3' "
+		"order by CreateTime %4 "
+		"limit %5;";
+	bool forward = param.value(STR_FORWARD).toBool();
+	sql = sql.arg(param.value(STR_USERNAME).toString())
+		.arg(forward ? ">=" : "<=")
+		.arg(param.value(STR_CREATE_TIME).toULongLong())
+		.arg(forward ? "asc" : "desc")
+		.arg(param.value(STR_LIMIT).toUInt());
 	data->dbThreadPool->executeQuery(sql, receiver, method, context);
 }
 

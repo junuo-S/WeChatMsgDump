@@ -265,6 +265,23 @@ void DataBus::requestAllStrTalker(QObject* receiver, const char* method)
 	m_dbReader->selectAllStrTalkerFromMSG(receiver, method);
 }
 
+void DataBus::requestChatCount(const QString& wxid, QObject* receiver, const char* method)
+{
+	QVariantMap param;
+	param.insert(STR_USERNAME, wxid);
+	m_dbReader->selectChatCountByUserName(receiver, method, param);
+}
+
+void DataBus::requestChatHistory(const QString& wxid, qint64 createTime, bool forward, size_t limit, QObject* receiver, const char* method)
+{
+	QVariantMap param;
+	param.insert(STR_USERNAME, wxid);
+	param.insert(STR_CREATE_TIME, createTime);
+	param.insert(STR_FORWARD, forward);
+	param.insert(STR_LIMIT, limit);
+	m_dbReader->selectChatHistoryByUserName(receiver, method, param);
+}
+
 DataBus::DataBus()
 {	
 }
