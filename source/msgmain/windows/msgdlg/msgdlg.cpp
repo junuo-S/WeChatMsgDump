@@ -4,18 +4,15 @@
 
 #include <QHBoxLayout>
 #include <QFile>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QCache>
-#include <functional>
 #include <QSplitter>
-
-#include "dbreader/wechatdbreader.h"
 
 #include "utils/utils.h"
 #include "msgmanager/msgmanager.h"
 #include "leftwidgets/verticalnavigationbar.h"
 #include "middlewidgets/middlepage.h"
+
+#include "defines.h"
+#include "msgcore/databus/databus.h"
 
 struct WechatMsgDialog::Data
 {
@@ -54,20 +51,14 @@ struct WechatMsgDialog::Data
 	VerticalNavigationBar* verticalNavigationBar = nullptr;
 	QSplitter* splitter = nullptr;
 	MiddlePage* middlePage = nullptr;
-
-	QCache<QString, QIcon> cache;
-	QNetworkAccessManager* networkManager = nullptr;
 	WechatPage currentPage = ChatPage;
 };
-
-Q_DECLARE_METATYPE(std::function<void()>)
 
 WechatMsgDialog::WechatMsgDialog(QWidget* parent /*= nullptr*/)
 	: JunuoFrameLessWidget(parent)
 	, data(new Data)
 {
 	data->q = this;
-	data->networkManager = new QNetworkAccessManager(this);
 	setWindowIcon(QIcon(":/icon_svg/wxchat.svg"));
 }
 
@@ -79,9 +70,9 @@ WechatMsgDialog::~WechatMsgDialog()
 void WechatMsgDialog::startWork()
 {
 	initUI();
+	DATA_BUS_INSTANCE->requestAllStrTalker(this, "onSelectDistinctStrTalkerFinished");
 	show();
-	updateCurrentUserHeadImage();
-	selectSessionInfo();
+	data->verticalNavigationBar->startWork();
 	turnToPage(data->currentPage);
 }
 
@@ -94,7 +85,7 @@ void WechatMsgDialog::onCurrentPageChanged(unsigned int index)
 void WechatMsgDialog::initUI()
 {
 	data->initUI();
-	setMinimumSize(DPI(680), DPI(560));
+	setMinimumSize(DPI(900), DPI(780));
 }
 
 void WechatMsgDialog::turnToPage(WechatPage page)
@@ -102,63 +93,12 @@ void WechatMsgDialog::turnToPage(WechatPage page)
 	data->verticalNavigationBar->setCurrentPage(page);
 }
 
-void WechatMsgDialog::updateCurrentUserHeadImage()
+Q_INVOKABLE void WechatMsgDialog::onSelectDistinctStrTalkerFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)
 {
-	QIcon* icon = data->cache.object(MsgManager::instance()->getCurrentUserWxid());
-	if (icon)
+	for (const auto& record : result)
 	{
-		data->verticalNavigationBar->setHeadImage(*icon);
-	}
-	else
-	{
-		std::function<void()> callback = [this]() { updateCurrentUserHeadImage(); };
-		selectHeadImageUrlByUserName(MsgManager::instance()->getCurrentUserWxid(), QVariant::fromValue(callback));
+		const QString wxid = record.toMap().value(STR_STRTALKER).toString();
+		if (!wxid.isEmpty())
+			data->middlePage->addSessionCard(wxid);
 	}
 }
-
-void WechatMsgDialog::selectHeadImageUrlByUserName(const QString& userName, const QVariant& context /*= QVariant()*/)
-{
-	QVariantMap param;
-	param.insert("userName", userName);
-	MsgManager::instance()->getWechatDbReader()->selectHeadImageByUserName(this, "onGotHeadImageUrl", param, context);
-}
-
-void WechatMsgDialog::selectSessionInfo()
-{
-	MsgManager::instance()->getWechatDbReader()->selectAllSessionInfo(this, "onSessionInfoReady");
-}
-
-void WechatMsgDialog::onGotHeadImageUrl(QVariantList result, const QVariant& context /*= QVariant()*/)
-{
-	if (result.size() != 1)
-		return;
-	QString userName = result.at(0).toMap().value("usrName").toString();
-	QString smallUrl = result.at(0).toMap().value("smallHeadImgUrl").toString();
-	if (smallUrl.isEmpty() || userName.isEmpty())
-		return;
-	QNetworkRequest requst(smallUrl);
-	auto reply = data->networkManager->get(requst);
-	connect(reply, &QNetworkReply::finished, this, [this, userName, context, reply]()
-		{
-			do 
-			{
-				if (reply->error() != QNetworkReply::NoError)
-					break;
-				QPixmap pixmap;
-				if (!pixmap.loadFromData(reply->readAll()))
-					break;
-				data->cache.insert(userName, new QIcon(utils::CreateRoundedIcon(pixmap.scaled(HEAD_IMAGE_ICON_SIZE))));
-				if (!context.canConvert<std::function<void()>>())
-					break;
-				context.value<std::function<void()>>()();
-			} while (false);
-			reply->deleteLater();
-		}
-	);
-}
-
-Q_INVOKABLE void WechatMsgDialog::onSessionInfoReady(QVariantList result, const QVariant& context /*= QVariant()*/)
-{
-	data->middlePage->addSessionCard(result);
-}
-

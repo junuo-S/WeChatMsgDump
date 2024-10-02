@@ -3,35 +3,23 @@
 #include <QFrame>
 #include <QScopedPointer>
 
-class SessionCardInfo
-{
-public:
-	bool operator>(const SessionCardInfo& other) { return m_chatCount > other.m_chatCount; }
-	bool operator>=(const SessionCardInfo& other) { return m_chatCount >= other.m_chatCount; }
-	bool operator<(const SessionCardInfo& other) { return m_chatCount < other.m_chatCount; }
-	bool operator<=(const SessionCardInfo& other) { return m_chatCount <= other.m_chatCount; }
+#include "msgcore/interface/interfacedecl.h"
 
-	QString m_remark;
-	QString m_nickName;
-	QString m_alias;
-	QString m_strTalker;
-	size_t m_chatCount;
-	QString m_lastMessage;
-	qint64 m_lastMsgTime;
-	QPixmap m_headImage;
-};
-
-class SessionOverviewCard : public QFrame
+class SessionOverviewCard : public QFrame, public IHeadImageObserver
 {
 	Q_OBJECT
 public:
-	SessionOverviewCard(const SessionCardInfo& cardInfo, QWidget* parent = nullptr);
+	SessionOverviewCard(const QString& wxid, QWidget* parent = nullptr);
 	~SessionOverviewCard();
-	void setHeadImage(const QPixmap& pixmap);
-	void setLastMessage(const QString& msg);
-	void setLastMsgTime(qint64 timestamp);
+	void startWork();
+	void setHeadImage(const QPixmap& pixmap) override;
 
 private:
+	Q_INVOKABLE void onSelectContactInfoFinished(const QVariantList& result, const QVariant& context = QVariant());
+	Q_INVOKABLE void onSelectChatCountFinished(const QVariantList& result, const QVariant& context = QVariant());
+	Q_INVOKABLE void onSelectLastMsgFinished(const QVariantList& result, const QVariant& context = QVariant());
+
+	QString getMsgRecordSessionStr(const QVariantMap& msg) const;
 	struct Data;
 	QScopedPointer<Data> data;
 };

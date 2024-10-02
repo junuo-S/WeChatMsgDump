@@ -8,6 +8,8 @@
 #include <QMouseEvent>
 #include <QButtonGroup>
 
+#include "msgcore/databus/databus.h"
+
 constexpr static const char* const gs_strIndex = "index";
 
 struct VerticalNavigationBar::Data
@@ -71,15 +73,21 @@ VerticalNavigationBar::~VerticalNavigationBar()
 
 }
 
-void VerticalNavigationBar::setHeadImage(const QIcon& icon)
+void VerticalNavigationBar::startWork()
 {
-	data->headImageButton->setIcon(icon);
+	DATA_BUS_INSTANCE->attachHeadImageObserver(DATA_BUS_INSTANCE->getWxid(), this);
+	DATA_BUS_INSTANCE->requestHeadImage(DATA_BUS_INSTANCE->getWxid(), this);
 }
 
 void VerticalNavigationBar::setCurrentPage(unsigned int index)
 {
 	if (auto button = data->radioButtonGroup.button(index))
 		button->setChecked(true);
+}
+
+void VerticalNavigationBar::setHeadImage(const QPixmap& pixmap)
+{
+	data->headImageButton->setIcon(QIcon(pixmap.scaled(HEAD_IMAGE_ICON_SIZE)));
 }
 
 void VerticalNavigationBar::mousePressEvent(QMouseEvent* event)

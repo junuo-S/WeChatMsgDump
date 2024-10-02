@@ -4,14 +4,14 @@
 #include <QFile>
 
 #include "windows/decryptdlg/decryptdlg.h"
-//#include "windows/msgdlg/msgdlg.h"
+#include "windows/msgdlg/msgdlg.h"
 
 #include "msgcore/databus/databus.h"
 
 MsgManager::MsgManager()
 {
 	m_decryptDialog.reset(new DecryptDialog(nullptr));
-	//m_msgDialog.reset(new WechatMsgDialog(nullptr));
+	m_msgDialog.reset(new WechatMsgDialog(nullptr));
 	connect(m_decryptDialog.get(), &DecryptDialog::sigBeginMsgView, this, &MsgManager::onBeginMsgViewer);
 }
 
@@ -33,5 +33,8 @@ void MsgManager::onBeginMsgViewer()
 	if (!DATA_BUS_INSTANCE->createDbReader())
 	{
 		QMessageBox::about(m_decryptDialog.get(), tr("error"), tr("result don't exists"));
+		return;
 	}
+	m_decryptDialog->close();
+	m_msgDialog->startWork();
 }

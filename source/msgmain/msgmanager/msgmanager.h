@@ -19,5 +19,5 @@ private:
 	void onBeginMsgViewer();
 
 	QScopedPointer<DecryptDialog> m_decryptDialog;
-	//QScopedPointer<WechatMsgDialog> m_msgDialog;
+	QScopedPointer<WechatMsgDialog> m_msgDialog;
 };

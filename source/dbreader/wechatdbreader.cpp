@@ -25,7 +25,7 @@ WechatDbReader::~WechatDbReader()
 
 void WechatDbReader::selectAllStrTalkerFromMSG(QObject* receiver, const char* method, const QVariantMap& param /* = QVariantMap()*/, const QVariant& context /*= QVariant()*/)
 {
-	const QString sql = "select distinct(strTalker) from MSG;";
+	const QString sql = "select strTalker, count(strTalker) as total from MSG group by strTalker order by total desc;";
 	data->dbThreadPool->executeQuery(sql, receiver, method, context);
 }
 
@@ -54,7 +54,7 @@ void WechatDbReader::selectAllSessionInfo(QObject* receiver, const char* method,
 
 void WechatDbReader::selectChatCountByUserName(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/, const QVariant& context /*= QVariant()*/)
 {
-	const QString sql = "select count(*) from MSG where strTalker = '%1'";
+	const QString sql = "select count(*) as chatCount from MSG where strTalker = '%1'";
 	data->dbThreadPool->executeQuery(sql.arg(param.value(STR_USERNAME).toString()), receiver, method, context);
 }
 

@@ -24,3 +24,10 @@ enum WeChatDbType
 #define STR_FORWARD "forward"
 #define STR_CREATE_TIME "createTime"
 #define STR_LIMIT "limit"
+
+#define STR_STRTALKER "StrTalker"
+#define STR_REMARK "Remark"
+#define STR_NICKNAME "NickName"
+#define STR_CHATCOUNT "chatCount"
+#define STR_CREATETIME "CreateTime"
+#define STR_STRCONTENT "StrContent"

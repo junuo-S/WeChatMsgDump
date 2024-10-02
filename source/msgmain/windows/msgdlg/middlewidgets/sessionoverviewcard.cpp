@@ -7,6 +7,9 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+#include "defines.h"
+#include "msgcore/databus/databus.h"
+
 constexpr static const char* const gs_strLoading = "loading...";
 
 static QString QDateTimeToString(const QDateTime& dateTime)
@@ -26,49 +29,30 @@ struct SessionOverviewCard::Data
 		headImageLabel = new QLabel(q);
 		headImageLabel->setFixedSize(HEAD_IMAGE_ICON_SIZE);
 		headImageLabel->setScaledContents(true);
-		headImageLabel->setPixmap(cardInfo.m_headImage.isNull() ? QPixmap(":/icon_svg/head-image-none.svg") : cardInfo.m_headImage);
+		headImageLabel->setPixmap(QPixmap(":/icon_svg/head-image-none.svg"));
 		mainHLayout->addWidget(headImageLabel);
 
 		middleVLayout = new QVBoxLayout(q);
 		middleVLayout->setContentsMargins(0, 0, 0, 0);
-		remarkLabel = new QLabel(cardInfo.m_remark.isEmpty() ? cardInfo.m_nickName : cardInfo.m_remark, q);
+		remarkLabel = new QLabel(gs_strLoading, q);
 		remarkLabel->setObjectName("remarkLabel");
 		middleVLayout->addWidget(remarkLabel);
-		lastMessageLabel = new QLabel(cardInfo.m_lastMessage.isEmpty() ? gs_strLoading : cardInfo.m_lastMessage, q);
+		lastMessageLabel = new QLabel(gs_strLoading, q);
 		lastMessageLabel->setObjectName("lastMessageLabel");
 		middleVLayout->addWidget(lastMessageLabel);
 		mainHLayout->addLayout(middleVLayout, 10);
 
 		rightVLayout = new QVBoxLayout(q);
 		rightVLayout->setContentsMargins(0, 0, 0, 0);
-		lastMsgTimeLabel = new QLabel(cardInfo.m_lastMsgTime > 0 ? QDateTimeToString(QDateTime::fromSecsSinceEpoch(cardInfo.m_lastMsgTime)) : gs_strLoading, q);
+		lastMsgTimeLabel = new QLabel(gs_strLoading, q);
 		lastMsgTimeLabel->setObjectName("lastMsgTimeLabel");
 		rightVLayout->addWidget(lastMsgTimeLabel);
-		msgCountLabel = new QLabel(QString::number(cardInfo.m_chatCount), q);
+		msgCountLabel = new QLabel(gs_strLoading, q);
 		msgCountLabel->setObjectName("msgCountLabel");
 		rightVLayout->addWidget(msgCountLabel);
 		mainHLayout->addLayout(rightVLayout, 1);
 	}
 
-	void updateHeadImage(const QPixmap& pixmap)
-	{
-		cardInfo.m_headImage = pixmap;
-		headImageLabel->setPixmap(cardInfo.m_headImage.isNull() ? QPixmap(":/icon_svg/head-image-none.svg") : cardInfo.m_headImage);
-	}
-
-	void updateLastMessage(const QString& msg)
-	{
-		cardInfo.m_lastMessage = msg;
-		lastMessageLabel->setText(cardInfo.m_lastMessage.isEmpty() ? gs_strLoading : cardInfo.m_lastMessage);
-	}
-
-	void updateLastMsgTime(qint64 timestamp)
-	{
-		cardInfo.m_lastMsgTime = timestamp;
-		lastMsgTimeLabel->setText(cardInfo.m_lastMsgTime > 0 ? QDateTimeToString(QDateTime::fromSecsSinceEpoch(cardInfo.m_lastMsgTime)) : gs_strLoading);
-	}
-
-	SessionCardInfo cardInfo;
 	SessionOverviewCard* q = nullptr;
 	QLabel* headImageLabel = nullptr;
 	QLabel* remarkLabel = nullptr;
@@ -78,14 +62,15 @@ struct SessionOverviewCard::Data
 	QHBoxLayout* mainHLayout = nullptr;
 	QVBoxLayout* middleVLayout = nullptr;
 	QVBoxLayout* rightVLayout = nullptr;
+	QString wxid;
 };
 
-SessionOverviewCard::SessionOverviewCard(const SessionCardInfo& cardInfo, QWidget* parent /*= nullptr*/)
+SessionOverviewCard::SessionOverviewCard(const QString& wxid, QWidget* parent /*= nullptr*/)
 	: QFrame(parent)
 	, data(new Data)
 {
 	data->q = this;
-	data->cardInfo = cardInfo;
+	data->wxid = wxid;
 	data->initUI();
 }
 
@@ -94,18 +79,56 @@ SessionOverviewCard::~SessionOverviewCard()
 
 }
 
+void SessionOverviewCard::startWork()
+{
+	DATA_BUS_INSTANCE->attachHeadImageObserver(data->wxid, this);
+	DATA_BUS_INSTANCE->requestHeadImage(data->wxid, this);
+	DATA_BUS_INSTANCE->requestContactInfo(data->wxid, this, "onSelectContactInfoFinished");
+	DATA_BUS_INSTANCE->requestChatCount(data->wxid, this, "onSelectChatCountFinished");
+	DATA_BUS_INSTANCE->requestChatHistory(data->wxid, QDateTime::currentSecsSinceEpoch(), false, 1, this, "onSelectLastMsgFinished");
+}
+
 void SessionOverviewCard::setHeadImage(const QPixmap& pixmap)
 {
-	data->updateHeadImage(pixmap);
+	data->headImageLabel->setPixmap(pixmap);
 }
 
-void SessionOverviewCard::setLastMessage(const QString& msg)
+Q_INVOKABLE void SessionOverviewCard::onSelectContactInfoFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)
 {
-	data->updateLastMessage(msg);
+	if (result.size() != 1)
+	{
+		data->remarkLabel->setText(data->wxid);
+		return;
+	}
+	const auto& resultMap = result.at(0).toMap();
+	const QString remark = resultMap.value(STR_REMARK).toString();
+	const QString nickName = resultMap.value(STR_NICKNAME).toString();
+	data->remarkLabel->setText(remark.isEmpty() ? nickName : remark);
 }
 
-void SessionOverviewCard::setLastMsgTime(qint64 timestamp)
+Q_INVOKABLE void SessionOverviewCard::onSelectChatCountFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)
 {
-	data->updateLastMsgTime(timestamp);
+	if (result.size() != 1)
+	{
+		return;
+	}
+	const quint64 count = result.at(0).toMap().value(STR_CHATCOUNT).toULongLong();
+	data->msgCountLabel->setText(QString::number(count));
 }
 
+Q_INVOKABLE void SessionOverviewCard::onSelectLastMsgFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)
+{
+	if (result.size() != 1)
+	{
+		return;
+	}
+	const auto& resultMap = result.at(0).toMap();
+	qint64 createTime = resultMap.value(STR_CREATETIME).toLongLong();
+	data->lastMsgTimeLabel->setText(QDateTimeToString(QDateTime::fromSecsSinceEpoch(createTime)));
+	data->lastMessageLabel->setText(getMsgRecordSessionStr(resultMap));
+}
+
+QString SessionOverviewCard::getMsgRecordSessionStr(const QVariantMap& msg) const
+{
+	return msg.value(STR_STRCONTENT).toString();
+}

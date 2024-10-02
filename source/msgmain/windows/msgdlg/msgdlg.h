@@ -18,11 +18,7 @@ private:
 	void onCurrentPageChanged(unsigned int index);
 	void initUI();
 	void turnToPage(WechatPage page);
-	void updateCurrentUserHeadImage();
-	void selectHeadImageUrlByUserName(const QString& userName, const QVariant& context = QVariant());
-	void selectSessionInfo();
-	Q_INVOKABLE void onGotHeadImageUrl(QVariantList result, const QVariant& context = QVariant());
-	Q_INVOKABLE void onSessionInfoReady(QVariantList result, const QVariant& context = QVariant());
+	Q_INVOKABLE void onSelectDistinctStrTalkerFinished(const QVariantList& result, const QVariant& context = QVariant());
 
 	struct Data;
 	std::unique_ptr<Data> data = nullptr;

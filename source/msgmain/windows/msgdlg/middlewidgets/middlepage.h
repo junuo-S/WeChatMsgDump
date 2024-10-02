@@ -12,11 +12,7 @@ class MiddlePage : public QWidget
 public:
 	MiddlePage(Base* parent = nullptr);
 	~MiddlePage();
-	void addSessionCard(const QVariantList& infoList);
-	void addSessionCard(const QVariantMap& cardInfo);
-	void updateHeadImage(const QString& strTalker, const QPixmap& pixmap);
-	void updateLastMessage(const QString& strTalker, const QString& msg);
-	void updateLastMsgTime(const QString& strTalker, qint64 timestamp);
+	void addSessionCard(const QString& wxid);
 
 private:
 	struct Data;

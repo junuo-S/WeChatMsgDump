@@ -33,10 +33,10 @@ void DataBus::onSelectHeadImageFinished(const QVariantList& result, const QVaria
 	QString smallUrl = result.at(0).toMap().value("smallHeadImgUrl").toString();
 	if (smallUrl.isEmpty() || userName.isEmpty())
 		return;
-	QNetworkAccessManager manager;
+	QNetworkAccessManager* manager = new QNetworkAccessManager;
 	QNetworkRequest requst(smallUrl);
-	auto reply = manager.get(requst);
-	connect(reply, &QNetworkReply::finished, this, [this, userName, context, reply]()
+	auto reply = manager->get(requst);
+	connect(reply, &QNetworkReply::finished, this, [this, userName, context, reply, manager]()
 		{
 			do
 			{
@@ -51,6 +51,7 @@ void DataBus::onSelectHeadImageFinished(const QVariantList& result, const QVaria
 				context.value<std::function<void()>>()();
 			} while (false);
 			reply->deleteLater();
+			manager->deleteLater();
 		}
 	);
 }
