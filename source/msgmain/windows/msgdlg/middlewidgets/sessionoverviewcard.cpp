@@ -7,6 +7,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+#include "utils/utils.h"
+
 #include "defines.h"
 #include "msgcore/databus/databus.h"
 
@@ -90,7 +92,7 @@ void SessionOverviewCard::startWork()
 
 void SessionOverviewCard::setHeadImage(const QPixmap& pixmap)
 {
-	data->headImageLabel->setPixmap(pixmap);
+	data->headImageLabel->setPixmap(utils::CreateRoundedPixmap(pixmap));
 }
 
 Q_INVOKABLE void SessionOverviewCard::onSelectContactInfoFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)

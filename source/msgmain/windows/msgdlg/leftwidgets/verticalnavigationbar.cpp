@@ -8,6 +8,8 @@
 #include <QMouseEvent>
 #include <QButtonGroup>
 
+#include "utils/utils.h"
+
 #include "msgcore/databus/databus.h"
 
 constexpr static const char* const gs_strIndex = "index";
@@ -87,7 +89,7 @@ void VerticalNavigationBar::setCurrentPage(unsigned int index)
 
 void VerticalNavigationBar::setHeadImage(const QPixmap& pixmap)
 {
-	data->headImageButton->setIcon(QIcon(pixmap.scaled(HEAD_IMAGE_ICON_SIZE)));
+	data->headImageButton->setIcon(utils::CreateRoundedIcon(pixmap.scaled(HEAD_IMAGE_ICON_SIZE)));
 }
 
 void VerticalNavigationBar::mousePressEvent(QMouseEvent* event)
