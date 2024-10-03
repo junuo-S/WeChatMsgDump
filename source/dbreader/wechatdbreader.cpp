@@ -68,7 +68,7 @@ void WechatDbReader::selectChatHistoryByUserName(QObject* receiver, const char* 
 	bool forward = param.value(STR_FORWARD).toBool();
 	sql = sql.arg(param.value(STR_USERNAME).toString())
 		.arg(forward ? ">=" : "<=")
-		.arg(param.value(STR_CREATE_TIME).toULongLong())
+		.arg(param.value(STR_CREATETIME).toULongLong())
 		.arg(forward ? "asc" : "desc")
 		.arg(param.value(STR_LIMIT).toUInt());
 	data->dbThreadPool->executeQuery(sql, receiver, method, context);

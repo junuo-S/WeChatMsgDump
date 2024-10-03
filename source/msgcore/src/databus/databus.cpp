@@ -277,7 +277,7 @@ void DataBus::requestChatHistory(const QString& wxid, qint64 createTime, bool fo
 {
 	QVariantMap param;
 	param.insert(STR_USERNAME, wxid);
-	param.insert(STR_CREATE_TIME, createTime);
+	param.insert(STR_CREATETIME, createTime);
 	param.insert(STR_FORWARD, forward);
 	param.insert(STR_LIMIT, limit);
 	m_dbReader->selectChatHistoryByUserName(receiver, method, param);

@@ -85,7 +85,7 @@ void WechatMsgDialog::onCurrentPageChanged(unsigned int index)
 void WechatMsgDialog::initUI()
 {
 	data->initUI();
-	setMinimumSize(DPI(900), DPI(780));
+	setMinimumSize(DPI(1080), DPI(780));
 }
 
 void WechatMsgDialog::turnToPage(WechatPage page)

@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 
 #include "utils/utils.h"
+#include "dbparser/MSGParser.h"
 
 #include "defines.h"
 #include "msgcore/databus/databus.h"
@@ -132,5 +133,6 @@ Q_INVOKABLE void SessionOverviewCard::onSelectLastMsgFinished(const QVariantList
 
 QString SessionOverviewCard::getMsgRecordSessionStr(const QVariantMap& msg) const
 {
-	return msg.value(STR_STRCONTENT).toString();
+	MSGParser  parser(msg);
+	return parser.getSessionDisplay();
 }

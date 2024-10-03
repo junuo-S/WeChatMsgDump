@@ -84,6 +84,54 @@
     </message>
 </context>
 <context>
+    <name>QObject</name>
+    <message>
+        <location filename="../dbparser/MSGParser.cpp" line="51"/>
+        <source>[Unknown msg]</source>
+        <translation>[未知消息]</translation>
+    </message>
+    <message>
+        <location filename="../dbparser/MSGParser.cpp" line="59"/>
+        <source>[Image]</source>
+        <translation>[图片]</translation>
+    </message>
+    <message>
+        <location filename="../dbparser/MSGParser.cpp" line="62"/>
+        <source>[Voice]</source>
+        <translation>[语音]</translation>
+    </message>
+    <message>
+        <location filename="../dbparser/MSGParser.cpp" line="65"/>
+        <source>[Video]</source>
+        <translation>[视频]</translation>
+    </message>
+    <message>
+        <location filename="../dbparser/MSGParser.cpp" line="68"/>
+        <source>[Sticker]</source>
+        <translation>[动画表情]</translation>
+    </message>
+    <message>
+        <location filename="../dbparser/MSGParser.cpp" line="71"/>
+        <source>[Chat History]</source>
+        <translation>[聊天记录]</translation>
+    </message>
+    <message>
+        <location filename="../dbparser/MSGParser.cpp" line="77"/>
+        <source>[Transfer]</source>
+        <translation>[转账]</translation>
+    </message>
+    <message>
+        <location filename="../dbparser/MSGParser.cpp" line="80"/>
+        <source>[Voice/Video Call]</source>
+        <translation>[语音/视频电话]</translation>
+    </message>
+    <message>
+        <location filename="../dbparser/MSGParser.cpp" line="83"/>
+        <source>[File]</source>
+        <translation>[文件]</translation>
+    </message>
+</context>
+<context>
     <name>WxProcessListPage</name>
     <message>
         <location filename="../windows/decryptdlg/widgets/wxprocesslistpage.cpp" line="27"/>

@@ -3,6 +3,7 @@
     entry.cpp
     stdafx.h
     stdafx.cpp
+    global.h
 
     windows/decryptdlg/decryptdlg.h
     windows/decryptdlg/decryptdlg.cpp
@@ -13,7 +14,6 @@
     windows/decryptdlg/widgets/decryptingpage.h
     windows/decryptdlg/widgets/decryptingpage.cpp
 
-    windows/msgdlg/global.h
     windows/msgdlg/msgdlg.h
     windows/msgdlg/msgdlg.cpp
     windows/msgdlg/leftwidgets/verticalnavigationbar.h
@@ -25,6 +25,8 @@
 
     utils/utils.h
     utils/utils.cpp
+    dbparser/MSGParser.h
+    dbparser/MSGParser.cpp
 
     msgmanager/msgmanager.h
     msgmanager/msgmanager.cpp
@@ -54,7 +56,7 @@ set(ts_files
 set(target_name msgmain)
 
 junuo_add_library(${target_name} SHARED ${sources} ${ts_files} ${qrc_files} ${resource_files})
-junuo_use_Qt(${target_name} Core Widgets Gui)
+junuo_use_Qt(${target_name} Core Widgets Gui Xml)
 junuo_use_lz4(${target_name})
 junuo_auto_moc(${target_name} ${sources})
 junuo_auto_rcc(${target_name} ${qrc_files} ${resource_files})
