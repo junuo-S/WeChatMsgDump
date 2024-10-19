@@ -19,7 +19,6 @@ private:
 	Q_INVOKABLE void onSelectChatCountFinished(const QVariantList& result, const QVariant& context = QVariant());
 	Q_INVOKABLE void onSelectLastMsgFinished(const QVariantList& result, const QVariant& context = QVariant());
 
-	QString getMsgRecordSessionStr(const QVariantMap& msg) const;
 	struct Data;
 	QScopedPointer<Data> data;
 };

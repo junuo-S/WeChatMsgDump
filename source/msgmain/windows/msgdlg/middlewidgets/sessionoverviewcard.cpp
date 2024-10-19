@@ -125,14 +125,7 @@ Q_INVOKABLE void SessionOverviewCard::onSelectLastMsgFinished(const QVariantList
 	{
 		return;
 	}
-	const auto& resultMap = result.at(0).toMap();
-	qint64 createTime = resultMap.value(STR_CREATETIME).toLongLong();
-	data->lastMsgTimeLabel->setText(QDateTimeToString(QDateTime::fromSecsSinceEpoch(createTime)));
-	data->lastMessageLabel->setText(getMsgRecordSessionStr(resultMap));
-}
-
-QString SessionOverviewCard::getMsgRecordSessionStr(const QVariantMap& msg) const
-{
-	MSGParser  parser(msg);
-	return parser.getSessionDisplay();
+	MSGParser  parser(result.at(0).toMap());
+	data->lastMsgTimeLabel->setText(QDateTimeToString(QDateTime::fromSecsSinceEpoch(parser.getCreateTime())));
+	data->lastMessageLabel->setText(parser.getSessionDisplay());
 }

@@ -12,10 +12,18 @@ public:
 	MsgType getMsgType() const;
 	QString getSessionDisplay() const;
 	bool getIsSender() const;
+	qint64 getCreateTime() const;
+	QString getStrTalker() const;
 
 private:
+	struct BytesExtraMessage
+	{
+		QPair<int, int> message1;
+		QList<QPair<int, QString>> message2;
+	};
+
 	void ensureMsgType();
-	QString getTitleFromQuoteMsg() const;
+	QString getContentByXPath(const QString& xpath) const;
 
 	qint64 m_localId;
 	qint64 m_talkerId;
@@ -38,4 +46,5 @@ private:
 	QByteArray m_bytesExtra;
 	QByteArray m_bytesTrans;
 	MsgType m_msgType = UnKnown;
+	BytesExtraMessage m_bytesExtraMsg;
 };

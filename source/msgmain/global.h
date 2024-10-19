@@ -14,6 +14,8 @@ enum MsgType
 	Voice,
 	Video,
 	Sticker,
+	MapInfo,
+	SharedCardLink,
 	MergedChatRecord,
 	TextWithQuote,
 	Transfer,

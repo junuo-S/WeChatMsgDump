@@ -53,14 +53,18 @@ set(ts_files
     mui/msgmain_zh_CN.ts
 )
 
+set(proto_files protobuf/MSG.proto)
+
 set(target_name msgmain)
 
-junuo_add_library(${target_name} SHARED ${sources} ${ts_files} ${qrc_files} ${resource_files})
+junuo_add_library(${target_name} SHARED ${sources} ${ts_files} ${qrc_files} ${resource_files} ${proto_files})
 junuo_use_Qt(${target_name} Core Widgets Gui Xml)
 junuo_use_lz4(${target_name})
+junuo_use_protobuf(${target_name})
 junuo_auto_moc(${target_name} ${sources})
 junuo_auto_rcc(${target_name} ${qrc_files} ${resource_files})
 junuo_link_libraries(${target_name} msgcore junuoui)
-junuo_include_directories(${target_name} . ../include)
+junuo_include_directories(${target_name} . ../include ${CMAKE_CURRENT_BINARY_DIR})
 junuo_compile_definitions(${target_name} _MSGMAIN_MODULE_)
 junuo_add_translation(${target_name} ${ts_files})
+junuo_generate_protobuf_files(${target_name} ${proto_files})

@@ -7,7 +7,7 @@
 #include <QScrollArea>
 #include <QMap>
 
-#include "windows/msgdlg/global.h"
+#include "global.h"
 #include "sessionoverviewcard.h"
 
 struct MiddlePage::Data

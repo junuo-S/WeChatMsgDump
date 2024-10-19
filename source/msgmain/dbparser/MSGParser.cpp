@@ -2,6 +2,8 @@
 
 #include "defines.h"
 
+#include <gen-cpp/MSG.pb.h>
+
 #include "utils/utils.h"
 
 static constexpr const char* const gs_appmsg = "appmsg";
@@ -33,8 +35,21 @@ MSGParser::MSGParser(const QVariantMap& recored)
 		QByteArray decompressContent;
 		if (utils::DecompressLZ4(m_compressContent, decompressContent))
 			m_decompressContentXML.setContent(QString::fromUtf8(decompressContent));
+		m_compressContent.clear();
 	}
 	ensureMsgType();
+	if (!m_bytesExtra.isEmpty())
+	{
+		MessageBytesExtra msg;
+		msg.ParseFromString(m_bytesExtra.toStdString());
+		m_bytesExtraMsg.message1.first = msg.message1().field1();
+		m_bytesExtraMsg.message1.second = msg.message1().field2();
+		for (int i = 0; i < msg.message2_size(); i++)
+		{
+			m_bytesExtraMsg.message2.append(QPair(msg.message2(i).field1(), QString::fromStdString(msg.message2(i).field2())));
+		}
+		m_bytesExtra.clear();
+	}
 }
 
 MsgType MSGParser::getMsgType() const
@@ -71,7 +86,7 @@ QString MSGParser::getSessionDisplay() const
 		displayStr = QObject::tr("[Chat History]");
 		break;
 	case TextWithQuote:
-		displayStr = getTitleFromQuoteMsg();
+		displayStr = getContentByXPath(QString("%1/%2").arg(gs_appmsg).arg(gs_title));
 		break;
 	case Transfer:
 		displayStr = QObject::tr("[Transfer]");
@@ -82,6 +97,12 @@ QString MSGParser::getSessionDisplay() const
 	case File:
 		displayStr = QObject::tr("[File]");
 		break;
+	case MapInfo:
+		displayStr = QObject::tr("[Location] %1").arg(getContentByXPath(QString("%1/%2").arg(gs_appmsg).arg(gs_title)));
+		break;
+	case SharedCardLink:
+		displayStr = QObject::tr("[Link] %1").arg(getContentByXPath(QString("%1/%2").arg(gs_appmsg).arg(gs_title)));
+		break;
 	default:
 		break;
 	}
@@ -91,6 +112,16 @@ QString MSGParser::getSessionDisplay() const
 bool MSGParser::getIsSender() const
 {
 	return m_isSender;
+}
+
+qint64 MSGParser::getCreateTime() const
+{
+	return m_createTime;
+}
+
+QString MSGParser::getStrTalker() const
+{
+	return m_strTalker;
 }
 
 void MSGParser::ensureMsgType()
@@ -105,6 +136,10 @@ void MSGParser::ensureMsgType()
 		m_msgType = Video;
 	else if (m_type == 47 && m_subType == 0)
 		m_msgType = Sticker;
+	else if (m_type == 48 && m_subType == 0)
+		m_msgType = MapInfo;
+	else if (m_type == 49 && m_subType == 5)
+		m_msgType = SharedCardLink;
 	else if (m_type == 49 && m_subType == 19)
 		m_msgType = MergedChatRecord;
 	else if (m_type == 49 && m_subType == 57)
@@ -123,11 +158,13 @@ void MSGParser::ensureMsgType()
 		m_msgType = UnKnown;
 }
 
-QString MSGParser::getTitleFromQuoteMsg() const
+QString MSGParser::getContentByXPath(const QString& xpath) const
 {
-	QDomElement root = m_decompressContentXML.documentElement();
-	QDomElement appmsg = root.firstChildElement(gs_appmsg);
-	QString title = appmsg.firstChildElement(gs_title).text();
-	return title;
+	QStringList paths = xpath.split("/");
+	QDomElement node = m_decompressContentXML.documentElement();
+	for (int i = 0; i < paths.size() && !node.isNull(); i++)
+	{
+		node = node.firstChildElement(paths.at(i));
+	}
+	return node.text();
 }
-

@@ -22,7 +22,7 @@ struct DecryptDialog::Data
 		mainWidget->setObjectName("mainWidget");
 		QVBoxLayout* vLayout = new QVBoxLayout(q);
 		vLayout->setContentsMargins(DPI(10), DPI(10), DPI(10), DPI(10));
-		titleBar = new JunuoBaseTitleBar(QPixmap(":/icon_svg/wxchat.svg"), q->tr("wechat db decrypt"), q);
+		titleBar = new JunuoBaseTitleBar(QPixmap(":/icon_svg/wxchat.svg"), DecryptDialog::tr("wechat db decrypt"), q);
 		titleBar->setObjectName("titleBar");
 		titleBar->setTitleIconSize(DPI_SIZE(18, 18));
 		q->setTitleBar(titleBar);
