@@ -97,3 +97,23 @@ WechatMsgDialog MiddlePage SessionOverviewCard #msgCountLabel {
     font-size: 12px;
     color: #b9b9b9;
 }
+
+WechatMsgDialog ChatPage JunuoBaseTitleBar QPushButton {
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    width: 24px;
+    height: 24px;
+}
+
+WechatMsgDialog ChatPage JunuoBaseTitleBar QPushButton#closeButton {
+    qproperty-iconSize: 14px 14px;
+}
+
+WechatMsgDialog ChatPage JunuoBaseTitleBar QPushButton:hover {
+    background-color: #ddd;
+}
+
+WechatMsgDialog ChatPage JunuoBaseTitleBar QPushButton:pressed {
+    background-color: #ccc;
+}

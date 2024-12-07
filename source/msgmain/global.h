@@ -2,8 +2,8 @@
 
 enum WechatPage
 {
-	ChatPage,
-	FriendPage,
+	Wechat_ChatPage,
+	Wechat_FriendPage,
 };
 
 enum MsgType

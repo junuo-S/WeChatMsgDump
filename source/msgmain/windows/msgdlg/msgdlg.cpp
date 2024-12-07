@@ -10,6 +10,7 @@
 #include "msgmanager/msgmanager.h"
 #include "leftwidgets/verticalnavigationbar.h"
 #include "middlewidgets/middlepage.h"
+#include "rightwidgets/chatpage.h"
 
 #include "defines.h"
 #include "msgcore/databus/databus.h"
@@ -31,11 +32,14 @@ struct WechatMsgDialog::Data
 		WechatMsgDialog::connect(verticalNavigationBar, &VerticalNavigationBar::sigCurrentPageChanged, q, &WechatMsgDialog::onCurrentPageChanged);
 		
 		splitter = new QSplitter(Qt::Horizontal, q);
+		splitter->setChildrenCollapsible(false);
 		middlePage = new MiddlePage(splitter);
+		middlePage->setMaximumWidth(DPI(358));
 		splitter->addWidget(middlePage);
+		chatPage = new ChatPage(splitter);
+		splitter->addWidget(chatPage);
 
 		mainHLayout->addWidget(splitter);
-		mainHLayout->addStretch();
 		QFile qssFile(":/stylesheet/wechatmsgdialog.qss");
 		if (qssFile.open(QIODevice::ReadOnly | QIODevice::Text))
 		{
@@ -51,7 +55,8 @@ struct WechatMsgDialog::Data
 	VerticalNavigationBar* verticalNavigationBar = nullptr;
 	QSplitter* splitter = nullptr;
 	MiddlePage* middlePage = nullptr;
-	WechatPage currentPage = ChatPage;
+	WechatPage currentPage = Wechat_ChatPage;
+	ChatPage* chatPage = nullptr;
 };
 
 WechatMsgDialog::WechatMsgDialog(QWidget* parent /*= nullptr*/)

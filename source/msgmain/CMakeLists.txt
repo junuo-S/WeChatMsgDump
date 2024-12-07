@@ -22,6 +22,8 @@
     windows/msgdlg/middlewidgets/middlepage.cpp
     windows/msgdlg/middlewidgets/sessionoverviewcard.h
     windows/msgdlg/middlewidgets/sessionoverviewcard.cpp
+    windows/msgdlg/rightwidgets/chatpage.h
+    windows/msgdlg/rightwidgets/chatpage.cpp
 
     utils/utils.h
     utils/utils.cpp
