@@ -80,10 +80,10 @@ WechatMsgDialog MiddlePage SessionOverviewCard:hover {
     background-color: #e4e4e4;
 }
 
-/* 选中态，待完善 */
-/* WechatMsgDialog MiddlePage SessionOverviewCard:selected {
+/* 选中态 */
+WechatMsgDialog MiddlePage SessionOverviewCard[selectedString='selected'] {
     background-color: #dedede;
-} */
+}
 
 WechatMsgDialog MiddlePage SessionOverviewCard #remarkLabel {
     font-family: '仿宋';

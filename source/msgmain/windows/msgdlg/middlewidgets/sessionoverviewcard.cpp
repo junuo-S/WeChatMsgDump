@@ -6,6 +6,8 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QMouseEvent>
+#include <QStyle>
 
 #include "utils/utils.h"
 #include "dbparser/MSGParser.h"
@@ -66,6 +68,8 @@ struct SessionOverviewCard::Data
 	QVBoxLayout* middleVLayout = nullptr;
 	QVBoxLayout* rightVLayout = nullptr;
 	QString wxid;
+	QString remark;
+	bool isSelected = false;
 };
 
 SessionOverviewCard::SessionOverviewCard(const QString& wxid, QWidget* parent /*= nullptr*/)
@@ -96,6 +100,36 @@ void SessionOverviewCard::setHeadImage(const QPixmap& pixmap)
 	data->headImageLabel->setPixmap(utils::CreateRoundedPixmap(pixmap));
 }
 
+QString SessionOverviewCard::getTalkerWxid() const
+{
+	return data->wxid;
+}
+
+QString SessionOverviewCard::getTalkerRemark() const
+{
+	return data->remark;
+}
+
+void SessionOverviewCard::setSelected(bool selected)
+{
+	data->isSelected = selected;
+	style()->unpolish(this);
+	style()->polish(this);
+}
+
+QString SessionOverviewCard::getSelectedString() const
+{
+	return data->isSelected ? "selected" : "no-selected";
+}
+
+void SessionOverviewCard::mousePressEvent(QMouseEvent* event)
+{
+	if (event->button() == Qt::LeftButton)
+	{
+		emit sigSessionClicked(this, data->wxid, data->remark);
+	}
+}
+
 Q_INVOKABLE void SessionOverviewCard::onSelectContactInfoFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)
 {
 	if (result.size() != 1)
@@ -106,7 +140,7 @@ Q_INVOKABLE void SessionOverviewCard::onSelectContactInfoFinished(const QVariant
 	const auto& resultMap = result.at(0).toMap();
 	const QString remark = resultMap.value(STR_REMARK).toString();
 	const QString nickName = resultMap.value(STR_NICKNAME).toString();
-	data->remarkLabel->setText(remark.isEmpty() ? nickName : remark);
+	data->remarkLabel->setText(data->remark = remark.isEmpty() ? nickName : remark);
 }
 
 Q_INVOKABLE void SessionOverviewCard::onSelectChatCountFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)

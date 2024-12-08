@@ -3,7 +3,7 @@
 #include <QWidget>
 #include <QScopedPointer>
 
-class SessionCardInfo;
+class SessionOverviewCard;
 
 class MiddlePage : public QWidget
 {
@@ -14,7 +14,11 @@ public:
 	~MiddlePage();
 	void addSessionCard(const QString& wxid);
 
+signals:
+	void sigSessionClicked(SessionOverviewCard* session, const QString& wxid, const QString& remark);
+
 private:
+	void onSessionClicked(SessionOverviewCard* session, const QString& wxid, const QString& remark);
 	struct Data;
 	QScopedPointer<Data> data;
 };
