@@ -90,5 +90,5 @@ void MiddlePage::onSessionClicked(SessionOverviewCard* session, const QString& w
 		data->currentSession->setSelected(false);
 	data->currentSession = session;
 	data->currentSession->setSelected(true);
-	emit sigSessionClicked(session, wxid, remark);
+	emit sigSessionClicked(wxid, remark);
 }

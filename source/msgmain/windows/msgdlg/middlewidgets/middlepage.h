@@ -15,7 +15,7 @@ public:
 	void addSessionCard(const QString& wxid);
 
 signals:
-	void sigSessionClicked(SessionOverviewCard* session, const QString& wxid, const QString& remark);
+	void sigSessionClicked(const QString& wxid, const QString& remark);
 
 private:
 	void onSessionClicked(SessionOverviewCard* session, const QString& wxid, const QString& remark);
