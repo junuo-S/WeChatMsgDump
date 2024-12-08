@@ -38,6 +38,7 @@ struct WechatMsgDialog::Data
 		splitter->addWidget(middlePage);
 		chatPage = new ChatPage(splitter);
 		splitter->addWidget(chatPage);
+		WechatMsgDialog::connect(middlePage, &MiddlePage::sigSessionClicked, chatPage, &ChatPage::setCurrentChatTalker);
 
 		mainHLayout->addWidget(splitter);
 		QFile qssFile(":/stylesheet/wechatmsgdialog.qss");

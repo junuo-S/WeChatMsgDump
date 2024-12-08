@@ -2,6 +2,17 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
+    <name>ChatPage</name>
+    <message>
+        <source>type something to search</source>
+        <translation>输入内容来搜索</translation>
+    </message>
+    <message>
+        <source>search</source>
+        <translation>搜索</translation>
+    </message>
+</context>
+<context>
     <name>DecryptDialog</name>
     <message>
         <source>wechat db decrypt</source>

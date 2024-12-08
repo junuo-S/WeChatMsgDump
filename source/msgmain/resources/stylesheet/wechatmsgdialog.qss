@@ -117,3 +117,38 @@ WechatMsgDialog ChatPage JunuoBaseTitleBar QPushButton:hover {
 WechatMsgDialog ChatPage JunuoBaseTitleBar QPushButton:pressed {
     background-color: #ccc;
 }
+
+WechatMsgDialog ChatPage QLabel#chatTalkerInfoLabel {
+    font-family: '仿宋';
+    font-size: 20px;
+    font-weight: bold;
+}
+
+WechatMsgDialog ChatPage QLineEdit#searchEdit {
+    font-family: '仿宋';
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 2px 5px;
+}
+
+WechatMsgDialog ChatPage QPushButton#searchButton {
+    font-family: '仿宋';
+    font-size: 16px;
+    background-color: #409eff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+}
+
+WechatMsgDialog ChatPage QPushButton#searchButton:hover {
+    background-color: #66b1ff;
+}
+
+WechatMsgDialog ChatPage QPushButton#searchButton:pressed {
+    background-color: #3a8ee6;
+}
+
+WechatMsgDialog ChatPage QPushButton#searchButton:disabled {
+    background-color: #a0cfff;
+}
