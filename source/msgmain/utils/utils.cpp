@@ -4,6 +4,7 @@
 
 #include <QPainter>
 #include <QPainterPath>
+#include <QDateTime>
 
 #include <lz4.h>
 
@@ -48,3 +49,7 @@ bool utils::DecompressLZ4(const QByteArray& compressedData, QByteArray& decompre
 	return true;
 }
 
+QString utils::QDateTimeToString(const QDateTime& dateTime)
+{
+	return dateTime.toString("yyyy/MM/dd hh:mm:ss");
+}

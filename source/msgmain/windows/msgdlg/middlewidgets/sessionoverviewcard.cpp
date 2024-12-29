@@ -17,11 +17,6 @@
 
 constexpr static const char* const gs_strLoading = "loading...";
 
-static QString QDateTimeToString(const QDateTime& dateTime)
-{
-	return dateTime.toString("yyyy/MM/dd hh:mm:ss");
-}
-
 struct SessionOverviewCard::Data
 {
 	void initUI()
@@ -160,6 +155,6 @@ Q_INVOKABLE void SessionOverviewCard::onSelectLastMsgFinished(const QVariantList
 		return;
 	}
 	MSGParser  parser(result.at(0).toMap());
-	data->lastMsgTimeLabel->setText(QDateTimeToString(QDateTime::fromSecsSinceEpoch(parser.getCreateTime())));
+	data->lastMsgTimeLabel->setText(utils::QDateTimeToString(QDateTime::fromSecsSinceEpoch(parser.getCreateTime())));
 	data->lastMessageLabel->setText(parser.getSessionDisplay());
 }

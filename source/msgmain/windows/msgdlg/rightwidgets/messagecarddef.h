@@ -39,4 +39,5 @@ protected:
 	QVBoxLayout* m_headImageVLayout = nullptr;
 	QLabel* m_headImageLabel = nullptr;
 	QVBoxLayout* m_msgVLayout = nullptr;
+	QLabel* m_timeLabel = nullptr;
 };
