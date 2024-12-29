@@ -124,6 +124,11 @@ QString MSGParser::getStrTalker() const
 	return m_strTalker;
 }
 
+QString MSGParser::getStrContent() const
+{
+	return m_strContent;
+}
+
 void MSGParser::ensureMsgType()
 {
 	if (m_type == 1 && m_subType == 0)

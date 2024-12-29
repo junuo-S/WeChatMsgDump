@@ -70,6 +70,13 @@
     </message>
 </context>
 <context>
+    <name>MessageCardUnKnownWidget</name>
+    <message>
+        <source>This Message is not support</source>
+        <translation>该条消息暂不支持查看</translation>
+    </message>
+</context>
+<context>
     <name>MsgManager</name>
     <message>
         <source>error</source>

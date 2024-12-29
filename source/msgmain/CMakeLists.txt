@@ -24,6 +24,12 @@
     windows/msgdlg/middlewidgets/sessionoverviewcard.cpp
     windows/msgdlg/rightwidgets/chatpage.h
     windows/msgdlg/rightwidgets/chatpage.cpp
+    windows/msgdlg/rightwidgets/messagecard.h
+    windows/msgdlg/rightwidgets/messagecard.cpp
+    windows/msgdlg/rightwidgets/messagecarddef.h
+    windows/msgdlg/rightwidgets/messagecarddef.cpp
+    windows/msgdlg/rightwidgets/messagecardfactory.h
+    windows/msgdlg/rightwidgets/messagecardfactory.cpp
 
     utils/utils.h
     utils/utils.cpp

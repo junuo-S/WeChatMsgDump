@@ -152,3 +152,29 @@ WechatMsgDialog ChatPage QPushButton#searchButton:pressed {
 WechatMsgDialog ChatPage QPushButton#searchButton:disabled {
     background-color: #a0cfff;
 }
+
+WechatMsgDialog ChatPage QScrollArea {
+    background-color: transparent;
+    border: none;
+}
+
+WechatMsgDialog ChatPage QScrollArea QWidget#chatContentWidget {
+    background-color: transparent;
+}
+
+WechatMsgDialog ChatPage QScrollArea QWidget#chatContentWidget QLabel#plantTextLabel_sender,
+WechatMsgDialog ChatPage QScrollArea QWidget#chatContentWidget QLabel#plantTextLabel_receiver
+{
+    color: black;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+}
+
+WechatMsgDialog ChatPage QScrollArea QWidget#chatContentWidget QLabel#plantTextLabel_sender {
+    background-color: #95ec69;
+}
+
+WechatMsgDialog ChatPage QScrollArea QWidget#chatContentWidget QLabel#plantTextLabel_receiver {
+    background-color: #e4e4e4;
+}
