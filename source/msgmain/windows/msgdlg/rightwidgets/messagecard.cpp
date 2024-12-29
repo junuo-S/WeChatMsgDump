@@ -30,6 +30,7 @@ void MessageCardPlantTextWidget::adjustBestSize()
 QWidget* MessageCardPlantTextWidget::createMsgContentWidget()
 {
 	m_msgContentLabel = new QLabel(this);
+	m_msgContentLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 	QFont font("SimSun", DPI(11));
 	m_msgContentLabel->setFont(font);
 	m_msgContentLabel->setContentsMargins(DPI(6), DPI(4), DPI(6), DPI(4));
@@ -41,6 +42,7 @@ QWidget* MessageCardPlantTextWidget::createMsgContentWidget()
 QWidget* MessageCardUnKnownWidget::createMsgContentWidget()
 {
 	m_msgContentLabel = new QLabel(this);
+	m_msgContentLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 	QFont font("SimSun", DPI(11));
 	m_msgContentLabel->setFont(font);
 	m_msgContentLabel->setContentsMargins(DPI(6), DPI(4), DPI(6), DPI(4));

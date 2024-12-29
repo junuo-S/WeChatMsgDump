@@ -123,6 +123,11 @@ Q_INVOKABLE void ChatPage::onRequestChatHistoryFinished(const QVariantList& resu
 	for (const auto& record : result)
 	{
 		auto messageCardWidget = MessageCardWidgetFactory::createInstance(record.toMap(), this);
+		if (messageCardWidget->getStrTalker() != m_currentChatTalkerWxid)
+		{
+			messageCardWidget->deleteLater();
+			break;
+		}
 		messageCardWidget->initUI();
 		connect(this, &ChatPage::sigSizeChanged, messageCardWidget, &MessageCardWidgetBase::adjustBestSize, Qt::QueuedConnection);
 		m_chatContentVLayout->insertWidget(0, messageCardWidget);

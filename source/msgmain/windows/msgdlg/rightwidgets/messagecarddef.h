@@ -13,6 +13,7 @@ class MessageCardWidgetBase : public QWidget
 public:
 	MessageCardWidgetBase(const MSGParser& parser, QWidget* parent = nullptr) : QWidget(parent), m_msgParser(parser) {};
 	virtual ~MessageCardWidgetBase() = default;
+	QString getStrTalker() const { return m_msgParser.getStrTalker(); }
 	virtual void adjustBestSize() = 0;
 	virtual void initUI() = 0;
 
