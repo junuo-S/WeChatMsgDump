@@ -7,6 +7,8 @@
 #include <QScrollArea>
 #include <QMap>
 #include <QPointer>
+#include <QScrollBar>
+#include <QTimer>
 
 #include "global.h"
 #include "sessionoverviewcard.h"
@@ -26,6 +28,8 @@ struct MiddlePage::Data
 		msgScrollArea->setWidgetResizable(true);
 		msgScrollArea->setWidget(msgWidget);
 		msgScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		MiddlePage::connect(msgScrollArea->verticalScrollBar(), &QScrollBar::valueChanged, q, &MiddlePage::onSessionScrollAreaScrolled);
+		MiddlePage::connect(msgScrollArea->verticalScrollBar(), &QScrollBar::rangeChanged, q, &MiddlePage::onSessionScrollAreaScrolled);
 		msgVLayout = new QVBoxLayout(msgWidget);
 		msgVLayout->setContentsMargins(0, 0, 0, 0);
 		msgVLayout->setSpacing(DPI(1));
@@ -47,9 +51,9 @@ struct MiddlePage::Data
 	void addSessionCard(const QString& wxid)
 	{
 		auto card = new SessionOverviewCard(wxid, msgWidget);
-		card->startWork();
 		MiddlePage::connect(card, &SessionOverviewCard::sigSessionClicked, q, &MiddlePage::onSessionClicked);
 		msgVLayout->addWidget(card);
+		pendingSessionCards.append(card);
 	}
 
 	MiddlePage* q = nullptr;
@@ -60,8 +64,9 @@ struct MiddlePage::Data
 	QWidget* friendWidget = nullptr;
 	QScrollArea* friendScrollArea = nullptr;
 	QVBoxLayout* friendVLayout = nullptr;
-	QMap<QString, SessionOverviewCard*> sessionCardTable;
 	QPointer<SessionOverviewCard> currentSession = nullptr;
+	QList<SessionOverviewCard*> pendingSessionCards;
+	QTimer* refreshTimer = nullptr;
 };
 
 MiddlePage::MiddlePage(Base* parent /*= nullptr*/)
@@ -69,12 +74,21 @@ MiddlePage::MiddlePage(Base* parent /*= nullptr*/)
 	, data(new Data)
 {
 	data->q = this;
+	data->refreshTimer = new QTimer(this);
+	data->refreshTimer->setInterval(400);
+	data->refreshTimer->setSingleShot(true);
+	connect(data->refreshTimer, &QTimer::timeout, this, &MiddlePage::refreshSessionCardsInfo);
 	data->initUI();
 }
 
 MiddlePage::~MiddlePage()
 {
 
+}
+
+void MiddlePage::startWork()
+{
+	refreshSessionCardsInfo();
 }
 
 void MiddlePage::addSessionCard(const QString& wxid)
@@ -91,4 +105,28 @@ void MiddlePage::onSessionClicked(SessionOverviewCard* session, const QString& w
 	data->currentSession = session;
 	data->currentSession->setSelected(true);
 	emit sigSessionClicked(wxid, remark);
+}
+
+void MiddlePage::onSessionScrollAreaScrolled(int value)
+{
+	data->refreshTimer->stop();
+	data->refreshTimer->start();
+}
+
+void MiddlePage::refreshSessionCardsInfo()
+{
+	QRect visibleRect = data->msgScrollArea->viewport()->rect();
+	QList<SessionOverviewCard*> needRemoveSessionCards;
+	for (auto card : data->pendingSessionCards)
+	{
+		QRect cardRect = card->geometry();
+		cardRect.moveTo(card->mapTo(data->msgScrollArea->viewport(), QPoint(0, 0)));
+		if (visibleRect.intersects(cardRect))
+		{
+			card->startWork();
+			needRemoveSessionCards.append(card);
+		}
+	}
+	for (auto card : needRemoveSessionCards)
+		data->pendingSessionCards.removeAll(card);
 }

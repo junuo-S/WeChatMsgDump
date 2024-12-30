@@ -12,6 +12,7 @@ class MiddlePage : public QWidget
 public:
 	MiddlePage(Base* parent = nullptr);
 	~MiddlePage();
+	void startWork();
 	void addSessionCard(const QString& wxid);
 
 signals:
@@ -19,6 +20,8 @@ signals:
 
 private:
 	void onSessionClicked(SessionOverviewCard* session, const QString& wxid, const QString& remark);
+	void onSessionScrollAreaScrolled(int value);
+	void refreshSessionCardsInfo();
 	struct Data;
 	QScopedPointer<Data> data;
 };
