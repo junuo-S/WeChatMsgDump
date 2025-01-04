@@ -29,7 +29,11 @@ protected:
 private:
 	void initUI();
 	void clearChatContentLayout();
+	void scrollToBottom();
+	void onChatContentScrollBarRangeChanged(int min, int max);
+	void onChatContentScrollBarValueChanged(int value);
 	void addMessageCardWidgetByCache(const QString& wxid);
+	void requestChatHistory(const QString& wxid, qint64 createTime, bool forward, size_t limit);
 	Q_INVOKABLE void onRequestChatHistoryFinished(const QVariantList& result, const QVariant& context = QVariant());
 
 	QString m_currentChatTalkerWxid;
@@ -44,4 +48,8 @@ private:
 	QHBoxLayout* m_searchHLayout = nullptr;
 	QLineEdit* m_searchEdit = nullptr;
 	QPushButton* m_searchButton = nullptr;
+	bool m_needScrollToBottom = true;
+	int m_scrollBarLastValue = 0;
+	int m_scrollBarCurrentVisiabelDelta = 0;
+	std::atomic_bool m_isRequestingChatHistory = false;
 };

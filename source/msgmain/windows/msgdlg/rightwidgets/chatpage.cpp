@@ -41,7 +41,8 @@ void ChatPage::setCurrentChatTalker(const QString& wxid, const QString& remark)
 	m_currentChatTalkerWxid = wxid;
 	m_chatTalkerInfoLabel->setText(remark);
 	clearChatContentLayout();
-	m_chatContentMap.contains(wxid) ? addMessageCardWidgetByCache(wxid) : DATA_BUS_INSTANCE->requestChatHistory(wxid, QDateTime::currentSecsSinceEpoch(), false, 50, this, "onRequestChatHistoryFinished");
+	m_chatContentMap.contains(wxid) ? addMessageCardWidgetByCache(wxid) : requestChatHistory(wxid, QDateTime::currentSecsSinceEpoch(), false, 50);
+	m_needScrollToBottom = true;
 }
 
 void ChatPage::paintEvent(QPaintEvent* event)
@@ -74,6 +75,8 @@ void ChatPage::initUI()
 	m_chatContentScrollArea->setObjectName("chatContentScrollArea");
 	m_chatContentScrollArea->setWidgetResizable(true);
 	m_chatContentScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	connect(m_chatContentScrollArea->verticalScrollBar(), &QScrollBar::rangeChanged, this, &ChatPage::onChatContentScrollBarRangeChanged);
+	connect(m_chatContentScrollArea->verticalScrollBar(), &QScrollBar::valueChanged, this, &ChatPage::onChatContentScrollBarValueChanged);
 	m_chatContentWidget = new QWidget(this);
 	m_chatContentWidget->setObjectName("chatContentWidget");
 	m_chatContentScrollArea->setWidget(m_chatContentWidget);
@@ -109,17 +112,69 @@ void ChatPage::clearChatContentLayout()
 	}
 }
 
+void ChatPage::scrollToBottom()
+{
+	m_chatContentScrollArea->verticalScrollBar()->setValue(m_chatContentScrollArea->verticalScrollBar()->maximum());
+	m_scrollBarLastValue = m_chatContentScrollArea->verticalScrollBar()->maximum();
+}
+
+void ChatPage::onChatContentScrollBarRangeChanged(int min, int max)
+{
+	if (min >= max)
+		return;
+	if (m_needScrollToBottom)
+	{
+		scrollToBottom();
+		m_needScrollToBottom = false;
+	}
+	if (m_scrollBarCurrentVisiabelDelta > 0)
+		m_chatContentScrollArea->verticalScrollBar()->setValue(m_chatContentScrollArea->verticalScrollBar()->minimum() + m_scrollBarCurrentVisiabelDelta);
+	else if (m_scrollBarCurrentVisiabelDelta < 0)
+		m_chatContentScrollArea->verticalScrollBar()->setValue(m_chatContentScrollArea->verticalScrollBar()->maximum() + m_scrollBarCurrentVisiabelDelta);
+	m_scrollBarCurrentVisiabelDelta = 0;
+}
+
+void ChatPage::onChatContentScrollBarValueChanged(int value)
+{
+	double verticalScrollPercentage = float(value - m_chatContentScrollArea->verticalScrollBar()->minimum()) / (m_chatContentScrollArea->verticalScrollBar()->maximum() - m_chatContentScrollArea->verticalScrollBar()->minimum());
+	if (verticalScrollPercentage < 0.1 && m_scrollBarLastValue > value)
+	{
+		requestChatHistory(m_currentChatTalkerWxid, m_chatContentMap.value(m_currentChatTalkerWxid).front()->getCreateTime() - 1, false, 50);
+		m_scrollBarCurrentVisiabelDelta = value - m_chatContentScrollArea->verticalScrollBar()->maximum();
+	}
+	else if (verticalScrollPercentage > 0.9 && m_scrollBarLastValue < value)
+	{
+		requestChatHistory(m_currentChatTalkerWxid, m_chatContentMap.value(m_currentChatTalkerWxid).back()->getCreateTime() + 1, true, 50);
+		m_scrollBarCurrentVisiabelDelta = value - m_chatContentScrollArea->verticalScrollBar()->minimum();
+	}
+	m_scrollBarLastValue = value;
+}
+
 void ChatPage::addMessageCardWidgetByCache(const QString& wxid)
 {
 	for (const auto& messageCardWidget : m_chatContentMap.value(wxid))
 	{
-		m_chatContentVLayout->insertWidget(0, messageCardWidget);
+		m_chatContentVLayout->addWidget(messageCardWidget);
 		messageCardWidget->adjustBestSize();
 	}
 }
 
+void ChatPage::requestChatHistory(const QString& wxid, qint64 createTime, bool forward, size_t limit)
+{
+	if (m_isRequestingChatHistory)
+		return;
+	DATA_BUS_INSTANCE->requestChatHistory(wxid, createTime, forward, limit, this, "onRequestChatHistoryFinished");
+	m_isRequestingChatHistory = true;
+}
+
 Q_INVOKABLE void ChatPage::onRequestChatHistoryFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)
 {
+	m_isRequestingChatHistory = false;
+	if (result.isEmpty())
+	{
+		m_scrollBarCurrentVisiabelDelta = 0;
+		return;
+	}
 	for (const auto& record : result)
 	{
 		auto messageCardWidget = MessageCardWidgetFactory::createInstance(record.toMap(), this);
@@ -130,9 +185,16 @@ Q_INVOKABLE void ChatPage::onRequestChatHistoryFinished(const QVariantList& resu
 		}
 		messageCardWidget->initUI();
 		connect(this, &ChatPage::sigSizeChanged, messageCardWidget, &MessageCardWidgetBase::adjustBestSize, Qt::QueuedConnection);
-		m_chatContentVLayout->insertWidget(0, messageCardWidget);
+		if (m_scrollBarCurrentVisiabelDelta <= 0)
+		{
+			m_chatContentVLayout->insertWidget(0, messageCardWidget);
+			m_chatContentMap[m_currentChatTalkerWxid].push_front(messageCardWidget);
+		}
+		else
+		{
+			m_chatContentVLayout->addWidget(messageCardWidget);
+			m_chatContentMap[m_currentChatTalkerWxid].push_back(messageCardWidget);
+		}
 		messageCardWidget->adjustBestSize();
-		m_chatContentMap[m_currentChatTalkerWxid].append(messageCardWidget);
 	}
 }
-

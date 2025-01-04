@@ -37,7 +37,7 @@ void WechatDbReader::selectHeadImageByUserName(QObject* receiver, const char* me
 
 void WechatDbReader::selectContactByUserName(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/, const QVariant& context /*= QVariant()*/)
 {
-	const QString sql = "select UserName, Alias, NickName, Remark from Contact where UserName = '%1';";
+	const QString sql = "select * from Contact where UserName = '%1';";
 	data->dbThreadPool->executeQuery(sql.arg(param.value(STR_USERNAME).toString()), receiver, method, context);
 }
 
