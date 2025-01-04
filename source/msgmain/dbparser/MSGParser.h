@@ -15,6 +15,7 @@ public:
 	qint64 getCreateTime() const;
 	QString getStrTalker() const;
 	QString getStrContent() const;
+	QString getSenderWxid() const;
 
 private:
 	struct BytesExtraMessage

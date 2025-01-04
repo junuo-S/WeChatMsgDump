@@ -3,6 +3,7 @@
 #include "defines.h"
 
 #include <gen-cpp/MSG.pb.h>
+#include <msgcore/databus/databus.h>
 
 #include "utils/utils.h"
 
@@ -127,6 +128,15 @@ QString MSGParser::getStrTalker() const
 QString MSGParser::getStrContent() const
 {
 	return m_strContent;
+}
+
+QString MSGParser::getSenderWxid() const
+{
+	if (m_isSender)
+		return DATA_BUS_INSTANCE->getWxid();
+	if (!m_strTalker.endsWith("@chatroom"))
+		return m_strTalker;
+	return m_bytesExtraMsg.message2.front().second;
 }
 
 void MSGParser::ensureMsgType()

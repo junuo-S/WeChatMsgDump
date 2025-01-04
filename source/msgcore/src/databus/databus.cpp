@@ -229,7 +229,7 @@ QPixmap* DataBus::getHeadImage(const QString& wxid) const
 
 void DataBus::attachHeadImageObserver(const QString& wxid, IHeadImageObserver* observer)
 {
-	if (!observer)
+	if (!observer || wxid.isEmpty())
 		return;
 	if (m_headImageObservers.contains(wxid) && !m_headImageObservers[wxid].contains(observer))
 	{
