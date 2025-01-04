@@ -6,6 +6,7 @@
 #include <QNetworkRequest>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QMutexLocker>
 
 #include "defines.h"
 #include "dbreader/wechatdbreader.h"
@@ -33,11 +34,21 @@ void DataBus::onSelectHeadImageFinished(const QVariantList& result, const QVaria
 	QString smallUrl = result.at(0).toMap().value("smallHeadImgUrl").toString();
 	if (smallUrl.isEmpty() || userName.isEmpty())
 		return;
+	{
+		QMutexLocker lock(&m_requestingHeadImageListMutex);
+		if (m_requestingHeadImageList.contains(userName))
+			return;
+		m_requestingHeadImageList.append(userName);
+	}
 	QNetworkAccessManager* manager = new QNetworkAccessManager;
 	QNetworkRequest requst(smallUrl);
 	auto reply = manager->get(requst);
 	connect(reply, &QNetworkReply::finished, this, [this, userName, context, reply, manager]()
 		{
+			{
+				QMutexLocker lock(&m_requestingHeadImageListMutex);
+				m_requestingHeadImageList.removeAll(userName);
+			}
 			do
 			{
 				if (reply->error() != QNetworkReply::NoError)

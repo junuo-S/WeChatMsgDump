@@ -39,6 +39,7 @@ struct SessionOverviewCard::Data
 		middleVLayout->addWidget(remarkLabel);
 		lastMessageLabel = new QLabel(gs_strLoading, q);
 		lastMessageLabel->setObjectName("lastMessageLabel");
+		lastMessageLabel->setTextFormat(Qt::PlainText);
 		middleVLayout->addWidget(lastMessageLabel);
 		mainHLayout->addLayout(middleVLayout, 10);
 
@@ -49,7 +50,7 @@ struct SessionOverviewCard::Data
 		rightVLayout->addWidget(lastMsgTimeLabel);
 		msgCountLabel = new QLabel(gs_strLoading, q);
 		msgCountLabel->setObjectName("msgCountLabel");
-		rightVLayout->addWidget(msgCountLabel);
+		rightVLayout->addWidget(msgCountLabel, 0, Qt::AlignRight);
 		mainHLayout->addLayout(rightVLayout, 1);
 	}
 
@@ -121,13 +122,13 @@ void SessionOverviewCard::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
-		emit sigSessionClicked(this, data->wxid, data->remark);
+		emit sigSessionClicked(this, data->wxid, data->remarkLabel->text());
 	}
 }
 
 Q_INVOKABLE void SessionOverviewCard::onSelectContactInfoFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)
 {
-	if (result.size() != 1)
+	if (result.isEmpty())
 	{
 		data->remarkLabel->setText(data->wxid);
 		return;
@@ -155,6 +156,6 @@ Q_INVOKABLE void SessionOverviewCard::onSelectLastMsgFinished(const QVariantList
 		return;
 	}
 	MSGParser  parser(result.at(0).toMap());
-	data->lastMsgTimeLabel->setText(utils::QDateTimeToString(QDateTime::fromSecsSinceEpoch(parser.getCreateTime())));
+	data->lastMsgTimeLabel->setText(utils::QDateTimeToStringOnlyDate(QDateTime::fromSecsSinceEpoch(parser.getCreateTime())));
 	data->lastMessageLabel->setText(parser.getSessionDisplay());
 }

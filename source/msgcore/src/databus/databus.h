@@ -12,6 +12,7 @@
 #include <QVariantMap>
 #include <QCache>
 #include <QPixmap>
+#include <QMutex>
 
 class IHeadImageObserver;
 class WechatDbReader;
@@ -73,6 +74,8 @@ private:
 	QCache<QString, QPixmap> m_headImgCache;
 	QHash<QString, QVector<IHeadImageObserver*>> m_headImageObservers;
 	WechatDbReader* m_dbReader = nullptr;
+	QList<QString> m_requestingHeadImageList;
+	QMutex m_requestingHeadImageListMutex;
 };
 
 #define DATA_BUS_INSTANCE DataBus::instance()

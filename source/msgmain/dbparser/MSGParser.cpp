@@ -106,7 +106,7 @@ QString MSGParser::getSessionDisplay() const
 	default:
 		break;
 	}
-	return displayStr;
+	return displayStr.replace("\n", " ");
 }
 
 bool MSGParser::getIsSender() const

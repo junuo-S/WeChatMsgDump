@@ -53,3 +53,8 @@ QString utils::QDateTimeToString(const QDateTime& dateTime)
 {
 	return dateTime.toString("yyyy/MM/dd hh:mm:ss");
 }
+
+QString utils::QDateTimeToStringOnlyDate(const QDateTime& dateTime)
+{
+	return dateTime.toString("yy/MM/dd");
+}

@@ -9,4 +9,5 @@ namespace utils
 	QPixmap CreateRoundedPixmap(const QPixmap& originalPixmap, int radius = 20);
 	bool DecompressLZ4(const QByteArray& compressedData, QByteArray& decompressedData);
 	QString QDateTimeToString(const QDateTime& dateTime);
+	QString QDateTimeToStringOnlyDate(const QDateTime& dateTime);
 }

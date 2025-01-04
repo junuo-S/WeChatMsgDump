@@ -12,6 +12,12 @@
 #include "dbparser/MSGParser.h"
 #include "utils/utils.h"
 
+MessagecardNormalWidgetBase::MessagecardNormalWidgetBase(const MSGParser& parser, QWidget* parent /*= nullptr*/)
+	: MessageCardWidgetBase(parser, parent)
+{
+	DATA_BUS_INSTANCE->attachHeadImageObserver(m_msgParser.getIsSender() ? DATA_BUS_INSTANCE->getWxid() : m_msgParser.getStrTalker(), this);
+}
+
 MessagecardNormalWidgetBase::~MessagecardNormalWidgetBase()
 {
 	DATA_BUS_INSTANCE->detachHeadImageObserver(m_msgParser.getIsSender() ? DATA_BUS_INSTANCE->getWxid() : m_msgParser.getStrTalker(), this);

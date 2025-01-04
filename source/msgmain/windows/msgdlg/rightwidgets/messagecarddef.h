@@ -28,7 +28,7 @@ class MessagecardNormalWidgetBase : public MessageCardWidgetBase, public IHeadIm
 {
 	Q_OBJECT
 public:
-	MessagecardNormalWidgetBase(const MSGParser& parser, QWidget* parent = nullptr) : MessageCardWidgetBase(parser, parent) {};
+	MessagecardNormalWidgetBase(const MSGParser& parser, QWidget* parent = nullptr);
 	virtual ~MessagecardNormalWidgetBase() override;
 	void setHeadImage(const QPixmap& pixmap) override;
 
