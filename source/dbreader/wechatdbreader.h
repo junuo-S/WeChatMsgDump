@@ -14,7 +14,7 @@
 #include <memory>
 #include <QVariantMap>
 
-class WechatDbReader : public QObject
+class DBREADER_EXPORT WechatDbReader : public QObject
 {
 	Q_OBJECT
 public:

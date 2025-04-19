@@ -1,6 +1,6 @@
-﻿set(target_name dbreader)
-
-set(sources
+﻿junuo_package(dbreader SHARED)
+junuo_sources(
+    junuo_moc
     dbthreadpool/databaseworker.h
     dbthreadpool/databaseworker.cpp
     dbthreadpool/dbthreadpool.h
@@ -8,9 +8,6 @@ set(sources
     wechatdbreader.h
     wechatdbreader.cpp
 )
-
-junuo_add_library(${target_name} SHARED ${sources})
-junuo_use_Qt(${target_name} Core Sql)
-junuo_auto_moc(${target_name} ${sources})
-junuo_include_directories(${target_name} . ../include)
-junuo_compile_definitions(${target_name} _DBREADER_MODULE_)
+junuo_use_packages(Qt6Core Qt6Sql)
+junuo_include_directories(. ../include)
+junuo_compile_definitions(_DBREADER_MODULE_)
