@@ -1,0 +1,3 @@
+﻿LIBRARY msgcore.dll
+EXPORTS
+	GetCoreEntry

@@ -6,6 +6,13 @@ junuo_sources(
     src/databus/databus.h
     src/databus/databus.cpp
     src/interface/interfacedecl.h
+
+    ../include/global_interface.h
+    ../include/global_part_impl.cpp
+    main.cpp
+    msgcore.def
+    src/dbdecrypt/jwechatdbdecryptmanager.h
+    src/dbdecrypt/jwechatdbdecryptmanager.cpp
 )
 junuo_use_packages(Qt6Core Qt6Gui Qt6Network)
 junuo_include_directories(. ./src ../include)

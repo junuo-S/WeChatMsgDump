@@ -1,0 +1,112 @@
+﻿@startuml
+interface IJCoreEntry
+{
+    + GetCoreApplication(): IJCoreApplication*
+}
+class JCoreEntry
+JCoreEntry --|> IJCoreEntry
+IJCoreEntry --> IJCoreApplication
+
+interface IJCoreApplication
+{
+    + GetDecryptManager(): IJWeChatDBDecryptManager*
+    + GetViewManager(): IJWeChatDBViewManager*
+}
+class JCoreApplication
+JCoreApplication --|> IJCoreApplication
+IJCoreApplication --> IJWeChatDBDecryptManager
+IJCoreApplication --> IJWeChatDBViewManager
+
+interface JAbstractWeChatProcessReader
+{
+    + GetWeChatProcessId(forceRead: bool = false): long
+    + GetWeChatExecutablePath(forceRead: bool = false): QString
+    + GetWeChatVersion(forceRead: bool = false): QString
+    + GetNickName(forceRead: bool = false): QString
+    + GetWeChatUserName(forceRead: bool = false): QString
+    + GetPhoneNumber(forceRead: bool = false): QString
+    + GetWxid(forceRead: bool = false): QString
+    + GetDataPath(forceRead: bool = false): QString
+}
+class JWeChatProcessReaderV3
+{
+    + GetDecryptKey(): QString
+}
+JWeChatProcessReaderV3 --|> JAbstractWeChatProcessReader
+class JWeChatProcessReaderV4
+JWeChatProcessReaderV4 --|> JAbstractWeChatProcessReader
+
+class JWeChatProcessReaderFactory
+{
+    + CreateWeChatProcessReader(...): JAbstractWeChatProcessReader*
+}
+JWeChatProcessReaderFactory o-- JAbstractWeChatProcessReader
+
+interface JAbstractWeChatDBDecryptor
+{
+    + SetParam(inputFile: QString, outputFile: QString, key: QString): void
+    + Decrypt(): bool
+}
+class JWeChatDBDecryptorV3
+JWeChatDBDecryptorV3 --|> JAbstractWeChatDBDecryptor
+class JWeChatDBDecryptorV4
+JWeChatDBDecryptorV4 --|> JAbstractWeChatDBDecryptor
+class JWeChatDBDecryptorFactory
+{
+    + CreateWeChatDBDecryptor(...): JAbstractWeChatDBDecryptor*
+}
+JWeChatDBDecryptorFactory o-- JAbstractWeChatDBDecryptor
+
+interface JAbstractWeChatDBCombiner
+{
+    + SetParam(inputFileList: QStringList, outputFile: QString): void
+    + Combine(): bool
+}
+class JWeChatDBCombiner
+JWeChatDBCombiner --|> JAbstractWeChatDBCombiner
+
+interface IJWeChatDBDecryptManager
+{
+    + StartReadWeChatProcess(): bool
+    + StartDecryptDataBase(): bool
+    - JAbstractWeChatProcessReader* m_spWeChatProcessReader
+    - JAbstractWeChatDBDecryptor* m_spWeChatDBDecryptor
+    - JAbstractWeChatDBCombiner* m_spWeChatDBCombiner
+}
+class JWeChatDBDecryptManager
+JWeChatDBDecryptManager --|> IJWeChatDBDecryptManager
+IJWeChatDBDecryptManager --> JAbstractWeChatProcessReader
+IJWeChatDBDecryptManager --> JAbstractWeChatDBDecryptor
+IJWeChatDBDecryptManager --> JAbstractWeChatDBCombiner
+IJWeChatDBDecryptManager --|> IJCoreSubject
+
+interface IJWeChatDBViewManager
+{
+
+}
+class JWeChatDBViewManager
+JWeChatDBViewManager --|> IJWeChatDBViewManager
+IJWeChatDBViewManager --|> IJCoreSubject
+
+interface IJCoreSubject
+{
+    + AttachObserver(observer: IJCoreObserver*): void
+    + DetachObserver(observer: IJCoreObserver*): void
+    + Notify(event: IJCoreEvent*): void
+}
+
+IJCoreSubject ..> IJCoreEvent
+IJCoreSubject ..> IJCoreObserver
+IJCoreObserver ..> IJCoreEvent
+
+interface IJCoreEvent
+{
+    + Type(): int
+}
+
+interface IJCoreObserver
+{
+    + OnCoreEvent(event: IJCoreEvent*): bool
+    - m_pSubject: IJCoreSubject*
+}
+@enduml
