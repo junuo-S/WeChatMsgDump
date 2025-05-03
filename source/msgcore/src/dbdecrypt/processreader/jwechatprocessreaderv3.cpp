@@ -1,9 +1,10 @@
 ﻿#include "jwechatprocessreaderv3.h"
 
+#undef slots
+#include <Python.h>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <Python.h>
 
 #include <junuobase/utils/junuobaseutils.h>
 
