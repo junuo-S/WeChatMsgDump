@@ -1,0 +1,6 @@
+﻿<RCC>
+  <qresource prefix="/">
+    <file>configs/configv3.json</file>
+    <file>python/pymemutils.py</file>
+  </qresource>
+</RCC>
