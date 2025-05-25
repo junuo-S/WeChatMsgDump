@@ -1,0 +1,275 @@
+﻿[
+    {
+        "name": "Applet",
+        "relativePath": "Msg",
+        "fileName": "Applet.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "BizChat",
+        "relativePath": "Msg",
+        "fileName": "BizChat.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "BizChatMsg",
+        "relativePath": "Msg",
+        "fileName": "BizChatMsg.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "ChatMsg",
+        "relativePath": "Msg",
+        "fileName": "ChatMsg.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "ChatRoomUser",
+        "relativePath": "Msg",
+        "fileName": "ChatRoomUser.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "ClientConfig",
+        "relativePath": "Msg",
+        "fileName": "ClientConfig.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "ClientGeneral",
+        "relativePath": "Msg",
+        "fileName": "ClientGeneral.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "CustomerService",
+        "relativePath": "Msg",
+        "fileName": "CustomerService.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "Emotion",
+        "relativePath": "Msg",
+        "fileName": "Emotion.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "Favorite",
+        "relativePath": "Msg",
+        "fileName": "Favorite.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "FTSContact",
+        "relativePath": "Msg",
+        "fileName": "FTSContact.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "FTSFavorite",
+        "relativePath": "Msg",
+        "fileName": "FTSFavorite.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "FTSMsg",
+        "relativePath": "Msg",
+        "fileName": "FTSMsg.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "FunctionMsg",
+        "relativePath": "Msg",
+        "fileName": "FunctionMsg.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "HardLinkFile",
+        "relativePath": "Msg",
+        "fileName": "HardLinkFile.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "HardLinkImage",
+        "relativePath": "Msg",
+        "fileName": "HardLinkImage.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "HardLinkVideo",
+        "relativePath": "Msg",
+        "fileName": "HardLinkVideo.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "ImageTranslate",
+        "relativePath": "Msg",
+        "fileName": "ImageTranslate.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "LinkHistory",
+        "relativePath": "Msg",
+        "fileName": "LinkHistory.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "Media",
+        "relativePath": "Msg",
+        "fileName": "Media.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "MicroMsg",
+        "relativePath": "Msg",
+        "fileName": "MicroMsg.db",
+        "fuzzy": false,
+        "needDecrypt": true
+    },
+    {
+        "name": "Misc",
+        "relativePath": "Msg",
+        "fileName": "Misc.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "MultiSearchChatMsg",
+        "relativePath": "Msg",
+        "fileName": "MultiSearchChatMsg.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "NewTips",
+        "relativePath": "Msg",
+        "fileName": "NewTips.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "OpenIMContact",
+        "relativePath": "Msg",
+        "fileName": "OpenIMContact.db",
+        "fuzzy": false,
+        "needDecrypt": true
+    },
+    {
+        "name": "OpenIMMedia",
+        "relativePath": "Msg",
+        "fileName": "OpenIMMedia.db",
+        "fuzzy": false,
+        "needDecrypt": true
+    },
+    {
+        "name": "OpenIMMsg",
+        "relativePath": "Msg",
+        "fileName": "OpenIMMsg.db",
+        "fuzzy": false,
+        "needDecrypt": true
+    },
+    {
+        "name": "OpenIMResource",
+        "relativePath": "Msg",
+        "fileName": "OpenIMResource.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "PreDownload",
+        "relativePath": "Msg",
+        "fileName": "PreDownload.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "PublicMsg",
+        "relativePath": "Msg",
+        "fileName": "PublicMsg.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "PublicMsgMedia",
+        "relativePath": "Msg",
+        "fileName": "PublicMsgMedia.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "Sns",
+        "relativePath": "Msg",
+        "fileName": "Sns.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "StoreEmotion",
+        "relativePath": "Msg",
+        "fileName": "StoreEmotion.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "SyncMsg",
+        "relativePath": "Msg",
+        "fileName": "SyncMsg.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "Voip",
+        "relativePath": "Msg",
+        "fileName": "Voip.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "xInfo",
+        "relativePath": "Msg",
+        "fileName": "xInfo.db",
+        "fuzzy": false,
+        "needDecrypt": false
+    },
+    {
+        "name": "FTSMSG",
+        "relativePath": "Msg/Multi",
+        "fileName": "^FTSMSG\\d+\\.db$",
+        "fuzzy": true,
+        "needDecrypt": false
+    },
+    {
+        "name": "MediaMSG",
+        "relativePath": "Msg/Multi",
+        "fileName": "^MediaMSG\\d+\\.db$",
+        "fuzzy": true,
+        "needDecrypt": true
+    },
+    {
+        "name": "MSG",
+        "relativePath": "Msg/Multi",
+        "fileName": "^MSG\\d+\\.db$",
+        "fuzzy": true,
+        "needDecrypt": true
+    }
+]

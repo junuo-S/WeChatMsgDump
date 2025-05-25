@@ -113,6 +113,7 @@ QString JWeChatProcessReaderV3::GetWxid()
 			break;
 		}
 	}
+	return m_wxid;
 }
 
 QString JWeChatProcessReaderV3::GetDataPath()
@@ -138,6 +139,7 @@ QString JWeChatProcessReaderV3::GetDataPath()
 			break;
 		}
 	}
+	return m_dataPath;
 }
 
 QString JWeChatProcessReaderV3::GetKey()
@@ -187,7 +189,7 @@ void JWeChatProcessReaderV3::initConfig()
 	DWORD_PTR dllAddress = junuobase::utils::GetModuleAddress(s_processName, s_dllName);
 	m_exeFilePath = QString::fromStdWString(junuobase::utils::GetExecutablePath(m_processId));
 	m_version = QString::fromStdString(junuobase::utils::GetFileVersion(m_exeFilePath.toStdWString().c_str()));
-	QFile jsonFile(":/configs/configv3.json");
+	QFile jsonFile(":/configs/offsetv3.json");
 	if (!jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
 	QByteArray jsonData = jsonFile.readAll();
@@ -212,7 +214,7 @@ void JWeChatProcessReaderV3::patternScan()
 	static DWORD_PTR maxAddress = junuobase::utils::IsWx64BitExecutable(m_exeFilePath.toStdWString()) ? 0x7FFFFFFF0000 : 0x7fff0000;
 	m_patternScanAddressList.clear();
 
-	QFile file(":/python/pymemutils.py");
+	QFile file(":/script/pymemutils.py");
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
 	QString script = file.readAll();

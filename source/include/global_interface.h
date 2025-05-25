@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <atomic>
+#include <string>
 
 using Microsoft::WRL::ComPtr;
 
@@ -41,9 +42,62 @@ protected:
     std::atomic<ULONG> m_ref = 1;
 };
 
+enum class EventType : short
+{
+    Event_Unknown = 0xf0,
+    Event_ProcessRead,
+    Event_Decrypt,
+    Event_Combine
+};
+
 struct IJCoreEvent
 {
-    STDMETHOD_(int, Type)() PURE;
+    STDMETHOD_(EventType, Type)();
+};
+
+struct JProcessReadEvent : public IJCoreEvent
+{
+    JProcessReadEvent(
+        const unsigned long processId,
+        const std::wstring& exeFilePath,
+        const std::string& version,
+        const std::wstring& nickName,
+        const std::string& userName,
+        const std::string& phoneNumber,
+        const std::string& wxid,
+        const std::wstring& dataPath);
+    STDMETHODIMP_(EventType) Type() override;
+
+    unsigned long m_processId;
+    std::wstring m_exeFilePath;
+    std::string m_version;
+    std::wstring m_nickName;
+    std::string m_userName;
+    std::string m_phoneNumber;
+    std::string m_wxid;
+    std::wstring m_dataPath;
+};
+
+struct JDecryptEvent : public IJCoreEvent
+{
+    JDecryptEvent(const std::wstring& inputFile, const std::wstring& outputFile, const bool bSuc, int totalCount);
+    STDMETHODIMP_(EventType) Type() override;
+
+    std::wstring m_inputFile;
+    std::wstring m_outputFile;
+    bool m_bSuc;
+    int m_totalCount;
+};
+
+struct JCombineEvent : public IJCoreEvent
+{
+    JCombineEvent(const std::wstring& currentFile, const std::wstring& finalFile, const bool bSuc, int totalCount);
+	STDMETHODIMP_(EventType) Type() override;
+
+    std::wstring m_currentFile;
+    std::wstring m_finalFile;
+    bool m_bSuc;
+    int m_totalCount;
 };
 
 interface IJCoreObserver;

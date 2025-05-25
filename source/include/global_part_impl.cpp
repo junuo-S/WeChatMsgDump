@@ -60,3 +60,54 @@ void IJCoreObserver::detachFrom(IJCoreSubject* subject)
 	subject->DetachObserver(this);
 	m_subjects.erase(iter);
 }
+
+STDMETHODIMP_(EventType) IJCoreEvent::Type()
+{
+	return EventType::Event_Unknown;
+}
+
+JProcessReadEvent::JProcessReadEvent(const unsigned long processId, const std::wstring& exeFilePath, const std::string& version, const std::wstring& nickName, const std::string& userName, const std::string& phoneNumber, const std::string& wxid, const std::wstring& dataPath)
+	: m_processId(processId)
+	, m_exeFilePath(exeFilePath)
+	, m_version(version)
+	, m_nickName(nickName)
+	, m_userName(userName)
+	, m_phoneNumber(phoneNumber)
+	, m_wxid(wxid)
+	, m_dataPath(dataPath)
+{
+
+}
+
+STDMETHODIMP_(EventType) JProcessReadEvent::Type()
+{
+	return EventType::Event_ProcessRead;
+}
+
+JDecryptEvent::JDecryptEvent(const std::wstring& inputFile, const std::wstring& outputFile, const bool bSuc, int totalCount)
+	: m_inputFile(inputFile)
+	, m_outputFile(outputFile)
+	, m_bSuc(bSuc)
+	, m_totalCount(totalCount)
+{
+
+}
+
+STDMETHODIMP_(EventType) JDecryptEvent::Type()
+{
+	return EventType::Event_Decrypt;
+}
+
+JCombineEvent::JCombineEvent(const std::wstring& currentFile, const std::wstring& finalFile, const bool bSuc, int totalCount)
+	: m_currentFile(currentFile)
+	, m_finalFile(finalFile)
+	, m_bSuc(bSuc)
+	, m_totalCount(totalCount)
+{
+
+}
+
+STDMETHODIMP_(EventType) JCombineEvent::Type()
+{
+	return EventType::Event_Combine;
+}
