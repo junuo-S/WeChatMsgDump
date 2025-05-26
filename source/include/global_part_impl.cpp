@@ -1,17 +1,5 @@
 ﻿#include "global_interface.h"
 
-ULONG STDMETHODCALLTYPE IJUnknown::AddRef()
-{
-	return ++m_ref;
-}
-
-ULONG STDMETHODCALLTYPE IJUnknown::Release()
-{
-	ULONG ref = --m_ref;
-	if (ref == 0) delete this;
-	return ref;
-}
-
 STDMETHODIMP_(void) IJCoreSubject::AttachObserver(IJCoreObserver* observer)
 {
 	if (!observer || std::find(m_observers.begin(), m_observers.end(), observer) != m_observers.end())

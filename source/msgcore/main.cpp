@@ -1,5 +1,7 @@
 ﻿#include "dbdecrypt/jwechatdbdecryptmanager.h"
 
+#include <junuobase/junuocombase.h>
+
 class JCoreApplication : public IJCoreApplication
 {
 public:
@@ -9,7 +11,7 @@ public:
 
 	JCoreApplication()
 	{
-		m_spDecryptMgr.Attach(new JWeChatDBDecryptManager);
+		m_spDecryptMgr.Attach(JUNUO_COM_NEW(JWeChatDBDecryptManager));
 	}
 
 	STDMETHODIMP_(IJWeChatDBDecryptManager*) GetDecryptManager()
@@ -30,7 +32,7 @@ public:
 
 	JCoreEntry()
 	{
-		m_spApp.Attach(new JCoreApplication);
+		m_spApp.Attach(JUNUO_COM_NEW(JCoreApplication));
 	}
 
 	STDMETHODIMP_(IJCoreApplication*) GetCoreApplication() override
@@ -44,6 +46,6 @@ private:
 
 IJCoreEntry* GetCoreEntry()
 {
-	static JCoreEntry entry;
-	return &entry;
+	static ComPtr<JCoreEntry> entry = JUNUO_COM_NEW(JCoreEntry);
+	return entry.Get();
 }

@@ -9,37 +9,10 @@
 
 using Microsoft::WRL::ComPtr;
 
-#define BEGIN_INTERFACE_MAP() \
-    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppvObject) override { \
-        if (!ppvObject) return E_POINTER; \
-        *ppvObject = nullptr;
-
-#define INTERFACE_ENTRY(InterfaceType) \
-    if (riid == __uuidof(InterfaceType)) { \
-        *ppvObject = static_cast<InterfaceType*>(this); \
-        AddRef(); \
-        return S_OK; \
-    }
-
-#define END_INTERFACE_MAP() \
-    if (riid == __uuidof(IUnknown)) { \
-        *ppvObject = static_cast<IUnknown*>(this); \
-        AddRef(); \
-        return S_OK; \
-    } \
-    return E_NOINTERFACE; \
-    }
-
-
 interface __declspec(uuid("0457DA00-BD7C-42FC-A554-FED3C2A7D6BE"))
 IJUnknown : public IUnknown
 {
     virtual ~IJUnknown() {}
-    virtual ULONG STDMETHODCALLTYPE AddRef() override;
-    virtual ULONG STDMETHODCALLTYPE Release() override;
-
-protected:
-    std::atomic<ULONG> m_ref = 1;
 };
 
 enum class EventType : short

@@ -4,6 +4,7 @@
 #include <QString>
 
 #include <global_interface.h>
+#include <junuobase/junuocombase.h>
 
 enum class WeChatMajorVersion : short
 {
@@ -28,6 +29,6 @@ public:
 
 private:
 	WeChatMajorVersion m_majorVersion = WeChatMajorVersion::Version_UnKnown;
-	std::unique_ptr<JAbstractWeChatProcessReader> m_processReader;
+	std::shared_ptr<JAbstractWeChatProcessReader> m_processReader;
 	QString m_finalDBFileName;
 };
