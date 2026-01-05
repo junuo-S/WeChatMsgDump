@@ -1,4 +1,4 @@
-﻿import pymem
+import pymem
 import ctypes
 
 def patternScanAllAddress(processId, pattern, maxAddress, maxCount):
