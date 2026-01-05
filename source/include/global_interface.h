@@ -2,10 +2,8 @@
 
 #include <combaseapi.h>
 #include <wrl/client.h>
-#include <algorithm>
 #include <vector>
-#include <atomic>
-#include <string>
+#include <QString>
 
 using Microsoft::WRL::ComPtr;
 
@@ -18,7 +16,7 @@ IJUnknown : public IUnknown
 enum class EventType : short
 {
     Event_Unknown = 0xf0,
-    Event_ProcessRead,
+    Event_ProcessReadFinished,
     Event_Decrypt,
     Event_Combine
 };
@@ -28,47 +26,47 @@ struct IJCoreEvent
     STDMETHOD_(EventType, Type)();
 };
 
-struct JProcessReadEvent : public IJCoreEvent
+struct JProcessReadFinishedEvent : public IJCoreEvent
 {
-    JProcessReadEvent(
+    JProcessReadFinishedEvent(
         const unsigned long processId,
-        const std::wstring& exeFilePath,
-        const std::string& version,
-        const std::wstring& nickName,
-        const std::string& userName,
-        const std::string& phoneNumber,
-        const std::string& wxid,
-        const std::wstring& dataPath);
+        const QString& exeFilePath,
+        const QString& version,
+        const QString& nickName,
+        const QString& userName,
+        const QString& phoneNumber,
+        const QString& wxid,
+        const QString& dataPath);
     STDMETHODIMP_(EventType) Type() override;
 
     unsigned long m_processId;
-    std::wstring m_exeFilePath;
-    std::string m_version;
-    std::wstring m_nickName;
-    std::string m_userName;
-    std::string m_phoneNumber;
-    std::string m_wxid;
-    std::wstring m_dataPath;
+    QString m_exeFilePath;
+    QString m_version;
+    QString m_nickName;
+    QString m_userName;
+    QString m_phoneNumber;
+    QString m_wxid;
+    QString m_dataPath;
 };
 
 struct JDecryptEvent : public IJCoreEvent
 {
-    JDecryptEvent(const std::wstring& inputFile, const std::wstring& outputFile, const bool bSuc, int totalCount);
+    JDecryptEvent(const QString& inputFile, const QString& outputFile, const bool bSuc, int totalCount);
     STDMETHODIMP_(EventType) Type() override;
 
-    std::wstring m_inputFile;
-    std::wstring m_outputFile;
+    QString m_inputFile;
+    QString m_outputFile;
     bool m_bSuc;
     int m_totalCount;
 };
 
 struct JCombineEvent : public IJCoreEvent
 {
-    JCombineEvent(const std::wstring& currentFile, const std::wstring& finalFile, const bool bSuc, int totalCount);
+    JCombineEvent(const QString& currentFile, const QString& finalFile, const bool bSuc, int totalCount);
 	STDMETHODIMP_(EventType) Type() override;
 
-    std::wstring m_currentFile;
-    std::wstring m_finalFile;
+    QString m_currentFile;
+    QString m_finalFile;
     bool m_bSuc;
     int m_totalCount;
 };
@@ -85,8 +83,7 @@ private:
 	std::vector<IJCoreObserver*> m_observers;
 };
 
-interface __declspec(uuid("CB10F03C-110B-4926-9D3B-9FB69867CD45"))
-IJCoreObserver : public IJUnknown
+interface IJCoreObserver
 {
     virtual ~IJCoreObserver();
     STDMETHOD_(bool, OnCoreEvent)(IJCoreEvent* event) PURE;
