@@ -45,7 +45,7 @@ public:
     }
 
 private:
-    std::atomic_ulong m_ref = 1;
+    std::atomic_ulong m_ref = 0;
 };
 
 #define JUNUO_COM_NEW(TypeName) JunuoComAgent<TypeName>::Create()

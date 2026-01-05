@@ -9,12 +9,11 @@ public:
 		INTERFACE_ENTRY(IJCoreApplication)
 	END_INTERFACE_MAP()
 
-	JCoreApplication()
+	JCoreApplication() : m_spDecryptMgr(JUNUO_COM_NEW(JWeChatDBDecryptManager))
 	{
-		m_spDecryptMgr.Attach(JUNUO_COM_NEW(JWeChatDBDecryptManager));
 	}
 
-	STDMETHODIMP_(IJWeChatDBDecryptManager*) GetDecryptManager()
+	STDMETHODIMP_(IJWeChatDBDecryptManager*) GetDecryptManager() override
 	{
 		return m_spDecryptMgr.Get();
 	}
@@ -30,9 +29,8 @@ public:
 		INTERFACE_ENTRY(IJCoreEntry)
 	END_INTERFACE_MAP()
 
-	JCoreEntry()
+	JCoreEntry() : m_spApp(JUNUO_COM_NEW(JCoreApplication))
 	{
-		m_spApp.Attach(JUNUO_COM_NEW(JCoreApplication));
 	}
 
 	STDMETHODIMP_(IJCoreApplication*) GetCoreApplication() override
