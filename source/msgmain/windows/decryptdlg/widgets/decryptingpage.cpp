@@ -8,7 +8,6 @@
 
 #include "junuoui/progressbar/junuowaterprogressbar.h"
 #include "junuoui/button/buttons.h"
-#include "msgcore/glue/decryptorwapper.h"
 
 struct DecryptingPage::Data
 {
@@ -58,22 +57,15 @@ struct DecryptingPage::Data
 	QHBoxLayout* buttonHLayout = nullptr;
 	JunuoBaseButton* beginViewButton = nullptr;
 	JunuoBaseButton* reDecryptButton = nullptr;
-	DecryptorWapper* wapper = nullptr;
 };
 
-DecryptingPage::DecryptingPage(DecryptorWapper* wapper, QWidget* parent)
+DecryptingPage::DecryptingPage(QWidget* parent)
 	: QWidget(parent)
 	, data(new Data)
 {
-	data->wapper = wapper;
 	data->q = this;
 	data->initUI();
 	data->initStyle();
-	connect(wapper, &DecryptorWapper::sigUpdateProgress, this, &DecryptingPage::onUpdateProgress);
-	connect(wapper, &DecryptorWapper::sigDecryptFailed, this, &DecryptingPage::onDecryptFailed);
-	connect(wapper, &DecryptorWapper::sigDecryptFinished, this, &DecryptingPage::onDecryptFinished);
-	connect(wapper, &DecryptorWapper::sigCombineFailed, this, &DecryptingPage::onCombineFailed);
-	connect(wapper, &DecryptorWapper::sigCombineFinished, this, &DecryptingPage::onCombineFinished);
 }
 
 DecryptingPage::~DecryptingPage()
@@ -85,7 +77,6 @@ void DecryptingPage::startWork()
 {
 	disableButtons();
 	data->tipLabel->setText(tr("decrypting..."));
-	data->wapper->decryptAndCombine();
 	data->progressBar->startTimer();
 }
 

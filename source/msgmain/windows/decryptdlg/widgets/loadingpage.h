@@ -1,15 +1,14 @@
 ﻿#pragma once
 
 #include <QWidget>
-#include <QScopedPointer>
 
-class DecryptorWapper;
+#include <global_interface.h>
 
-class LoadingPage : public QWidget
+class LoadingPage : public QWidget, public IJCoreObserver
 {
 	Q_OBJECT
 public:
-	LoadingPage(DecryptorWapper* wapper, QWidget* parent);
+	explicit LoadingPage(QWidget* parent = nullptr);
 	~LoadingPage();
 	void startWork();
 
@@ -17,10 +16,11 @@ signals:
 	void sigLoadingFinished();
 
 private:
+	STDMETHODIMP_(bool) OnCoreEvent(IJCoreEvent* event) override;
 	void startLoadingMovie();
 	void stopLoadingMovie();
 	void onTimeOut();
-	void onMemoryReadFinished(bool suc);
+	void onMemoryReadFinished();
 
 	struct Data;
 	QScopedPointer<Data> data;

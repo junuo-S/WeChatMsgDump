@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <global_interface.h>
+
 int dpiScaled(double value);
 
 #define DPI(x) dpiScaled(x)

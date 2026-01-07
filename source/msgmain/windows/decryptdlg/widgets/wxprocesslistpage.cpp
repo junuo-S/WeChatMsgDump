@@ -4,12 +4,11 @@
 
 #include <QLabel>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QMouseEvent>
 
-#include "msgcore/databus/databus.h"
-#include "msgcore/glue/decryptorwapper.h"
 #include "junuoui/button/buttons.h"
+
+#include "msgapplication.h"
 
 struct WxProcessListPage::Data
 {
@@ -65,9 +64,20 @@ struct WxProcessListPage::Data
 		processInfoHLayout->setStretch(1, 3);
 		mainLayout->addLayout(processInfoHLayout);
 
+		nickNameHLayout = new QHBoxLayout(q);
+		{
+			nickNameHintLabel = new QLabel(WxProcessListPage::tr("nickName: "), q);
+			nickNameLabel = new QLabel(q);
+			nickNameHLayout->addWidget(nickNameHintLabel);
+			nickNameHLayout->addWidget(nickNameLabel);
+		}
+		nickNameHLayout->setStretch(0, 1);
+		nickNameHLayout->setStretch(1, 3);
+		mainLayout->addLayout(nickNameHLayout);
+
 		userNameHLayout = new QHBoxLayout(q);
 		{
-			userNameHintLabel = new QLabel(WxProcessListPage::tr("username: "), q);
+			userNameHintLabel = new QLabel(WxProcessListPage::tr("userName: "), q);
 			userNameLabel = new QLabel(q);
 			userNameHLayout->addWidget(userNameHintLabel);
 			userNameHLayout->addWidget(userNameLabel);
@@ -75,17 +85,6 @@ struct WxProcessListPage::Data
 		userNameHLayout->setStretch(0, 1);
 		userNameHLayout->setStretch(1, 3);
 		mainLayout->addLayout(userNameHLayout);
-
-		wxNumberHLayout = new QHBoxLayout(q);
-		{
-			wxNumberHintLabel = new QLabel(WxProcessListPage::tr("wxnumber: "), q);
-			wxNumberLabel = new QLabel(q);
-			wxNumberHLayout->addWidget(wxNumberHintLabel);
-			wxNumberHLayout->addWidget(wxNumberLabel);
-		}
-		wxNumberHLayout->setStretch(0, 1);
-		wxNumberHLayout->setStretch(1, 3);
-		mainLayout->addLayout(wxNumberHLayout);
 
 		phoneNumberHLayout = new QHBoxLayout(q);
 		{
@@ -144,38 +143,22 @@ struct WxProcessListPage::Data
 		refreshLabel->setCursor(Qt::PointingHandCursor);
 	}
 
-	void resetContent()
+	void updateProcessInfo(const QString& version, const QString& exePath, const unsigned long processId, const QString& nickName, const QString& userName, const QString& phoneNumber, const QString& wxid, const QString& dataPath)
 	{
-		if (DATA_BUS_INSTANCE->getMemoryReadSuc())
-		{
-			tipLabel->setText(WxProcessListPage::tr("read success tip"));
-			wxVersionLabel->setText(DATA_BUS_INSTANCE->getWxVersion());
-			wxExePathLabel->setText(DATA_BUS_INSTANCE->getWxExePath());
-			wxExePathLabel->setToolTip(wxExePathLabel->text());
-			processLabel->setText(QString::number(DATA_BUS_INSTANCE->getWxProcessId()));
-			userNameLabel->setText(DATA_BUS_INSTANCE->getWxUserName());
-			wxNumberLabel->setText(DATA_BUS_INSTANCE->getWxNumber());
-			phoneNumberLabel->setText(DATA_BUS_INSTANCE->getWxPhoneNumber());
-			wxidLabel->setText(DATA_BUS_INSTANCE->getWxid());
-			wxDataPathLabel->setText(DATA_BUS_INSTANCE->getWxDataPath());
-			wxDataPathLabel->setToolTip(wxDataPathLabel->text());
-			beginButton->setEnabled(true);
-		}
-		else
-		{
-			tipLabel->setText(WxProcessListPage::tr("read failed tip"));
-			QString readFailed = WxProcessListPage::tr("read failed");
-			wxVersionLabel->setText(readFailed);
-			wxExePathLabel->setText(readFailed);
-			wxExePathLabel->setToolTip(wxExePathLabel->text());
-			processLabel->setText(readFailed);
-			userNameLabel->setText(readFailed);
-			wxNumberLabel->setText(readFailed);
-			phoneNumberLabel->setText(readFailed);
-			wxidLabel->setText(readFailed);
-			wxDataPathLabel->setText(readFailed);
-			beginButton->setEnabled(false);
-		}
+		bool suc = !wxid.isEmpty() && !dataPath.isEmpty();
+		QString readFailed = WxProcessListPage::tr("read failed");
+		tipLabel->setText(suc ? WxProcessListPage::tr("read success tip") : WxProcessListPage::tr("read failed tip"));
+		wxVersionLabel->setText(version.isEmpty() ? readFailed : version);
+		wxExePathLabel->setText(exePath.isEmpty() ? readFailed : exePath);
+		wxExePathLabel->setToolTip(wxExePathLabel->text());
+		processLabel->setText(processId > 0 ? QString::number(processId) : readFailed);
+		nickNameLabel->setText(nickName.isEmpty() ? readFailed : nickName);
+		userNameLabel->setText(userName.isEmpty() ? readFailed : userName);
+		phoneNumberLabel->setText(phoneNumber.isEmpty() ? readFailed : phoneNumber);
+		wxidLabel->setText(suc ? wxid : readFailed);
+		wxDataPathLabel->setText(suc ? dataPath : readFailed);
+		wxDataPathLabel->setToolTip(wxDataPathLabel->text());
+		beginButton->setEnabled(suc);
 	}
 
 	WxProcessListPage* q = nullptr;
@@ -192,12 +175,12 @@ struct WxProcessListPage::Data
 	QHBoxLayout* processInfoHLayout = nullptr;
 	QLabel* processHintLabel = nullptr;
 	QLabel* processLabel = nullptr;
+	QHBoxLayout* nickNameHLayout = nullptr;
+	QLabel* nickNameHintLabel = nullptr;
+	QLabel* nickNameLabel = nullptr;
 	QHBoxLayout* userNameHLayout = nullptr;
 	QLabel* userNameHintLabel = nullptr;
 	QLabel* userNameLabel = nullptr;
-	QHBoxLayout* wxNumberHLayout = nullptr;
-	QLabel* wxNumberHintLabel = nullptr;
-	QLabel* wxNumberLabel = nullptr;
 	QHBoxLayout* phoneNumberHLayout = nullptr;
 	QLabel* phoneNumberHintLabel = nullptr;
 	QLabel* phoneNumberLabel = nullptr;
@@ -210,18 +193,18 @@ struct WxProcessListPage::Data
 	QHBoxLayout* buttonLayout = nullptr;
 	JunuoBaseButton* beginButton = nullptr;
 	JunuoBaseButton* reuseLastRetButton = nullptr;
-	DecryptorWapper* wapper = nullptr;
 };
 
-WxProcessListPage::WxProcessListPage(DecryptorWapper* wapper, QWidget* parent)
+WxProcessListPage::WxProcessListPage(QWidget* parent)
 	: QWidget(parent)
 	, data(new Data)
 {
-	data->wapper = wapper;
 	data->q = this;
 	data->initUI();
 	data->initStyle();
 	data->refreshLabel->installEventFilter(this);
+	if (auto coreApplication = msgApp->GetCoreApplication(); auto manager = coreApplication ? coreApplication->GetDecryptManager() : nullptr)
+		attachTo(manager);
 }
 
 WxProcessListPage::~WxProcessListPage()
@@ -231,12 +214,25 @@ WxProcessListPage::~WxProcessListPage()
 
 void WxProcessListPage::startWork()
 {
-	resetContent();
 }
 
-void WxProcessListPage::resetContent()
+STDMETHODIMP_(bool) WxProcessListPage::OnCoreEvent(IJCoreEvent* event)
 {
-	data->resetContent();
+	if (event->Type() == EventType::Event_ProcessReadFinished)
+	{
+		auto readProcessFinishedEvent = dynamic_cast<JProcessReadFinishedEvent*>(event);
+		if (readProcessFinishedEvent)
+			QMetaObject::invokeMethod(this, "updateProcessInfo", Qt::QueuedConnection
+				, Q_ARG(QString, readProcessFinishedEvent->m_version)
+				, Q_ARG(QString, readProcessFinishedEvent->m_exeFilePath)
+				, Q_ARG(ulong, readProcessFinishedEvent->m_processId)
+				, Q_ARG(QString, readProcessFinishedEvent->m_nickName)
+				, Q_ARG(QString, readProcessFinishedEvent->m_userName)
+				, Q_ARG(QString, readProcessFinishedEvent->m_phoneNumber)
+				, Q_ARG(QString, readProcessFinishedEvent->m_wxid)
+				, Q_ARG(QString, readProcessFinishedEvent->m_dataPath));
+	}
+	return false;
 }
 
 bool WxProcessListPage::eventFilter(QObject* object, QEvent* event)
@@ -258,5 +254,10 @@ void WxProcessListPage::showEvent(QShowEvent* event)
 {
 	data->beginButton->adjustBestSize();
 	data->reuseLastRetButton->adjustBestSize();
+}
+
+Q_INVOKABLE void WxProcessListPage::updateProcessInfo(const QString& version, const QString& exePath, const unsigned long processId, const QString& nickName, const QString& userName, const QString& phoneNumber, const QString& wxid, const QString& dataPath)
+{
+	data->updateProcessInfo(version, exePath, processId, nickName, userName, phoneNumber, wxid, dataPath);
 }
 

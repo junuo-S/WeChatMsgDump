@@ -2,16 +2,11 @@
 
 #include <QDir>
 #include <QDirIterator>
-#include <QFile>
-#include <QList>
-#include <QPair>
-#include <QMap>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QStandardPaths>
 #include <QThreadPool>
 
-#include <junuobase/async/junuoasync.h>
 #include <junuobase/utils/junuobaseutils.h>
 
 #include "dbdecrypt/decryptor/jwechatdbdecryptorfactory.h"
@@ -80,14 +75,14 @@ STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartReadWeChatProcess()
 		return false;
 	QThreadPool::globalInstance()->start([this]()
 		{
-			JProcessReadEvent event(m_processReader->GetWeChatProcessId(),
-				m_processReader->GetWeChatExecutablePath().toStdWString(),
-				m_processReader->GetWeChatVersion().toStdString(),
-				m_processReader->GetNickName().toStdWString(),
-				m_processReader->GetWeChatUserName().toStdString(),
-				m_processReader->GetPhoneNumber().toStdString(),
-				m_processReader->GetWxid().toStdString(),
-				m_processReader->GetDataPath().toStdWString());
+			JProcessReadFinishedEvent event(m_processReader->GetWeChatProcessId(),
+				m_processReader->GetWeChatExecutablePath(),
+				m_processReader->GetWeChatVersion(),
+				m_processReader->GetNickName(),
+				m_processReader->GetWeChatUserName(),
+				m_processReader->GetPhoneNumber(),
+				m_processReader->GetWxid(),
+				m_processReader->GetDataPath());
 			this->Notify(&event);
 		});
 	return true;
@@ -118,7 +113,7 @@ STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartDecryptDataBase()
 					{
 						std::unique_ptr<JAbstractWeChatDBDecryptor> decryptor(JWeChatDBDecryptorFactory::createInstance(m_majorVersion));
 						decryptor->SetParam(fileName, outputFileName, m_processReader->GetKey());
-						JDecryptEvent event(fileName.toStdWString(), outputFileName.toStdWString(), decryptor->Decrypt(), totalCount);
+						JDecryptEvent event(fileName, outputFileName, decryptor->Decrypt(), totalCount);
 						this->Notify(&event);
 					});
 			}
@@ -129,7 +124,7 @@ STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartDecryptDataBase()
 				combiner->beginCombine(m_finalDBFileName);
 				for (const auto& each : ret)
 				{
-					JCombineEvent event(each.second.toStdWString(), m_finalDBFileName.toStdWString(), combiner->combineFile(each.second), totalCount);
+					JCombineEvent event(each.second, m_finalDBFileName, combiner->combineFile(each.second), totalCount);
 					this->Notify(&event);
 				}
 				combiner->endCombine();
@@ -145,8 +140,8 @@ JWeChatDBDecryptManager::JWeChatDBDecryptManager()
 	static const QList<QPair<WeChatMajorVersion, const wchar_t*>> s_versionNameMap = []()
 		{
 			QList<QPair<WeChatMajorVersion, const wchar_t*>> versionNameMap;
-			versionNameMap.emplace_back(WeChatMajorVersion::Version_4, L"Weixin.exe");
 			versionNameMap.emplace_back(WeChatMajorVersion::Version_3, L"WeChat.exe");
+			versionNameMap.emplace_back(WeChatMajorVersion::Version_4, L"Weixin.exe");
 			return versionNameMap;
 		}();
 	for (const auto& version : s_versionNameMap)

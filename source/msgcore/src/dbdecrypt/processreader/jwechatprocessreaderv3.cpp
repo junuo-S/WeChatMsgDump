@@ -50,7 +50,7 @@ QString JWeChatProcessReaderV3::GetNickName()
 
 	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(nickNameAddress), nickNameBuffer, sizeof(nickNameBuffer), NULL))
 		return QString();
-	m_nickName = reinterpret_cast<const char*>(nickNameBuffer);
+	m_nickName = QString::fromUtf8(reinterpret_cast<const char*>(nickNameBuffer));
 	return m_nickName;
 }
 
@@ -122,17 +122,17 @@ QString JWeChatProcessReaderV3::GetDataPath()
 		return m_dataPath;
 	if (m_patternScanAddressList.empty())
 		patternScan();
-	static constexpr const char* const s_rootTarget = ":\\\\";
-	static constexpr const char* const s_endTarget = "\\\\Msg";
+	static constexpr const char* const s_rootTarget = ":\\";
+	static constexpr const char* const s_endTarget = "\\Msg";
 	for (auto cit = m_patternScanAddressList.cbegin(); cit != m_patternScanAddressList.cend(); cit++)
 	{
-		BYTE buffer[MAX_PATH];
-		if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(*cit - 128), buffer, sizeof(buffer), NULL))
+		BYTE buffer[256];
+		if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(*cit - 129), buffer, sizeof(buffer), NULL))
 			continue;
 		QString pathStr = reinterpret_cast<const char*>(buffer);
 		int rootPos = pathStr.indexOf(s_rootTarget);
 		int endPos = pathStr.indexOf(s_endTarget);
-		QString path = pathStr.mid(rootPos, endPos - rootPos + 1);
+		QString path = pathStr.mid(rootPos - 1, endPos - rootPos + 1);
 		if (QFile::exists(path))
 		{
 			m_dataPath = path;
@@ -217,50 +217,46 @@ void JWeChatProcessReaderV3::patternScan()
 	QFile file(":/script/pymemutils.py");
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
-	QString script = file.readAll();
+	QByteArray script = file.readAll();
 	file.close();
 
 	Py_Initialize();
-	PyObject* pModule = PyModule_New("pymemutils");
-	if (!pModule)
-		return;
-	PyObject* pDict = PyModule_GetDict(pModule);
-	PyObject* result = PyRun_String(script.toUtf8().constData(), Py_file_input, pDict, pDict);
-	if (!result)
-		return;
-	Py_DECREF(result);
+	do 
+	{
+		PyObject* pModule = PyModule_New("pymemutils");
+		if (!pModule)
+			break;
+		PyObject* pDict = PyModule_GetDict(pModule);
+		PyObject* result = PyRun_String(script.constData(), Py_file_input, pDict, pDict);
+		if (!result)
+			break;
+		Py_DECREF(result);
 
-	PyObject* pFunc = PyDict_GetItemString(pDict, "patternScanAllAddress");
-	if (!pFunc || !PyCallable_Check(pFunc))
-	{
-		Py_DECREF(pModule);
-		Py_Finalize();
-		return;
-	}
-	PyObject* pArgs = PyTuple_Pack(4,
-		PyLong_FromLongLong(m_processId),
-		PyUnicode_FromString(patternStr.c_str()),
-		PyLong_FromLongLong(maxAddress),
-		PyLong_FromLong(100)
-	);
-	PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
-	if (pValue)
-	{
-		Py_ssize_t size = PyList_Size(pValue);
-		for (Py_ssize_t i = 0; i < size; ++i)
+		PyObject* pFunc = PyDict_GetItemString(pDict, "patternScanAllAddress");
+		if (!pFunc || !PyCallable_Check(pFunc))
+			break;
+		PyObject* pArgs = PyTuple_Pack(4,
+			PyLong_FromLongLong(m_processId),
+			PyUnicode_FromString(patternStr.c_str()),
+			PyLong_FromLongLong(maxAddress),
+			PyLong_FromLong(100)
+		);
+		PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
+		if (pValue)
 		{
-			PyObject* item = PyList_GetItem(pValue, i);
-			if (item && PyLong_Check(item))
+			Py_ssize_t size = PyList_Size(pValue);
+			for (Py_ssize_t i = 0; i < size; ++i)
 			{
-				DWORD_PTR value = PyLong_AsLongLong(item);
-				m_patternScanAddressList.push_back(value);
+				PyObject* item = PyList_GetItem(pValue, i);
+				if (item && PyLong_Check(item))
+				{
+					DWORD_PTR value = PyLong_AsLongLong(item);
+					m_patternScanAddressList.push_back(value);
+				}
 			}
 		}
-		Py_DECREF(pValue);
-	}
-	Py_XDECREF(pArgs);
-	Py_XDECREF(pFunc);
-	Py_XDECREF(pModule);
+	} while (false);
+
 	Py_Finalize();
 }
 

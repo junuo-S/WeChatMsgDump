@@ -2,13 +2,11 @@
 
 #include <QWidget>
 
-class DecryptorWapper;
-
 class DecryptingPage : public QWidget
 {
 	Q_OBJECT
 public:
-	DecryptingPage(DecryptorWapper* wapper, QWidget* parent);
+	DecryptingPage(QWidget* parent);
 	~DecryptingPage();
 	void startWork();
 

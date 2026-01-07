@@ -3,13 +3,13 @@
 #include <QWidget>
 #include <QScopedPointer>
 
-class DecryptorWapper;
+#include <global_interface.h>
 
-class WxProcessListPage : public QWidget
+class WxProcessListPage : public QWidget, public IJCoreObserver
 {
 	Q_OBJECT
 public:
-	WxProcessListPage(DecryptorWapper* wapper, QWidget* parent);
+	WxProcessListPage(QWidget* parent);
 	~WxProcessListPage();
 	void startWork();
 
@@ -23,7 +23,8 @@ signals:
 	void sigReuseLastResultBeginMsgView();
 
 private:
-	void resetContent();
+	STDMETHODIMP_(bool) OnCoreEvent(IJCoreEvent* event) override;
+	Q_INVOKABLE void updateProcessInfo(const QString& version, const QString& exePath, const unsigned long processId, const QString& nickName, const QString& userName, const QString& phoneNumber, const QString& wxid, const QString& dataPath);
 	struct Data;
 	QScopedPointer<Data> data;
 };

@@ -5,11 +5,9 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QTimer>
-#include <QImage>
-#include <QPixmap>
 #include <QPainter>
 
-#include "msgcore/glue/decryptorwapper.h"
+#include <msgapplication.h>
 
 struct LoadingPage::Data
 {
@@ -65,28 +63,32 @@ struct LoadingPage::Data
 	QTimer* timer = nullptr;
 	int angle = 0;
 	QPixmap pixmap = QPixmap(":/icon_svg/loading-light.svg");
-	DecryptorWapper* wapper = nullptr;
 };
 
-LoadingPage::LoadingPage(DecryptorWapper* wapper, QWidget* parent)
+LoadingPage::LoadingPage(QWidget* parent)
 	: QWidget(parent)
 	, data(new Data)
 {
 	data->q = this;
-	data->wapper = wapper;
 	data->initUI();
-	connect(data->wapper, &DecryptorWapper::sigReadMemoryFinished, this, &LoadingPage::onMemoryReadFinished);
+	if (auto coreApplication = msgApp->GetCoreApplication(); auto manager = coreApplication ? coreApplication->GetDecryptManager() : nullptr)
+		attachTo(manager);
 }
 
-LoadingPage::~LoadingPage()
-{
-
-}
+LoadingPage::~LoadingPage() = default;
 
 void LoadingPage::startWork()
 {
 	startLoadingMovie();
-	data->wapper->readMemory();
+	if (auto coreApplication = msgApp->GetCoreApplication(); auto manager = coreApplication ? coreApplication->GetDecryptManager() : nullptr)
+		manager->StartReadWeChatProcess();
+}
+
+STDMETHODIMP_(bool) LoadingPage::OnCoreEvent(IJCoreEvent* event)
+{
+	if (event->Type() == EventType::Event_ProcessReadFinished)
+		onMemoryReadFinished();
+	return false;
 }
 
 void LoadingPage::startLoadingMovie()
@@ -106,7 +108,7 @@ void LoadingPage::onTimeOut()
 	data->nextRotation();
 }
 
-void LoadingPage::onMemoryReadFinished(bool suc)
+void LoadingPage::onMemoryReadFinished()
 {
 	QTimer::singleShot(2000, this, [this]()
 		{

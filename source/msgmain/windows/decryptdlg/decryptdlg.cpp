@@ -4,15 +4,12 @@
 
 #include <QStackedLayout>
 #include <QFile>
-#include <QPixmap>
-#include <QTimer>
 
 #include "widgets/loadingpage.h"
 #include "widgets/wxprocesslistpage.h"
 #include "widgets/decryptingpage.h"
 
 #include "junuoui/customwidget/junuobasetitlebar.h"
-#include "msgcore/glue/decryptorwapper.h"
 
 struct DecryptDialog::Data
 {
@@ -35,18 +32,18 @@ struct DecryptDialog::Data
 		stackedLayout->setContentsMargins(0, 0, 0, 0);
 		mainVLayout->addLayout(stackedLayout);
 		DecryptDialog::connect(stackedLayout, &QStackedLayout::currentChanged, q, &DecryptDialog::onPageChanged);
-		loadingPage = new LoadingPage(decryptorWapper, q);
+		loadingPage = new LoadingPage(q);
 		loadingPage->setMouseTracking(true);
 		stackedLayout->addWidget(loadingPage);
 		DecryptDialog::connect(loadingPage, &LoadingPage::sigLoadingFinished, q, &DecryptDialog::gotoWxProcessListPage);
-		wxProcessListPage = new WxProcessListPage(decryptorWapper, q);
+		wxProcessListPage = new WxProcessListPage(q);
 		wxProcessListPage->setMouseTracking(true);
 		stackedLayout->addWidget(wxProcessListPage);
 		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigRefresh, q, &DecryptDialog::gotoLoadingPage);
 		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigStartDecrypt, q, &DecryptDialog::gotoDecryptingPage);
 		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigReuseLastResultBeginMsgView, q, &DecryptDialog::sigBeginMsgView);
 	
-		decryptingPage = new DecryptingPage(decryptorWapper, q);
+		decryptingPage = new DecryptingPage(q);
 		decryptingPage->setMouseTracking(true);
 		stackedLayout->addWidget(decryptingPage);
 		DecryptDialog::connect(decryptingPage, &DecryptingPage::sigReDecrypt, q, &DecryptDialog::gotoDecryptingPage);
@@ -67,14 +64,12 @@ struct DecryptDialog::Data
 	DecryptingPage* decryptingPage = nullptr;
 	QStackedLayout* stackedLayout = nullptr;
 	JunuoBaseTitleBar* titleBar = nullptr;
-	DecryptorWapper* decryptorWapper = nullptr;
 };
 
 DecryptDialog::DecryptDialog(QWidget* parent)
 	: JunuoFrameLessWidget(parent)
 	, data(new Data)
 {
-	data->decryptorWapper = new DecryptorWapper(this);
 	data->q = this;
 	data->initUI();
 	setMainWidget(data->mainWidget);

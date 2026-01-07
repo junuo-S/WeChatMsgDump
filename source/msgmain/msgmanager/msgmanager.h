@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <QObject>
-#include <QScopedPointer>
 
 class DecryptDialog;
 class WechatDbReader;

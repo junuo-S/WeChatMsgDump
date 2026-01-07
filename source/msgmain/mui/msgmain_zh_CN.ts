@@ -153,11 +153,11 @@
         <translation>进程ID：</translation>
     </message>
     <message>
-        <source>username: </source>
+        <source>nickName: </source>
         <translation>昵称：</translation>
     </message>
     <message>
-        <source>wxnumber: </source>
+        <source>userName: </source>
         <translation>微信号：</translation>
     </message>
     <message>
