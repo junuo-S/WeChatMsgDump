@@ -1,7 +1,5 @@
 ﻿#include "jwechatprocessreaderv3.h"
 
-#undef slots
-#include <Python.h>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -209,55 +207,10 @@ void JWeChatProcessReaderV3::initConfig()
 
 void JWeChatProcessReaderV3::patternScan()
 {
-	static std::string patternStr = "\\\\Msg\\\\FTSContact";
+	static std::string patternStr = "\\Msg\\FTSContact";
 	static size_t patternStrLength = patternStr.length();
 	static DWORD_PTR maxAddress = junuobase::utils::IsWx64BitExecutable(m_exeFilePath.toStdWString()) ? 0x7FFFFFFF0000 : 0x7fff0000;
-	m_patternScanAddressList.clear();
-
-	QFile file(":/script/pymemutils.py");
-	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-		return;
-	QByteArray script = file.readAll();
-	file.close();
-
-	Py_Initialize();
-	do 
-	{
-		PyObject* pModule = PyModule_New("pymemutils");
-		if (!pModule)
-			break;
-		PyObject* pDict = PyModule_GetDict(pModule);
-		PyObject* result = PyRun_String(script.constData(), Py_file_input, pDict, pDict);
-		if (!result)
-			break;
-		Py_DECREF(result);
-
-		PyObject* pFunc = PyDict_GetItemString(pDict, "patternScanAllAddress");
-		if (!pFunc || !PyCallable_Check(pFunc))
-			break;
-		PyObject* pArgs = PyTuple_Pack(4,
-			PyLong_FromLongLong(m_processId),
-			PyUnicode_FromString(patternStr.c_str()),
-			PyLong_FromLongLong(maxAddress),
-			PyLong_FromLong(100)
-		);
-		PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
-		if (pValue)
-		{
-			Py_ssize_t size = PyList_Size(pValue);
-			for (Py_ssize_t i = 0; i < size; ++i)
-			{
-				PyObject* item = PyList_GetItem(pValue, i);
-				if (item && PyLong_Check(item))
-				{
-					DWORD_PTR value = PyLong_AsLongLong(item);
-					m_patternScanAddressList.push_back(value);
-				}
-			}
-		}
-	} while (false);
-
-	Py_Finalize();
+	m_patternScanAddressList = junuobase::utils::PatternScanAllAddress(m_processId, patternStr, maxAddress, 100);
 }
 
 DECLAREFACTORY_PROCESS_READER(WeChatMajorVersion::Version_3, JWeChatProcessReaderV3)

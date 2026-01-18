@@ -1,7 +1,7 @@
-﻿<RCC>
+﻿<!DOCTYPE RCC>
+<RCC>
   <qresource prefix="/">
     <file>configs/offsetv3.json</file>
     <file>configs/databasesv3.json</file>
-    <file>script/pymemutils.py</file>
   </qresource>
 </RCC>

@@ -21,6 +21,6 @@ junuo_sources(
     src/dbdecrypt/combiner/jwechatdbcombiner.h
     src/dbdecrypt/combiner/jwechatdbcombiner.cpp
 )
-junuo_use_packages(Qt6Core Qt6Gui Qt6Network Qt6Sql python3 openssl)
+junuo_use_packages(Qt6Core Qt6Gui Qt6Network Qt6Sql openssl)
 junuo_include_directories(. ./src ../include)
 junuo_link_packages(junuobase)
