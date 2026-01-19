@@ -1,4 +1,4 @@
-﻿junuo_package(msgmain SHARED)
+﻿junuo_package(msgui SHARED)
 junuo_sources(
     junuo_moc
 

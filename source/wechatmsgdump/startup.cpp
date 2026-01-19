@@ -2,7 +2,7 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    HMODULE msgMainHandle = LoadLibraryA("msgmain.dll");
+    HMODULE msgMainHandle = LoadLibraryA("msgui.dll");
     if (msgMainHandle == NULL)
         return -1;
 	using MsgMainExecFunc = int(*)(int, char**);

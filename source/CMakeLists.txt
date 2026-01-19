@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 include(cmake/config.cmake)
 include(cmake/junuo.cmake)
 
-add_subdirectory(msgmain)
+add_subdirectory(msgui)
 add_subdirectory(wechatmsgdump)
 add_subdirectory(junuoui)
 add_subdirectory(dbreader)
