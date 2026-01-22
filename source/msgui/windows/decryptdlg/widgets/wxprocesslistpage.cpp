@@ -143,7 +143,7 @@ struct WxProcessListPage::Data
 		refreshLabel->setCursor(Qt::PointingHandCursor);
 	}
 
-	void updateProcessInfo(const QString& version, const QString& exePath, const unsigned long processId, const QString& nickName, const QString& userName, const QString& phoneNumber, const QString& wxid, const QString& dataPath)
+	void updateProcessInfo(const QString& version, const QString& exePath, const qulonglong processId, const QString& nickName, const QString& userName, const QString& phoneNumber, const QString& wxid, const QString& dataPath)
 	{
 		bool suc = !wxid.isEmpty() && !dataPath.isEmpty();
 		QString readFailed = WxProcessListPage::tr("read failed");
@@ -218,19 +218,20 @@ void WxProcessListPage::startWork()
 
 STDMETHODIMP_(bool) WxProcessListPage::OnCoreEvent(IJCoreEvent* event)
 {
-	if (event->Type() == EventType::Event_ProcessReadFinished)
+	if (event->Type() == EventType::Event_ReadProcess)
 	{
-		auto readProcessFinishedEvent = dynamic_cast<JProcessReadFinishedEvent*>(event);
-		if (readProcessFinishedEvent)
+		auto readProcessEvent = dynamic_cast<JCommonAsyncEvent*>(event);
+		if (readProcessEvent && readProcessEvent->m_subType == JCommonAsyncEvent::SubType::SubType_End)
 			QMetaObject::invokeMethod(this, "updateProcessInfo", Qt::QueuedConnection
-				, Q_ARG(QString, readProcessFinishedEvent->m_version)
-				, Q_ARG(QString, readProcessFinishedEvent->m_exeFilePath)
-				, Q_ARG(ulong, readProcessFinishedEvent->m_processId)
-				, Q_ARG(QString, readProcessFinishedEvent->m_nickName)
-				, Q_ARG(QString, readProcessFinishedEvent->m_userName)
-				, Q_ARG(QString, readProcessFinishedEvent->m_phoneNumber)
-				, Q_ARG(QString, readProcessFinishedEvent->m_wxid)
-				, Q_ARG(QString, readProcessFinishedEvent->m_dataPath));
+				, Q_ARG(QString, readProcessEvent->m_extraData.value("version").toString())
+				, Q_ARG(QString, readProcessEvent->m_extraData.value("executablePath").toString())
+				, Q_ARG(qulonglong, readProcessEvent->m_extraData.value("processId").toULongLong())
+				, Q_ARG(QString, readProcessEvent->m_extraData.value("nickName").toString())
+				, Q_ARG(QString, readProcessEvent->m_extraData.value("userName").toString())
+				, Q_ARG(QString, readProcessEvent->m_extraData.value("phoneNumber").toString())
+				, Q_ARG(QString, readProcessEvent->m_extraData.value("wxid").toString())
+				, Q_ARG(QString, readProcessEvent->m_extraData.value("dataPath").toString())
+			);
 	}
 	return false;
 }
@@ -256,7 +257,7 @@ void WxProcessListPage::showEvent(QShowEvent* event)
 	data->reuseLastRetButton->adjustBestSize();
 }
 
-Q_INVOKABLE void WxProcessListPage::updateProcessInfo(const QString& version, const QString& exePath, const unsigned long processId, const QString& nickName, const QString& userName, const QString& phoneNumber, const QString& wxid, const QString& dataPath)
+Q_INVOKABLE void WxProcessListPage::updateProcessInfo(const QString& version, const QString& exePath, const qulonglong processId, const QString& nickName, const QString& userName, const QString& phoneNumber, const QString& wxid, const QString& dataPath)
 {
 	data->updateProcessInfo(version, exePath, processId, nickName, userName, phoneNumber, wxid, dataPath);
 }

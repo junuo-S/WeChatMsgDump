@@ -14,7 +14,7 @@ JWeChatProcessReaderV3::JWeChatProcessReaderV3()
 	initConfig();
 }
 
-unsigned long JWeChatProcessReaderV3::GetWeChatProcessId()
+qulonglong JWeChatProcessReaderV3::GetWeChatProcessId()
 {
 	return m_processId;
 }

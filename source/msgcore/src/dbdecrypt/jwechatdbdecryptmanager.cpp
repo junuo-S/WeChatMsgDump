@@ -75,14 +75,17 @@ STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartReadWeChatProcess()
 		return false;
 	QThreadPool::globalInstance()->start([this]()
 		{
-			JProcessReadFinishedEvent event(m_processReader->GetWeChatProcessId(),
-				m_processReader->GetWeChatExecutablePath(),
-				m_processReader->GetWeChatVersion(),
-				m_processReader->GetNickName(),
-				m_processReader->GetWeChatUserName(),
-				m_processReader->GetPhoneNumber(),
-				m_processReader->GetWxid(),
-				m_processReader->GetDataPath());
+			JCommonAsyncEvent event;
+			event.m_subType = JCommonAsyncEvent::SubType::SubType_End;
+			event.m_type = EventType::Event_ReadProcess;
+			event.m_extraData.insert("processId", m_processReader->GetWeChatProcessId());
+			event.m_extraData.insert("executablePath", m_processReader->GetWeChatExecutablePath());
+			event.m_extraData.insert("version", m_processReader->GetWeChatVersion());
+			event.m_extraData.insert("nickName", m_processReader->GetNickName());
+			event.m_extraData.insert("userName", m_processReader->GetWeChatUserName());
+			event.m_extraData.insert("phoneNumber", m_processReader->GetPhoneNumber());
+			event.m_extraData.insert("wxid", m_processReader->GetWxid());
+			event.m_extraData.insert("dataPath", m_processReader->GetDataPath());
 			this->Notify(&event);
 		});
 	return true;

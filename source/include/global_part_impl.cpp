@@ -51,25 +51,7 @@ void IJCoreObserver::detachFrom(IJCoreSubject* subject)
 
 STDMETHODIMP_(EventType) IJCoreEvent::Type()
 {
-	return EventType::Event_Unknown;
-}
-
-JProcessReadFinishedEvent::JProcessReadFinishedEvent(const unsigned long processId, const QString& exeFilePath, const QString& version, const QString& nickName, const QString& userName, const QString& phoneNumber, const QString& wxid, const QString& dataPath)
-	: m_processId(processId)
-	, m_exeFilePath(exeFilePath)
-	, m_version(version)
-	, m_nickName(nickName)
-	, m_userName(userName)
-	, m_phoneNumber(phoneNumber)
-	, m_wxid(wxid)
-	, m_dataPath(dataPath)
-{
-
-}
-
-STDMETHODIMP_(EventType) JProcessReadFinishedEvent::Type()
-{
-	return EventType::Event_ProcessReadFinished;
+	return m_type;
 }
 
 JDecryptEvent::JDecryptEvent(const QString& inputFile, const QString& outputFile, const bool bSuc, int totalCount)

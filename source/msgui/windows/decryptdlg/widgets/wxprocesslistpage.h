@@ -24,7 +24,7 @@ signals:
 
 private:
 	STDMETHODIMP_(bool) OnCoreEvent(IJCoreEvent* event) override;
-	Q_INVOKABLE void updateProcessInfo(const QString& version, const QString& exePath, const unsigned long processId, const QString& nickName, const QString& userName, const QString& phoneNumber, const QString& wxid, const QString& dataPath);
+	Q_INVOKABLE void updateProcessInfo(const QString& version, const QString& exePath, const qulonglong processId, const QString& nickName, const QString& userName, const QString& phoneNumber, const QString& wxid, const QString& dataPath);
 	struct Data;
 	QScopedPointer<Data> data;
 };

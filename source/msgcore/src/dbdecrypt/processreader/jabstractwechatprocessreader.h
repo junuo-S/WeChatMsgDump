@@ -6,7 +6,7 @@ class JAbstractWeChatProcessReader
 {
 public:
 	virtual ~JAbstractWeChatProcessReader() {}
-	virtual unsigned long GetWeChatProcessId() = 0;
+	virtual qulonglong GetWeChatProcessId() = 0;
 	virtual QString GetWeChatExecutablePath() = 0;
 	virtual QString GetWeChatVersion() = 0;
 	virtual QString GetNickName() = 0;

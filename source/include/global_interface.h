@@ -3,7 +3,7 @@
 #include <combaseapi.h>
 #include <wrl/client.h>
 #include <vector>
-#include <QString>
+#include <QVariantMap>
 
 using Microsoft::WRL::ComPtr;
 
@@ -16,7 +16,7 @@ IJUnknown : public IUnknown
 enum class EventType : short
 {
     Event_Unknown = 0xf0,
-    Event_ProcessReadFinished,
+    Event_ReadProcess,
     Event_Decrypt,
     Event_Combine
 };
@@ -24,29 +24,22 @@ enum class EventType : short
 struct IJCoreEvent
 {
     STDMETHOD_(EventType, Type)();
+	EventType m_type = EventType::Event_Unknown;
 };
 
-struct JProcessReadFinishedEvent : public IJCoreEvent
+struct JCommonAsyncEvent : public IJCoreEvent
 {
-    JProcessReadFinishedEvent(
-        const unsigned long processId,
-        const QString& exeFilePath,
-        const QString& version,
-        const QString& nickName,
-        const QString& userName,
-        const QString& phoneNumber,
-        const QString& wxid,
-        const QString& dataPath);
-    STDMETHODIMP_(EventType) Type() override;
+    enum class SubType : short
+    {
+		SubType_Begin = 0x0,
+        SubType_Progress,
+		SubType_End
+    };
 
-    unsigned long m_processId;
-    QString m_exeFilePath;
-    QString m_version;
-    QString m_nickName;
-    QString m_userName;
-    QString m_phoneNumber;
-    QString m_wxid;
-    QString m_dataPath;
+	SubType m_subType = SubType::SubType_Begin;
+	float m_progress = 0.f;
+	QString m_trMessage;
+	QVariantMap m_extraData;
 };
 
 struct JDecryptEvent : public IJCoreEvent

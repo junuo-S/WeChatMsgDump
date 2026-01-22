@@ -86,8 +86,12 @@ void LoadingPage::startWork()
 
 STDMETHODIMP_(bool) LoadingPage::OnCoreEvent(IJCoreEvent* event)
 {
-	if (event->Type() == EventType::Event_ProcessReadFinished)
-		onMemoryReadFinished();
+	if (event->Type() == EventType::Event_ReadProcess)
+	{
+		JCommonAsyncEvent* readProcessEvent = dynamic_cast<JCommonAsyncEvent*>(event);
+		if (readProcessEvent && readProcessEvent->m_subType == JCommonAsyncEvent::SubType::SubType_End)
+			onMemoryReadFinished();
+	}
 	return false;
 }
 
