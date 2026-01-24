@@ -10,12 +10,10 @@ IJCoreEntry --> IJCoreApplication
 interface IJCoreApplication
 {
     + GetDecryptManager(): IJWeChatDBDecryptManager*
-    + GetViewManager(): IJWeChatDBViewManager*
 }
 class JCoreApplication
 JCoreApplication --|> IJCoreApplication
 IJCoreApplication --> IJWeChatDBDecryptManager
-IJCoreApplication --> IJWeChatDBViewManager
 
 interface JAbstractWeChatProcessReader
 {
@@ -79,14 +77,6 @@ IJWeChatDBDecryptManager --> JAbstractWeChatProcessReader
 IJWeChatDBDecryptManager --> JAbstractWeChatDBDecryptor
 IJWeChatDBDecryptManager --> JAbstractWeChatDBCombiner
 IJWeChatDBDecryptManager --|> IJCoreSubject
-
-interface IJWeChatDBViewManager
-{
-
-}
-class JWeChatDBViewManager
-JWeChatDBViewManager --|> IJWeChatDBViewManager
-IJWeChatDBViewManager --|> IJCoreSubject
 
 interface IJCoreSubject
 {
