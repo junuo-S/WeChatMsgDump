@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include "junuoui/customwidget/framelesswidget.h"
+#include "junuoui/customwidget/junuoframelesswidget.h"
 
 #include "global.h"
 

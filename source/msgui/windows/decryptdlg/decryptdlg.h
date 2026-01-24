@@ -3,7 +3,7 @@
 #include <QWidget>
 #include <QScopedPointer>
 
-#include "junuoui/customwidget/framelesswidget.h"
+#include "junuoui/customwidget/junuoframelesswidget.h"
 
 class DecryptDialog : public JunuoFrameLessWidget
 {
