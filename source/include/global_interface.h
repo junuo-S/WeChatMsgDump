@@ -42,28 +42,6 @@ struct JCommonAsyncEvent : public IJCoreEvent
 	QVariantMap m_extraData;
 };
 
-struct JDecryptEvent : public IJCoreEvent
-{
-    JDecryptEvent(const QString& inputFile, const QString& outputFile, const bool bSuc, int totalCount);
-    STDMETHODIMP_(EventType) Type() override;
-
-    QString m_inputFile;
-    QString m_outputFile;
-    bool m_bSuc;
-    int m_totalCount;
-};
-
-struct JCombineEvent : public IJCoreEvent
-{
-    JCombineEvent(const QString& currentFile, const QString& finalFile, const bool bSuc, int totalCount);
-	STDMETHODIMP_(EventType) Type() override;
-
-    QString m_currentFile;
-    QString m_finalFile;
-    bool m_bSuc;
-    int m_totalCount;
-};
-
 interface IJCoreObserver;
 interface __declspec(uuid("2195FF53-607D-4CF1-913E-44F356F6EF97"))
 IJCoreSubject : public IJUnknown

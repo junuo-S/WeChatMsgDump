@@ -9,6 +9,8 @@
 #include "junuoui/progressbar/junuowaterprogressbar.h"
 #include "junuoui/button/buttons.h"
 
+#include "msgapplication.h"
+
 struct DecryptingPage::Data
 {
 	void initUI()
@@ -16,6 +18,7 @@ struct DecryptingPage::Data
 		mainVLayout = new QVBoxLayout(q);
 		mainVLayout->setContentsMargins(0, 0, 0, DPI(4));
 		progressBar = new JunuoWaterProgressBar(q);
+		progressBar->setMaxmumValue(100);
 		mainVLayout->addWidget(progressBar);
 		tipLabel = new QLabel(q);
 		tipLabel->setAlignment(Qt::AlignCenter);
@@ -66,6 +69,8 @@ DecryptingPage::DecryptingPage(QWidget* parent)
 	data->q = this;
 	data->initUI();
 	data->initStyle();
+	if (ComPtr<IJCoreApplication> coreApp = msgApp->GetCoreApplication())
+		attachTo(coreApp->GetDecryptManager());
 }
 
 DecryptingPage::~DecryptingPage()
@@ -75,23 +80,45 @@ DecryptingPage::~DecryptingPage()
 
 void DecryptingPage::startWork()
 {
-	disableButtons();
+	data->beginViewButton->hide();
+	data->reDecryptButton->hide();
 	data->tipLabel->setText(tr("decrypting..."));
 	data->progressBar->startTimer();
+	ComPtr<IJCoreApplication> coreApp = msgApp->GetCoreApplication();
+	ComPtr<IJWeChatDBDecryptManager> decryptManager = coreApp ? coreApp->GetDecryptManager() : nullptr;
+	if (!decryptManager || !decryptManager->StartDecryptDataBase())
+		onDecryptFailed();
 }
 
-void DecryptingPage::onUpdateProgress(int current, int total)
+STDMETHODIMP_(bool) DecryptingPage::OnCoreEvent(IJCoreEvent* event)
 {
-	data->progressBar->setMaxmumValue(total);
+	if (event->Type() == EventType::Event_Decrypt || event->Type() == EventType::Event_Combine)
+	{
+		JCommonAsyncEvent* asyncEvent = dynamic_cast<JCommonAsyncEvent*>(event);
+		QMetaObject::invokeMethod(this, "processCoreEvent", Qt::QueuedConnection, Q_ARG(JCommonAsyncEvent, *asyncEvent));
+		return true;
+	}
+	return false;
+}
+
+Q_INVOKABLE void DecryptingPage::processCoreEvent(const JCommonAsyncEvent& event)
+{
+	if (event.m_subType == JCommonAsyncEvent::SubType::SubType_Progress)
+	{
+		updateProgress(event.m_progress * 100);
+	}
+	else if (event.m_subType == JCommonAsyncEvent::SubType::SubType_End)
+	{
+		if (event.m_type == EventType::Event_Decrypt)
+			onDecryptFinished();
+		else if (event.m_type == EventType::Event_Combine)
+			onCombineFinished();
+	}
+}
+
+void DecryptingPage::updateProgress(int current)
+{
 	data->progressBar->setValue(current);
-}
-
-void DecryptingPage::onDecryptFailed()
-{
-	data->tipLabel->setText(tr("decrypt failed"));
-	data->progressBar->setMaxmumValue(0);
-	data->progressBar->setValue(0);
-	data->progressBar->stopTimer();
 }
 
 void DecryptingPage::onDecryptFinished()
@@ -100,32 +127,20 @@ void DecryptingPage::onDecryptFinished()
 	QTimer::singleShot(100, this, [this]() { data->tipLabel->setText(tr("merging...")); });
 }
 
-void DecryptingPage::onCombineFailed()
+void DecryptingPage::onDecryptFailed()
 {
-	data->tipLabel->setText(tr("merge failed"));
-	data->progressBar->setMaxmumValue(0);
+	data->tipLabel->setText(tr("decrypt failed"));
 	data->progressBar->setValue(0);
 	data->progressBar->stopTimer();
+	data->reDecryptButton->show();
 }
 
 void DecryptingPage::onCombineFinished()
 {
-	enableButtons();
 	data->tipLabel->setText(tr("merge success"));
 	data->progressBar->setValue(data->progressBar->getMaxmumValue());
 	data->progressBar->stopTimer();
-}
-
-void DecryptingPage::disableButtons()
-{
-	data->beginViewButton->setDisabled(true);
-	data->reDecryptButton->setDisabled(true);
-}
-
-void DecryptingPage::enableButtons()
-{
-	data->beginViewButton->setDisabled(false);
-	data->reDecryptButton->setDisabled(false);
+	data->beginViewButton->show();
 }
 
 void DecryptingPage::showEvent(QShowEvent* event)

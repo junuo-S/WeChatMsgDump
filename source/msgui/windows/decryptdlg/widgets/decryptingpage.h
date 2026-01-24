@@ -2,7 +2,9 @@
 
 #include <QWidget>
 
-class DecryptingPage : public QWidget
+#include <global_interface.h>
+
+class DecryptingPage : public QWidget, public IJCoreObserver
 {
 	Q_OBJECT
 public:
@@ -18,13 +20,12 @@ signals:
 	void sigBeginMsgView();
 
 private:
-	void onUpdateProgress(int current, int total);
-	void onDecryptFailed();
+	STDMETHODIMP_(bool) OnCoreEvent(IJCoreEvent* event) override;
+	Q_INVOKABLE void processCoreEvent(const JCommonAsyncEvent& event);
+	void updateProgress(int current);
 	void onDecryptFinished();
-	void onCombineFailed();
+	void onDecryptFailed();
 	void onCombineFinished();
-	void disableButtons();
-	void enableButtons();
 
 	struct Data;
 	QScopedPointer<Data> data;

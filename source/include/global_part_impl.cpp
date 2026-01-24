@@ -53,31 +53,3 @@ STDMETHODIMP_(EventType) IJCoreEvent::Type()
 {
 	return m_type;
 }
-
-JDecryptEvent::JDecryptEvent(const QString& inputFile, const QString& outputFile, const bool bSuc, int totalCount)
-	: m_inputFile(inputFile)
-	, m_outputFile(outputFile)
-	, m_bSuc(bSuc)
-	, m_totalCount(totalCount)
-{
-
-}
-
-STDMETHODIMP_(EventType) JDecryptEvent::Type()
-{
-	return EventType::Event_Decrypt;
-}
-
-JCombineEvent::JCombineEvent(const QString& currentFile, const QString& finalFile, const bool bSuc, int totalCount)
-	: m_currentFile(currentFile)
-	, m_finalFile(finalFile)
-	, m_bSuc(bSuc)
-	, m_totalCount(totalCount)
-{
-
-}
-
-STDMETHODIMP_(EventType) JCombineEvent::Type()
-{
-	return EventType::Event_Combine;
-}

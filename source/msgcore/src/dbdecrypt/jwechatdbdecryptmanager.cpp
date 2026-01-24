@@ -96,7 +96,8 @@ STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartDecryptDataBase()
 	if (!m_processReader || m_processReader->GetDataPath().isEmpty())
 		return false;
 	QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
-	if (!CreateDirIfNeed(dir.absolutePath()) || !dir.mkdir(m_processReader->GetWxid()) || !dir.cd(m_processReader->GetWxid()))
+	dir.cd(m_processReader->GetWxid());
+	if (!CreateDirIfNeed(dir.absolutePath()))
 		return false;
 	m_finalDBFileName = dir.absoluteFilePath("merged_db.db");
 	if (QFile::exists(m_finalDBFileName) && !QFile::remove(m_finalDBFileName))
@@ -104,34 +105,47 @@ STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartDecryptDataBase()
 	QThread* th = QThread::create([this, dir]()
 		{
 			const QStringList& dbFileList = GetDBFileList(m_majorVersion, m_processReader->GetDataPath());
-			const int totalCount = dbFileList.size();
+			const float totalCount = dbFileList.size();
 			QList<QPair<QString, QString>> ret;
-			QDir interDir = dir;
-			interDir.mkdir("decrypted") && interDir.cd("decrypted");
+			QDir innerDir = dir;
+			innerDir.mkdir("decrypted") && innerDir.cd("decrypted");
+			std::atomic<int> decryptedCount = 0;
 			for (const QString& fileName : dbFileList)
 			{
-				auto outputFileName = interDir.absoluteFilePath(QFileInfo(fileName).completeBaseName());
+				QString outputFileName = innerDir.absoluteFilePath(QFileInfo(fileName).completeBaseName());
 				ret.append(QPair(fileName, outputFileName));
-				QThreadPool::globalInstance()->start([totalCount, this, fileName, outputFileName]()
+				QThreadPool::globalInstance()->start([totalCount, this, fileName, outputFileName, &decryptedCount]()
 					{
 						std::unique_ptr<JAbstractWeChatDBDecryptor> decryptor(JWeChatDBDecryptorFactory::createInstance(m_majorVersion));
 						decryptor->SetParam(fileName, outputFileName, m_processReader->GetKey());
-						JDecryptEvent event(fileName, outputFileName, decryptor->Decrypt(), totalCount);
+						decryptor->Decrypt();
+						JCommonAsyncEvent event;
+						event.m_type = EventType::Event_Decrypt;
+						event.m_subType = JCommonAsyncEvent::SubType::SubType_Progress;
+						event.m_progress = ++decryptedCount / totalCount;
 						this->Notify(&event);
 					});
 			}
 			QThreadPool::globalInstance()->waitForDone();
-			do
+
+			std::atomic<int> combinedCount = 0;
+			std::unique_ptr<JWeChatDBCombiner> combiner = std::make_unique<JWeChatDBCombiner>();
+			combiner->beginCombine(m_finalDBFileName);
+			for (const auto& each : ret)
 			{
-				std::unique_ptr<JWeChatDBCombiner> combiner = std::make_unique<JWeChatDBCombiner>();
-				combiner->beginCombine(m_finalDBFileName);
-				for (const auto& each : ret)
-				{
-					JCombineEvent event(each.second, m_finalDBFileName, combiner->combineFile(each.second), totalCount);
-					this->Notify(&event);
-				}
-				combiner->endCombine();
-			} while (false);
+				combiner->combineFile(each.second);
+				JCommonAsyncEvent event;
+				event.m_type = EventType::Event_Combine;
+				event.m_subType = JCommonAsyncEvent::SubType::SubType_Progress;
+				event.m_progress = ++combinedCount / totalCount;
+				this->Notify(&event);
+			}
+			combiner->endCombine();
+			JCommonAsyncEvent event;
+			event.m_type = EventType::Event_Combine;
+			event.m_subType = JCommonAsyncEvent::SubType::SubType_End;
+			event.m_progress = 1;
+			this->Notify(&event);
 		});
 	th->start();
 	QObject::connect(th, &QThread::finished, th, &QObject::deleteLater);
