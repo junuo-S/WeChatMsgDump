@@ -10,6 +10,12 @@ static constexpr const char* const gs_mergeDBConnectionName = "merge_db";
 static constexpr const char* const gs_decryptedDBConnectionName = "decrypted_db";
 static constexpr const char* const gs_sqliteType = "QSQLITE";
 
+JWeChatDBCombiner::~JWeChatDBCombiner()
+{
+	QSqlDatabase::removeDatabase(gs_decryptedDBConnectionName);
+	QSqlDatabase::removeDatabase(gs_mergeDBConnectionName);
+}
+
 bool JWeChatDBCombiner::beginCombine(const QString& outputFilePath)
 {
 	if (QFile::exists(outputFilePath) && !QFile::remove(outputFilePath))
@@ -106,6 +112,7 @@ bool JWeChatDBCombiner::combineFile(const QString& inputFilePath)
 		}
 	} while (false);
 	decryptedDB.close();
+	decryptedDB = QSqlDatabase();
 	QSqlDatabase::removeDatabase(gs_decryptedDBConnectionName);
 	if (!isSuccess || (isSuccess && !mergeDb.commit()))
 	{
@@ -119,6 +126,5 @@ bool JWeChatDBCombiner::endCombine()
 {
 	auto mergeDb = QSqlDatabase::database(gs_mergeDBConnectionName);
 	mergeDb.close();
-	QSqlDatabase::removeDatabase(gs_mergeDBConnectionName);
 	return true;
 }
