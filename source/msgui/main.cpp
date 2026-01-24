@@ -3,7 +3,18 @@
 #include <QLibrary>
 
 #include "msgapplication.h"
-#include "msgmanager/msgmanager.h"
+
+static void attachTranslator(MsgApplication& app)
+{
+	auto exePath = QCoreApplication::applicationDirPath();
+	QDir currentDir(exePath);
+	currentDir.cdUp();
+	currentDir.cd("translation");
+	QTranslator* translator = new QTranslator(&app);
+	bool b = translator->load(currentDir.absoluteFilePath("msgmain_zh_CN.qm"));
+	Q_ASSERT(b);
+	app.installTranslator(translator);
+}
 
 extern "C" __declspec(dllexport)
 int MsgMainExec(int argc, char** argv)
@@ -14,16 +25,8 @@ int MsgMainExec(int argc, char** argv)
 	if (!getCoreEntryFunc)
 		return -1;
 	MsgApplication app(argc, argv);
+	attachTranslator(app);
 	app.init(getCoreEntryFunc());
-	auto exePath = QCoreApplication::applicationDirPath();
-	QDir currentDir(exePath);
-	currentDir.cdUp();
-	currentDir.cd("translation");
-	QTranslator translator;
-	bool b = translator.load(currentDir.absoluteFilePath("msgmain_zh_CN.qm"));
-	Q_ASSERT(b);
-	app.installTranslator(&translator);
-	MsgManager msgManager;
-	msgManager.startWork();
+	app.startWork();
 	return app.exec();
 }

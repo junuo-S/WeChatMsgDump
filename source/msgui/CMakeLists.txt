@@ -43,9 +43,6 @@ junuo_sources(
     dbparser/MSGParser.h
     dbparser/MSGParser.cpp
 
-    msgmanager/msgmanager.h
-    msgmanager/msgmanager.cpp
-
     resources/resource.qrc
     mui/msgmain_zh_CN.ts
     protobuf/MSG.proto

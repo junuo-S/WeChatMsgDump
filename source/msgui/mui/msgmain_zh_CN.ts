@@ -42,10 +42,6 @@
         <translation>解密成功！</translation>
     </message>
     <message>
-        <source>merge failed</source>
-        <translation>合并失败</translation>
-    </message>
-    <message>
         <source>merge success</source>
         <translation>合并成功！</translation>
     </message>
@@ -74,17 +70,6 @@
     <message>
         <source>This Message is not support</source>
         <translation>该条消息暂不支持查看</translation>
-    </message>
-</context>
-<context>
-    <name>MsgManager</name>
-    <message>
-        <source>error</source>
-        <translation>错误</translation>
-    </message>
-    <message>
-        <source>result don&apos;t exists</source>
-        <translation>结果不存在</translation>
     </message>
 </context>
 <context>
