@@ -17,9 +17,6 @@ signals:
 
 private:
 	STDMETHODIMP_(bool) OnCoreEvent(IJCoreEvent* event) override;
-	void startLoadingMovie();
-	void stopLoadingMovie();
-	void onTimeOut();
 	void onMemoryReadFinished();
 
 	struct Data;
