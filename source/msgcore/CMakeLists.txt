@@ -1,10 +1,18 @@
 ﻿junuo_package(msgcore SHARED)
 junuo_sources(
+    junuo_moc
+
     ../include/global_interface.h
     ../include/global_part_impl.cpp
     main.cpp
     msgcore.def
     resource/resource.qrc
+    src/dbreader/wechatdbreader.h
+    src/dbreader/wechatdbreader.cpp
+    src/dbreader/dbthreadpool/databaseworker.h
+    src/dbreader/dbthreadpool/databaseworker.cpp
+    src/dbreader/dbthreadpool/dbthreadpool.h
+    src/dbreader/dbthreadpool/dbthreadpool.cpp
     src/dbdecrypt/jwechatdbdecryptmanager.h
     src/dbdecrypt/jwechatdbdecryptmanager.cpp
     src/dbdecrypt/processreader/jabstractwechatprocessreader.h

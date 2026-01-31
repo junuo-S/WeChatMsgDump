@@ -1,20 +1,12 @@
 ﻿#pragma once
 
-#ifndef DBREADER_EXPORT
-
-#ifdef _DBREADER_MODULE_
-#define DBREADER_EXPORT __declspec(dllexport)
-#else
-#define DBREADER_EXPORT __declspec(dllimport)
-#endif // _DBREADER_MODULE_
-
-#endif // DBREADER_EXPORT
-
 #include <QObject>
-#include <memory>
+#include <QString>
 #include <QVariantMap>
 
-class DBREADER_EXPORT WechatDbReader : public QObject
+class JunuoDbThreadPool;
+
+class WechatDbReader : public QObject
 {
 	Q_OBJECT
 public:
@@ -34,6 +26,6 @@ public:
 	void selectChatHistoryByUserName(QObject* receiver, const char* method, const QVariantMap& param = QVariantMap(), const QVariant& context = QVariant());
 
 private:
-	struct Data;
-	std::unique_ptr<Data> data = nullptr;
+	QString m_dbName;
+	JunuoDbThreadPool* m_dbThreadPool = nullptr;
 };
