@@ -1,9 +1,6 @@
 ﻿#include "stdafx.h"
 
 #include "decryptingpage.h"
-
-#include <QHBoxLayout>
-#include <QLabel>
 #include <QTimer>
 
 #include "junuoui/progressbar/junuowaterprogressbar.h"
@@ -11,64 +8,11 @@
 
 #include "msgapplication.h"
 
-struct DecryptingPage::Data
-{
-	void initUI()
-	{
-		mainVLayout = new QVBoxLayout(q);
-		mainVLayout->setContentsMargins(0, 0, 0, DPI(4));
-		progressBar = new JunuoWaterProgressBar(q);
-		progressBar->setMaxmumValue(100);
-		mainVLayout->addWidget(progressBar);
-		tipLabel = new QLabel(q);
-		tipLabel->setAlignment(Qt::AlignCenter);
-		mainVLayout->addWidget(tipLabel);
-		buttonHLayout = new QHBoxLayout(q);
-		{
-			beginViewButton = new JunuoBaseButton(q);
-			beginViewButton->setBgColor(0x67c23a, 0x85ce61, 0x5daf34, 0xb3e19d);
-			beginViewButton->setTextColor(Qt::white);
-			beginViewButton->setText(DecryptingPage::tr("begin view msg"));
-			DecryptingPage::connect(beginViewButton, &JunuoBaseButton::clicked, q, &DecryptingPage::sigBeginMsgView);
-			reDecryptButton = new JunuoBaseButton(q);
-			reDecryptButton->setBgColor(Qt::white, 0xF5F6F7, 0xEBEEF2);
-			reDecryptButton->setTextColor(0x434B5A);
-			reDecryptButton->setHasBorder(true);
-			reDecryptButton->setBorderColor(0x666666);
-			reDecryptButton->setText(DecryptingPage::tr("re decrypt"));
-			DecryptingPage::connect(reDecryptButton, &JunuoBaseButton::clicked, q, &DecryptingPage::sigReDecrypt);
-			buttonHLayout->addWidget(beginViewButton);
-			buttonHLayout->addWidget(reDecryptButton);
-			buttonHLayout->setAlignment(Qt::AlignCenter);
-		}
-		mainVLayout->addLayout(buttonHLayout);
-		mainVLayout->setStretch(0, 5);
-		mainVLayout->setStretch(1, 1);
-		mainVLayout->setStretch(2, 1);
-	}
-
-	void initStyle()
-	{
-		progressBar->setWaterColor(0x00d200);
-		progressBar->setRadius(DPI(80));
-	}
-
-	DecryptingPage* q = nullptr;
-	JunuoWaterProgressBar* progressBar = nullptr;
-	QVBoxLayout* mainVLayout = nullptr;
-	QLabel* tipLabel = nullptr;
-	QHBoxLayout* buttonHLayout = nullptr;
-	JunuoBaseButton* beginViewButton = nullptr;
-	JunuoBaseButton* reDecryptButton = nullptr;
-};
-
 DecryptingPage::DecryptingPage(QWidget* parent)
 	: QWidget(parent)
-	, data(new Data)
 {
-	data->q = this;
-	data->initUI();
-	data->initStyle();
+	initUI();
+	initStyle();
 	if (ComPtr<IJCoreApplication> coreApp = msgApp->GetCoreApplication())
 		attachTo(coreApp->GetDecryptManager());
 }
@@ -80,10 +24,10 @@ DecryptingPage::~DecryptingPage()
 
 void DecryptingPage::startWork()
 {
-	data->beginViewButton->hide();
-	data->reDecryptButton->hide();
-	data->tipLabel->setText(tr("decrypting..."));
-	data->progressBar->startTimer();
+	m_beginViewButton->hide();
+	m_reDecryptButton->hide();
+	m_tipLabel->setText(tr("decrypting..."));
+	m_progressBar->startTimer();
 	ComPtr<IJCoreApplication> coreApp = msgApp->GetCoreApplication();
 	ComPtr<IJWeChatDBDecryptManager> decryptManager = coreApp ? coreApp->GetDecryptManager() : nullptr;
 	if (!decryptManager || !decryptManager->StartDecryptDataBase())
@@ -118,34 +62,79 @@ Q_INVOKABLE void DecryptingPage::processCoreEvent(const JCommonAsyncEvent& event
 
 void DecryptingPage::updateProgress(int current)
 {
-	data->progressBar->setValue(current);
+	m_progressBar->setValue(current);
 }
 
 void DecryptingPage::onDecryptFinished()
 {
-	data->tipLabel->setText(tr("decrypt success"));
-	QTimer::singleShot(100, this, [this]() { data->tipLabel->setText(tr("merging...")); });
+	m_tipLabel->setText(tr("decrypt success"));
+	QTimer::singleShot(100, this, [this]() { m_tipLabel->setText(tr("merging...")); });
 }
 
 void DecryptingPage::onDecryptFailed()
 {
-	data->tipLabel->setText(tr("decrypt failed"));
-	data->progressBar->setValue(0);
-	data->progressBar->stopTimer();
-	data->reDecryptButton->show();
+	m_tipLabel->setText(tr("decrypt failed"));
+	m_progressBar->setValue(0);
+	m_progressBar->stopTimer();
+	m_reDecryptButton->show();
 }
 
 void DecryptingPage::onCombineFinished()
 {
-	data->tipLabel->setText(tr("merge success"));
-	data->progressBar->setValue(data->progressBar->getMaxmumValue());
-	data->progressBar->stopTimer();
-	data->beginViewButton->show();
+	m_tipLabel->setText(tr("merge success"));
+	m_progressBar->setValue(m_progressBar->getMaxmumValue());
+	m_progressBar->stopTimer();
+	m_beginViewButton->show();
 }
 
 void DecryptingPage::showEvent(QShowEvent* event)
 {
-	data->beginViewButton->adjustBestSize();
-	data->reDecryptButton->adjustBestSize();
+	m_beginViewButton->adjustBestSize();
+	m_reDecryptButton->adjustBestSize();
+}
+
+void DecryptingPage::initUI()
+{
+	m_mainVLayout = new QVBoxLayout(this);
+	m_mainVLayout->setContentsMargins(0, 0, 0, DPI(4));
+
+	m_progressBar = new JunuoWaterProgressBar(this);
+	m_progressBar->setMaxmumValue(100);
+	m_mainVLayout->addWidget(m_progressBar);
+
+	m_tipLabel = new QLabel(this);
+	m_tipLabel->setAlignment(Qt::AlignCenter);
+	m_mainVLayout->addWidget(m_tipLabel);
+
+	m_buttonHLayout = new QHBoxLayout(this);
+	{
+		m_beginViewButton = new JunuoBaseButton(this);
+		m_beginViewButton->setBgColor(0x67c23a, 0x85ce61, 0x5daf34, 0xb3e19d);
+		m_beginViewButton->setTextColor(Qt::white);
+		m_beginViewButton->setText(DecryptingPage::tr("begin view msg"));
+		connect(m_beginViewButton, &JunuoBaseButton::clicked, this, &DecryptingPage::sigBeginMsgView);
+
+		m_reDecryptButton = new JunuoBaseButton(this);
+		m_reDecryptButton->setBgColor(Qt::white, 0xF5F6F7, 0xEBEEF2);
+		m_reDecryptButton->setTextColor(0x434B5A);
+		m_reDecryptButton->setHasBorder(true);
+		m_reDecryptButton->setBorderColor(0x666666);
+		m_reDecryptButton->setText(DecryptingPage::tr("re decrypt"));
+		connect(m_reDecryptButton, &JunuoBaseButton::clicked, this, &DecryptingPage::sigReDecrypt);
+
+		m_buttonHLayout->addWidget(m_beginViewButton);
+		m_buttonHLayout->addWidget(m_reDecryptButton);
+		m_buttonHLayout->setAlignment(Qt::AlignCenter);
+	}
+	m_mainVLayout->addLayout(m_buttonHLayout);
+	m_mainVLayout->setStretch(0, 5);
+	m_mainVLayout->setStretch(1, 1);
+	m_mainVLayout->setStretch(2, 1);
+}
+
+void DecryptingPage::initStyle()
+{
+	m_progressBar->setWaterColor(0x00d200);
+	m_progressBar->setRadius(DPI(80));
 }
 

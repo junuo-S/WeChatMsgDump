@@ -2,7 +2,13 @@
 
 #include <QWidget>
 
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QLabel>
+
 #include <global_interface.h>
+class JunuoWaterProgressBar;
+class JunuoBaseButton;
 
 class DecryptingPage : public QWidget, public IJCoreObserver
 {
@@ -27,6 +33,13 @@ private:
 	void onDecryptFailed();
 	void onCombineFinished();
 
-	struct Data;
-	QScopedPointer<Data> data;
+	void initUI();
+	void initStyle();
+
+	JunuoWaterProgressBar* m_progressBar = nullptr;
+	QVBoxLayout* m_mainVLayout = nullptr;
+	QLabel* m_tipLabel = nullptr;
+	QHBoxLayout* m_buttonHLayout = nullptr;
+	JunuoBaseButton* m_beginViewButton = nullptr;
+	JunuoBaseButton* m_reDecryptButton = nullptr;
 };

@@ -11,39 +11,10 @@
 
 #include "msgapplication.h"
 
-struct LoadingPage::Data
-{
-	void initUI()
-	{
-		mainLayout = new QVBoxLayout(q);
-		mainLayout->setContentsMargins(0, 0, 0, 0);
-		mainLayout->setAlignment(Qt::AlignHCenter);
-		titleLabel = new QLabel(q);
-		titleLabel->setObjectName("titleLabel");
-		titleLabel->setText(LoadingPage::tr("welcome to wechat msg dump"));
-		m_loadingWidget = new JunuoNormalLoadingWidget(q);
-		loadingTextLabel = new QLabel(q);
-		loadingTextLabel->setObjectName("loadingTextLabel");
-		loadingTextLabel->setText(QString("<center>%1</center><center>%2</center>").arg(LoadingPage::tr("detecting wechat process")).arg(LoadingPage::tr("please wait")));
-		mainLayout->addWidget(titleLabel);
-		mainLayout->addSpacing(DPI(16));
-		mainLayout->addWidget(m_loadingWidget);
-		mainLayout->addWidget(loadingTextLabel);
-	}
-
-	LoadingPage* q = nullptr;
-	QVBoxLayout* mainLayout = nullptr;
-	QLabel* titleLabel = nullptr;
-	JunuoNormalLoadingWidget* m_loadingWidget = nullptr;
-	QLabel* loadingTextLabel = nullptr;
-};
-
 LoadingPage::LoadingPage(QWidget* parent)
 	: QWidget(parent)
-	, data(new Data)
 {
-	data->q = this;
-	data->initUI();
+	initUI();
 	if (auto coreApplication = msgApp->GetCoreApplication(); auto manager = coreApplication ? coreApplication->GetDecryptManager() : nullptr)
 		attachTo(manager);
 }
@@ -73,4 +44,28 @@ void LoadingPage::onMemoryReadFinished()
 		{
 			emit sigLoadingFinished();
 		});
+}
+
+void LoadingPage::initUI()
+{
+	m_mainLayout = new QVBoxLayout(this);
+	m_mainLayout->setContentsMargins(0, 0, 0, 0);
+	m_mainLayout->setAlignment(Qt::AlignHCenter);
+
+	m_titleLabel = new QLabel(this);
+	m_titleLabel->setObjectName("titleLabel");
+	m_titleLabel->setText(LoadingPage::tr("welcome to wechat msg dump"));
+
+	m_m_loadingWidget = new JunuoNormalLoadingWidget(this);
+
+	m_loadingTextLabel = new QLabel(this);
+	m_loadingTextLabel->setObjectName("loadingTextLabel");
+	m_loadingTextLabel->setText(QString("<center>%1</center><center>%2</center>")
+									.arg(LoadingPage::tr("detecting wechat process"))
+									.arg(LoadingPage::tr("please wait")));
+
+	m_mainLayout->addWidget(m_titleLabel);
+	m_mainLayout->addSpacing(DPI(16));
+	m_mainLayout->addWidget(m_m_loadingWidget);
+	m_mainLayout->addWidget(m_loadingTextLabel);
 }

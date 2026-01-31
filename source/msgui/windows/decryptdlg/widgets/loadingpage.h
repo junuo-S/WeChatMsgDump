@@ -4,6 +4,10 @@
 
 #include <global_interface.h>
 
+class QVBoxLayout;
+class QLabel;
+class JunuoNormalLoadingWidget;
+
 class LoadingPage : public QWidget, public IJCoreObserver
 {
 	Q_OBJECT
@@ -18,7 +22,10 @@ signals:
 private:
 	STDMETHODIMP_(bool) OnCoreEvent(IJCoreEvent* event) override;
 	void onMemoryReadFinished();
+	void initUI();
 
-	struct Data;
-	QScopedPointer<Data> data;
+	QVBoxLayout* m_mainLayout = nullptr;
+	QLabel* m_titleLabel = nullptr;
+	JunuoNormalLoadingWidget* m_m_loadingWidget = nullptr;
+	QLabel* m_loadingTextLabel = nullptr;
 };

@@ -11,68 +11,11 @@
 
 #include "junuoui/customwidget/junuobasetitlebar.h"
 
-struct DecryptDialog::Data
-{
-	void initUI()
-	{
-		mainWidget = new QWidget(q);
-		mainWidget->setObjectName("mainWidget");
-		QVBoxLayout* vLayout = new QVBoxLayout(q);
-		vLayout->setContentsMargins(DPI(10), DPI(10), DPI(10), DPI(10));
-		titleBar = new JunuoBaseTitleBar(QPixmap(":/icon_svg/wxchat.svg"), DecryptDialog::tr("wechat db decrypt"), q);
-		titleBar->setObjectName("titleBar");
-		titleBar->setTitleIconSize(DPI_SIZE(18, 18));
-		q->setTitleBar(titleBar);
-		vLayout->addWidget(mainWidget);
-		QVBoxLayout* mainVLayout = new QVBoxLayout(mainWidget);
-		mainVLayout->setContentsMargins(0, 0, 0, 0);
-		mainVLayout->setSpacing(0);
-		mainVLayout->addWidget(titleBar);
-		stackedLayout = new QStackedLayout(mainWidget);
-		stackedLayout->setContentsMargins(0, 0, 0, 0);
-		mainVLayout->addLayout(stackedLayout);
-		DecryptDialog::connect(stackedLayout, &QStackedLayout::currentChanged, q, &DecryptDialog::onPageChanged);
-		loadingPage = new LoadingPage(q);
-		loadingPage->setMouseTracking(true);
-		stackedLayout->addWidget(loadingPage);
-		DecryptDialog::connect(loadingPage, &LoadingPage::sigLoadingFinished, q, &DecryptDialog::gotoWxProcessListPage);
-		wxProcessListPage = new WxProcessListPage(q);
-		wxProcessListPage->setMouseTracking(true);
-		stackedLayout->addWidget(wxProcessListPage);
-		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigRefresh, q, &DecryptDialog::gotoLoadingPage);
-		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigStartDecrypt, q, &DecryptDialog::gotoDecryptingPage);
-		DecryptDialog::connect(wxProcessListPage, &WxProcessListPage::sigReuseLastResultBeginMsgView, q, &DecryptDialog::sigBeginMsgView);
-	
-		decryptingPage = new DecryptingPage(q);
-		decryptingPage->setMouseTracking(true);
-		stackedLayout->addWidget(decryptingPage);
-		DecryptDialog::connect(decryptingPage, &DecryptingPage::sigReDecrypt, q, &DecryptDialog::gotoDecryptingPage);
-		DecryptDialog::connect(decryptingPage, &DecryptingPage::sigBeginMsgView, q, &DecryptDialog::sigBeginMsgView);
-		
-		QFile qssFile(":/stylesheet/decryptdlg.qss");
-		if (qssFile.open(QIODevice::ReadOnly | QIODevice::Text))
-		{
-			q->setStyleSheet(qssFile.readAll());
-		}
-		qssFile.close();
-	}
-
-	QWidget* mainWidget = nullptr;
-	DecryptDialog* q = nullptr;
-	LoadingPage* loadingPage = nullptr;
-	WxProcessListPage* wxProcessListPage = nullptr;
-	DecryptingPage* decryptingPage = nullptr;
-	QStackedLayout* stackedLayout = nullptr;
-	JunuoBaseTitleBar* titleBar = nullptr;
-};
-
 DecryptDialog::DecryptDialog(QWidget* parent)
 	: JunuoFrameLessWidget(parent)
-	, data(new Data)
 {
-	data->q = this;
-	data->initUI();
-	setMainWidget(data->mainWidget);
+	initUI();
+	setMainWidget(m_mainWidget);
 	setWindowIcon(QIcon(":/icon_svg/wxchat.svg"));
 }
 
@@ -87,36 +30,87 @@ void DecryptDialog::startWork()
 	show();
 }
 
+void DecryptDialog::initUI()
+{
+	m_mainWidget = new QWidget(this);
+	m_mainWidget->setObjectName("mainWidget");
+
+	QVBoxLayout* vLayout = new QVBoxLayout(this);
+	vLayout->setContentsMargins(DPI(10), DPI(10), DPI(10), DPI(10));
+
+	m_titleBar = new JunuoBaseTitleBar(QPixmap(":/icon_svg/wxchat.svg"), DecryptDialog::tr("wechat db decrypt"), this);
+	m_titleBar->setObjectName("titleBar");
+	m_titleBar->setTitleIconSize(DPI_SIZE(18, 18));
+	setTitleBar(m_titleBar);
+
+	vLayout->addWidget(m_mainWidget);
+
+	QVBoxLayout* mainVLayout = new QVBoxLayout(m_mainWidget);
+	mainVLayout->setContentsMargins(0, 0, 0, 0);
+	mainVLayout->setSpacing(0);
+	mainVLayout->addWidget(m_titleBar);
+
+	m_stackedLayout = new QStackedLayout(m_mainWidget);
+	m_stackedLayout->setContentsMargins(0, 0, 0, 0);
+	mainVLayout->addLayout(m_stackedLayout);
+	connect(m_stackedLayout, &QStackedLayout::currentChanged, this, &DecryptDialog::onPageChanged);
+
+	m_loadingPage = new LoadingPage(this);
+	m_loadingPage->setMouseTracking(true);
+	m_stackedLayout->addWidget(m_loadingPage);
+	connect(m_loadingPage, &LoadingPage::sigLoadingFinished, this, &DecryptDialog::gotoWxProcessListPage);
+
+	m_wxProcessListPage = new WxProcessListPage(this);
+	m_wxProcessListPage->setMouseTracking(true);
+	m_stackedLayout->addWidget(m_wxProcessListPage);
+	connect(m_wxProcessListPage, &WxProcessListPage::sigRefresh, this, &DecryptDialog::gotoLoadingPage);
+	connect(m_wxProcessListPage, &WxProcessListPage::sigStartDecrypt, this, &DecryptDialog::gotoDecryptingPage);
+	connect(m_wxProcessListPage, &WxProcessListPage::sigReuseLastResultBeginMsgView, this, &DecryptDialog::sigBeginMsgView);
+
+	m_decryptingPage = new DecryptingPage(this);
+	m_decryptingPage->setMouseTracking(true);
+	m_stackedLayout->addWidget(m_decryptingPage);
+	connect(m_decryptingPage, &DecryptingPage::sigReDecrypt, this, &DecryptDialog::gotoDecryptingPage);
+	connect(m_decryptingPage, &DecryptingPage::sigBeginMsgView, this, &DecryptDialog::sigBeginMsgView);
+
+	QFile qssFile(":/stylesheet/decryptdlg.qss");
+	if (qssFile.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		setStyleSheet(qssFile.readAll());
+	}
+	qssFile.close();
+}
+
 void DecryptDialog::gotoLoadingPage()
 {
-	if (data->stackedLayout->indexOf(data->loadingPage) == -1)
-		data->stackedLayout->addWidget(data->loadingPage);
-	data->stackedLayout->setCurrentWidget(data->loadingPage);
-	data->loadingPage->startWork();
+	if (m_stackedLayout->indexOf(m_loadingPage) == -1)
+		m_stackedLayout->addWidget(m_loadingPage);
+	m_stackedLayout->setCurrentWidget(m_loadingPage);
+	m_loadingPage->startWork();
 }
 
 void DecryptDialog::gotoWxProcessListPage()
 {
-	if (data->stackedLayout->indexOf(data->wxProcessListPage) == -1)
-		data->stackedLayout->addWidget(data->wxProcessListPage);
-	data->stackedLayout->setCurrentWidget(data->wxProcessListPage);
-	data->wxProcessListPage->startWork();
+	if (m_stackedLayout->indexOf(m_wxProcessListPage) == -1)
+		m_stackedLayout->addWidget(m_wxProcessListPage);
+	m_stackedLayout->setCurrentWidget(m_wxProcessListPage);
+	m_wxProcessListPage->startWork();
 }
 
 void DecryptDialog::gotoDecryptingPage()
 {
-	if (data->stackedLayout->indexOf(data->decryptingPage) == -1)
-		data->stackedLayout->addWidget(data->decryptingPage);
-	data->stackedLayout->setCurrentWidget(data->decryptingPage);
-	data->decryptingPage->startWork();
+	if (m_stackedLayout->indexOf(m_decryptingPage) == -1)
+		m_stackedLayout->addWidget(m_decryptingPage);
+	m_stackedLayout->setCurrentWidget(m_decryptingPage);
+	m_decryptingPage->startWork();
 }
 
 void DecryptDialog::onPageChanged(int index)
 {
-	if (index == data->stackedLayout->indexOf(data->loadingPage))
+	if (index == m_stackedLayout->indexOf(m_loadingPage))
 		setFixedSize(DPI_SIZE(320, 252));
-	else if (index == data->stackedLayout->indexOf(data->wxProcessListPage))
+	else if (index == m_stackedLayout->indexOf(m_wxProcessListPage))
 		setFixedSize(DPI_SIZE(500, 336));
-	else if (index == data->stackedLayout->indexOf(data->decryptingPage))
+	else if (index == m_stackedLayout->indexOf(m_decryptingPage))
 		setFixedSize(DPI_SIZE(500, 352));
 }

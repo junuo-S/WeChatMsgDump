@@ -1,9 +1,13 @@
 ﻿#pragma once
 
 #include <QWidget>
-#include <QScopedPointer>
+#include <QStackedLayout>
 
 #include "junuoui/customwidget/junuoframelesswidget.h"
+class LoadingPage;
+class WxProcessListPage;
+class DecryptingPage;
+class JunuoBaseTitleBar;
 
 class DecryptDialog : public JunuoFrameLessWidget
 {
@@ -21,6 +25,13 @@ private:
 	void gotoWxProcessListPage();
 	void gotoDecryptingPage();
 	void onPageChanged(int index);
-	struct Data;
-	QScopedPointer<Data> data;
+
+	void initUI();
+
+	QWidget* m_mainWidget = nullptr;
+	LoadingPage* m_loadingPage = nullptr;
+	WxProcessListPage* m_wxProcessListPage = nullptr;
+	DecryptingPage* m_decryptingPage = nullptr;
+	QStackedLayout* m_stackedLayout = nullptr;
+	JunuoBaseTitleBar* m_titleBar = nullptr;
 };
