@@ -71,21 +71,19 @@ static bool CreateDirIfNeed(const QString& path)
 
 STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartReadWeChatProcess()
 {
-	if (!m_processReader)
-		return false;
 	QThreadPool::globalInstance()->start([this]()
 		{
 			JCommonAsyncEvent event;
 			event.m_subType = JCommonAsyncEvent::SubType::SubType_End;
 			event.m_type = EventType::Event_ReadProcess;
-			event.m_extraData.insert("processId", m_processReader->GetWeChatProcessId());
-			event.m_extraData.insert("executablePath", m_processReader->GetWeChatExecutablePath());
-			event.m_extraData.insert("version", m_processReader->GetWeChatVersion());
-			event.m_extraData.insert("nickName", m_processReader->GetNickName());
-			event.m_extraData.insert("userName", m_processReader->GetWeChatUserName());
-			event.m_extraData.insert("phoneNumber", m_processReader->GetPhoneNumber());
-			event.m_extraData.insert("wxid", m_processReader->GetWxid());
-			event.m_extraData.insert("dataPath", m_processReader->GetDataPath());
+			event.m_extraData.insert("processId", m_processReader ? m_processReader->GetWeChatProcessId() : 0);
+			event.m_extraData.insert("executablePath", m_processReader ? m_processReader->GetWeChatExecutablePath() : QString());
+			event.m_extraData.insert("version", m_processReader ? m_processReader->GetWeChatVersion() : QString());
+			event.m_extraData.insert("nickName", m_processReader ? m_processReader->GetNickName() : QString());
+			event.m_extraData.insert("userName", m_processReader ? m_processReader->GetWeChatUserName() : QString());
+			event.m_extraData.insert("phoneNumber", m_processReader ? m_processReader->GetPhoneNumber() : QString());
+			event.m_extraData.insert("wxid", m_processReader ? m_processReader->GetWxid() : QString());
+			event.m_extraData.insert("dataPath", m_processReader ? m_processReader->GetDataPath() : QString());
 			this->Notify(&event);
 		});
 	return true;
@@ -108,7 +106,8 @@ STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartDecryptDataBase()
 			const float totalCount = dbFileList.size();
 			QList<QPair<QString, QString>> ret;
 			QDir innerDir = dir;
-			innerDir.mkdir("decrypted") && innerDir.cd("decrypted");
+			innerDir.mkdir("decrypted");
+			innerDir.cd("decrypted");
 			std::atomic<int> decryptedCount = 0;
 			for (const QString& fileName : dbFileList)
 			{

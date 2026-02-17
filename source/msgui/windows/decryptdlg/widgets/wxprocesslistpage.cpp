@@ -223,5 +223,6 @@ void WxProcessListPage::updateProcessInfoUI(const QString& version, const QStrin
 	m_wxDataPathLabel->setText(suc ? dataPath : readFailed);
 	m_wxDataPathLabel->setToolTip(m_wxDataPathLabel->text());
 	m_beginButton->setEnabled(suc);
+	m_reuseLastRetButton->setEnabled(suc);
 }
 
