@@ -1,5 +1,7 @@
 ﻿#include "jwechatprocessreaderv3.h"
 
+#include <array>
+
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -12,6 +14,15 @@
 JWeChatProcessReaderV3::JWeChatProcessReaderV3()
 {
 	initConfig();
+}
+
+JWeChatProcessReaderV3::~JWeChatProcessReaderV3()
+{
+	if (m_hProcess)
+	{
+		CloseHandle(m_hProcess);
+		m_hProcess = 0;
+	}
 }
 
 qulonglong JWeChatProcessReaderV3::GetWeChatProcessId()
@@ -34,21 +45,22 @@ QString JWeChatProcessReaderV3::GetNickName()
 	if (!m_nickName.isEmpty())
 		return m_nickName;
 	static const size_t s_pointerLen = sizeof(void*);
-	BYTE* nickNamePointerBuffer = new BYTE[s_pointerLen];
-	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(m_nickNameAddress), nickNamePointerBuffer, s_pointerLen, NULL))
+	std::array<BYTE, s_pointerLen> nickNamePointerBuffer{};
+	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(m_nickNameAddress), nickNamePointerBuffer.data(), s_pointerLen, NULL))
 		return QString();
-	DWORD_PTR nickNameAddress = junuobase::utils::ByteArrayToAddress(nickNamePointerBuffer, s_pointerLen);
-	delete[]nickNamePointerBuffer;
-	nickNamePointerBuffer = nullptr;
+	DWORD_PTR nickNameAddress = junuobase::utils::ByteArrayToAddress(nickNamePointerBuffer.data(), s_pointerLen);
 
 	BYTE nickNameBuffer[1024] = { 0 };
+	SIZE_T bytesRead = 0;
 	// 首次试错，用户名这里不一定是指针
-	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(nickNameAddress), nickNameBuffer, sizeof(nickNameBuffer), NULL))
+	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(nickNameAddress), nickNameBuffer, sizeof(nickNameBuffer), &bytesRead))
 		nickNameAddress = m_nickNameAddress;
 
-	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(nickNameAddress), nickNameBuffer, sizeof(nickNameBuffer), NULL))
+	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(nickNameAddress), nickNameBuffer, sizeof(nickNameBuffer), &bytesRead))
 		return QString();
-	m_nickName = QString::fromUtf8(reinterpret_cast<const char*>(nickNameBuffer));
+	auto endIt = std::find(nickNameBuffer, nickNameBuffer + bytesRead, static_cast<BYTE>(0));
+	int validLen = static_cast<int>(std::distance(nickNameBuffer, endIt));
+	m_nickName = QString::fromUtf8(reinterpret_cast<const char*>(nickNameBuffer), validLen);
 	return m_nickName;
 }
 
@@ -57,9 +69,12 @@ QString JWeChatProcessReaderV3::GetWeChatUserName()
 	if (!m_userName.isEmpty())
 		return m_userName;
 	BYTE userNameBuf[64] = { 0 };
-	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(m_userNameAddress), userNameBuf, sizeof(userNameBuf), NULL))
+	SIZE_T bytesRead = 0;
+	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(m_userNameAddress), userNameBuf, sizeof(userNameBuf), &bytesRead))
 		return QString();
-	m_userName = reinterpret_cast<const char*>(userNameBuf);
+	auto endIt = std::find(userNameBuf, userNameBuf + bytesRead, static_cast<BYTE>(0));
+	int validLen = static_cast<int>(std::distance(userNameBuf, endIt));
+	m_userName = QString::fromUtf8(reinterpret_cast<const char*>(userNameBuf), validLen);
 	return m_userName;
 }
 
@@ -68,9 +83,12 @@ QString JWeChatProcessReaderV3::GetPhoneNumber()
 	if (!m_phoneNumber.isEmpty())
 		return m_phoneNumber;
 	BYTE phoneNumberBuffer[24] = { 0 };
-	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(m_phoneNumberAddress), phoneNumberBuffer, sizeof(phoneNumberBuffer), NULL))
+	SIZE_T bytesRead = 0;
+	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(m_phoneNumberAddress), phoneNumberBuffer, sizeof(phoneNumberBuffer), &bytesRead))
 		return QString();
-	m_phoneNumber = reinterpret_cast<const char*>(phoneNumberBuffer);
+	auto endIt = std::find(phoneNumberBuffer, phoneNumberBuffer + bytesRead, static_cast<BYTE>(0));
+	int validLen = static_cast<int>(std::distance(phoneNumberBuffer, endIt));
+	m_phoneNumber = QString::fromUtf8(reinterpret_cast<const char*>(phoneNumberBuffer), validLen);
 	return m_phoneNumber;
 }
 
@@ -99,10 +117,13 @@ QString JWeChatProcessReaderV3::GetWxid()
 
 	for (auto cit = m_patternScanAddressList.cbegin(); cit != m_patternScanAddressList.cend(); cit++)
 	{
-		BYTE buffer[80];
-		if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(*cit - 40), buffer, sizeof(buffer), NULL))
+		BYTE buffer[80] = { 0 };
+		SIZE_T bytesRead = 0;
+		if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(*cit - 40), buffer, sizeof(buffer), &bytesRead) || bytesRead == 0)
 			continue;
-		QString bufferString = reinterpret_cast<const char*>(buffer);
+		auto endIt = std::find(buffer, buffer + bytesRead, static_cast<BYTE>(0));
+		int validLen = static_cast<int>(std::distance(buffer, endIt));
+		QString bufferString = QString::fromUtf8(reinterpret_cast<const char*>(buffer), validLen);
 		QStringList splitTemp = bufferString.split("\\Msg");
 		QString wxid = splitTemp.first().split("\\").last();
 		if (isWxidFormat(wxid))
@@ -124,12 +145,17 @@ QString JWeChatProcessReaderV3::GetDataPath()
 	static constexpr const char* const s_endTarget = "\\Msg";
 	for (auto cit = m_patternScanAddressList.cbegin(); cit != m_patternScanAddressList.cend(); cit++)
 	{
-		BYTE buffer[256];
-		if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(*cit - 129), buffer, sizeof(buffer), NULL))
+		BYTE buffer[256] = { 0 };
+		SIZE_T bytesRead = 0;
+		if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(*cit - 129), buffer, sizeof(buffer), &bytesRead) || bytesRead == 0)
 			continue;
-		QString pathStr = reinterpret_cast<const char*>(buffer);
+		auto endIt = std::find(buffer, buffer + bytesRead, static_cast<BYTE>(0));
+		int validLen = static_cast<int>(std::distance(buffer, endIt));
+		QString pathStr = QString::fromUtf8(reinterpret_cast<const char*>(buffer), validLen);
 		int rootPos = pathStr.indexOf(s_rootTarget);
 		int endPos = pathStr.indexOf(s_endTarget);
+		if (rootPos <= 0 || endPos < rootPos)
+			continue;
 		QString path = pathStr.mid(rootPos - 1, endPos - rootPos + 1);
 		if (QFile::exists(path))
 		{
@@ -145,12 +171,10 @@ QString JWeChatProcessReaderV3::GetKey()
 	if (!m_key.isEmpty())
 		return m_key;
 	static const size_t s_pointerLen = sizeof(void*);
-	BYTE* keyPointerBuffer = new BYTE[s_pointerLen];
-	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(m_keyAddress), keyPointerBuffer, s_pointerLen, NULL))
+	std::array<BYTE, s_pointerLen> keyPointerBuffer{};
+	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(m_keyAddress), keyPointerBuffer.data(), s_pointerLen, NULL))
 		return QString();
-	DWORD_PTR keyAddress = junuobase::utils::ByteArrayToAddress(keyPointerBuffer, s_pointerLen);
-	delete[]keyPointerBuffer;
-	keyPointerBuffer = nullptr;
+	DWORD_PTR keyAddress = junuobase::utils::ByteArrayToAddress(keyPointerBuffer.data(), s_pointerLen);
 
 	BYTE keyBuffer[64];
 	if (!ReadProcessMemory(m_hProcess, reinterpret_cast<LPCVOID>(keyAddress), keyBuffer, sizeof(keyBuffer), NULL))
@@ -162,7 +186,11 @@ QString JWeChatProcessReaderV3::GetKey()
 
 void JWeChatProcessReaderV3::Reset()
 {
-	m_hProcess = 0;
+	if (m_hProcess)
+	{
+		CloseHandle(m_hProcess);
+		m_hProcess = 0;
+	}
 	m_processId = 0;
 	m_exeFilePath.clear();
 	m_version.clear();
@@ -182,6 +210,12 @@ void JWeChatProcessReaderV3::Reset()
 
 void JWeChatProcessReaderV3::initConfig()
 {
+	if (m_hProcess)
+	{
+		CloseHandle(m_hProcess);
+		m_hProcess = 0;
+	}
+
 	m_processId = junuobase::utils::GetProcessIdByName(s_processName);
 	m_hProcess = OpenProcess(PROCESS_VM_READ, FALSE, m_processId);
 	DWORD_PTR dllAddress = junuobase::utils::GetModuleAddress(s_processName, s_dllName);

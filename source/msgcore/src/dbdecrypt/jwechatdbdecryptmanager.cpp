@@ -71,6 +71,7 @@ static bool CreateDirIfNeed(const QString& path)
 
 STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartReadWeChatProcess()
 {
+	AddRef();
 	QThreadPool::globalInstance()->start([this]()
 		{
 			JCommonAsyncEvent event;
@@ -85,6 +86,7 @@ STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartReadWeChatProcess()
 			event.m_extraData.insert("wxid", m_processReader ? m_processReader->GetWxid() : QString());
 			event.m_extraData.insert("dataPath", m_processReader ? m_processReader->GetDataPath() : QString());
 			this->Notify(&event);
+			Release();
 		});
 	return true;
 }
@@ -100,6 +102,7 @@ STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartDecryptDataBase()
 	m_finalDBFileName = dir.absoluteFilePath("merged_db.db");
 	if (QFile::exists(m_finalDBFileName) && !QFile::remove(m_finalDBFileName))
 		return false;
+	AddRef();
 	QThread* th = QThread::create([this, dir]()
 		{
 			const QStringList& dbFileList = GetDBFileList(m_majorVersion, m_processReader->GetDataPath());
@@ -145,7 +148,13 @@ STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartDecryptDataBase()
 			event.m_subType = JCommonAsyncEvent::SubType::SubType_End;
 			event.m_progress = 1;
 			this->Notify(&event);
+			Release();
 		});
+	if (!th)
+	{
+		Release();
+		return false;
+	}
 	th->start();
 	QObject::connect(th, &QThread::finished, th, &QObject::deleteLater);
 	return true;

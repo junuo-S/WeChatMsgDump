@@ -8,6 +8,7 @@ class JWeChatProcessReaderV3 : public JAbstractWeChatProcessReader
 {
 public:
 	JWeChatProcessReaderV3();
+	virtual ~JWeChatProcessReaderV3() override;
 	virtual qulonglong GetWeChatProcessId() override;
 	virtual QString GetWeChatExecutablePath() override;
 	virtual QString GetWeChatVersion() override;
