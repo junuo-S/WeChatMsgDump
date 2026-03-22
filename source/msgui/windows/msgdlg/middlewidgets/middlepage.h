@@ -1,9 +1,13 @@
-﻿#pragma once
+#pragma once
 
 #include <QWidget>
-#include <QScopedPointer>
+#include <QPointer>
 
 class SessionOverviewCard;
+class QStackedLayout;
+class QScrollArea;
+class QVBoxLayout;
+class QTimer;
 
 class MiddlePage : public QWidget
 {
@@ -22,6 +26,16 @@ private:
 	void onSessionClicked(SessionOverviewCard* session, const QString& wxid, const QString& remark);
 	void onSessionScrollAreaScrolled(int value);
 	void refreshSessionCardsInfo();
-	struct Data;
-	QScopedPointer<Data> data;
+	void initUI();
+
+	QStackedLayout* m_mainStackedLayout = nullptr;
+	QWidget* m_msgWidget = nullptr;
+	QScrollArea* m_msgScrollArea = nullptr;
+	QVBoxLayout* m_msgVLayout = nullptr;
+	QWidget* m_friendWidget = nullptr;
+	QScrollArea* m_friendScrollArea = nullptr;
+	QVBoxLayout* m_friendVLayout = nullptr;
+	QPointer<SessionOverviewCard> m_currentSession = nullptr;
+	QList<SessionOverviewCard*> m_pendingSessionCards;
+	QTimer* m_refreshTimer = nullptr;
 };

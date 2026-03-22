@@ -1,6 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include <QWidget>
+#include <global_interface.h>
 
 class JunuoBaseTitleBar;
 class QVBoxLayout;
@@ -10,7 +11,7 @@ class QPushButton;
 class QLabel;
 class QScrollArea;
 class MessageCardWidgetBase;
-class ChatPage : public QWidget
+class ChatPage : public QWidget, public IJCoreObserver
 {
 	Q_OBJECT
 	using Base = QWidget;
@@ -18,6 +19,7 @@ public:
 	ChatPage(QWidget* parent = nullptr);
 	~ChatPage();
 	void setCurrentChatTalker(const QString& wxid, const QString& remark);
+	STDMETHODIMP_(bool) OnCoreEvent(IJCoreEvent* event) override;
 
 signals:
 	void sigSizeChanged(const QSize& newSize);
@@ -34,7 +36,7 @@ private:
 	void onChatContentScrollBarValueChanged(int value);
 	void addMessageCardWidgetByCache(const QString& wxid);
 	void requestChatHistory(const QString& wxid, qint64 createTime, bool forward, size_t limit);
-	Q_INVOKABLE void onRequestChatHistoryFinished(const QVariantList& result, const QVariant& context = QVariant());
+	Q_INVOKABLE void onRequestChatHistoryFinished(const QString& talker, const QVariantList& result);
 
 	QString m_currentChatTalkerWxid;
 	QVBoxLayout* m_mainVLayout = nullptr;
@@ -52,4 +54,5 @@ private:
 	int m_scrollBarLastValue = 0;
 	int m_scrollBarCurrentVisiabelDelta = 0;
 	std::atomic_bool m_isRequestingChatHistory = false;
+	ComPtr<IJMsgViewManager> m_spMsgViewMgr;
 };

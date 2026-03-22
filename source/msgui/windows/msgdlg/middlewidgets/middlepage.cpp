@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 
 #include "middlepage.h"
 
@@ -13,72 +13,14 @@
 #include "global.h"
 #include "sessionoverviewcard.h"
 
-struct MiddlePage::Data
-{
-	void initUI()
-	{
-		q->setMinimumWidth(DPI(240));
-		mainStackedLayout = new QStackedLayout(q);
-		mainStackedLayout->setContentsMargins(0, 0, 0, 0);
-		msgWidget = new QWidget(q);
-		msgWidget->setObjectName("msgWidget");
-		msgWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		msgScrollArea = new QScrollArea(q);
-		msgScrollArea->setMinimumWidth(DPI(240));
-		msgScrollArea->setWidgetResizable(true);
-		msgScrollArea->setWidget(msgWidget);
-		msgScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-		MiddlePage::connect(msgScrollArea->verticalScrollBar(), &QScrollBar::valueChanged, q, &MiddlePage::onSessionScrollAreaScrolled);
-		MiddlePage::connect(msgScrollArea->verticalScrollBar(), &QScrollBar::rangeChanged, q, &MiddlePage::onSessionScrollAreaScrolled);
-		msgVLayout = new QVBoxLayout(msgWidget);
-		msgVLayout->setContentsMargins(0, 0, 0, 0);
-		msgVLayout->setSpacing(DPI(1));
-		mainStackedLayout->addWidget(msgScrollArea);
-
-		friendWidget = new QWidget(q);
-		friendWidget->setObjectName("friendWidget");
-		friendWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		friendScrollArea = new QScrollArea(q);
-		friendScrollArea->setMinimumWidth(DPI(230));
-		friendScrollArea->setWidgetResizable(true);
-		friendScrollArea->setWidget(friendWidget);
-		friendScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-		friendVLayout = new QVBoxLayout(friendWidget);
-		friendVLayout->setContentsMargins(0, 0, 0, 0);
-		mainStackedLayout->addWidget(friendScrollArea);
-	}
-
-	void addSessionCard(const QString& wxid)
-	{
-		auto card = new SessionOverviewCard(wxid, msgWidget);
-		MiddlePage::connect(card, &SessionOverviewCard::sigSessionClicked, q, &MiddlePage::onSessionClicked);
-		msgVLayout->addWidget(card);
-		pendingSessionCards.append(card);
-	}
-
-	MiddlePage* q = nullptr;
-	QStackedLayout* mainStackedLayout = nullptr;
-	QWidget* msgWidget = nullptr;
-	QScrollArea* msgScrollArea = nullptr;
-	QVBoxLayout* msgVLayout = nullptr;
-	QWidget* friendWidget = nullptr;
-	QScrollArea* friendScrollArea = nullptr;
-	QVBoxLayout* friendVLayout = nullptr;
-	QPointer<SessionOverviewCard> currentSession = nullptr;
-	QList<SessionOverviewCard*> pendingSessionCards;
-	QTimer* refreshTimer = nullptr;
-};
-
 MiddlePage::MiddlePage(Base* parent /*= nullptr*/)
 	: Base(parent)
-	, data(new Data)
 {
-	data->q = this;
-	data->refreshTimer = new QTimer(this);
-	data->refreshTimer->setInterval(400);
-	data->refreshTimer->setSingleShot(true);
-	connect(data->refreshTimer, &QTimer::timeout, this, &MiddlePage::refreshSessionCardsInfo);
-	data->initUI();
+	m_refreshTimer = new QTimer(this);
+	m_refreshTimer->setInterval(400);
+	m_refreshTimer->setSingleShot(true);
+	connect(m_refreshTimer, &QTimer::timeout, this, &MiddlePage::refreshSessionCardsInfo);
+	initUI();
 }
 
 MiddlePage::~MiddlePage()
@@ -93,40 +35,76 @@ void MiddlePage::startWork()
 
 void MiddlePage::addSessionCard(const QString& wxid)
 {
-	data->addSessionCard(wxid);
+	SessionOverviewCard* card = new SessionOverviewCard(wxid, m_msgWidget);
+	MiddlePage::connect(card, &SessionOverviewCard::sigSessionClicked, this, &MiddlePage::onSessionClicked);
+	m_msgVLayout->addWidget(card);
+	m_pendingSessionCards.append(card);
 }
 
 void MiddlePage::onSessionClicked(SessionOverviewCard* session, const QString& wxid, const QString& remark)
 {
-	if (!session || session == data->currentSession)
+	if (!session || session == m_currentSession)
 		return;
-	if (data->currentSession)
-		data->currentSession->setSelected(false);
-	data->currentSession = session;
-	data->currentSession->setSelected(true);
+	if (m_currentSession)
+		m_currentSession->setSelected(false);
+	m_currentSession = session;
+	m_currentSession->setSelected(true);
 	emit sigSessionClicked(wxid, remark);
 }
 
 void MiddlePage::onSessionScrollAreaScrolled(int value)
 {
-	data->refreshTimer->stop();
-	data->refreshTimer->start();
+	m_refreshTimer->stop();
+	m_refreshTimer->start();
 }
 
 void MiddlePage::refreshSessionCardsInfo()
 {
-	QRect visibleRect = data->msgScrollArea->viewport()->rect();
+	QRect visibleRect = m_msgScrollArea->viewport()->rect();
 	QList<SessionOverviewCard*> needRemoveSessionCards;
-	for (auto card : data->pendingSessionCards)
+	for (SessionOverviewCard* card : m_pendingSessionCards)
 	{
 		QRect cardRect = card->geometry();
-		cardRect.moveTo(card->mapTo(data->msgScrollArea->viewport(), QPoint(0, 0)));
+		cardRect.moveTo(card->mapTo(m_msgScrollArea->viewport(), QPoint(0, 0)));
 		if (visibleRect.intersects(cardRect))
 		{
 			card->startWork();
 			needRemoveSessionCards.append(card);
 		}
 	}
-	for (auto card : needRemoveSessionCards)
-		data->pendingSessionCards.removeAll(card);
+	for (SessionOverviewCard* card : needRemoveSessionCards)
+		m_pendingSessionCards.removeAll(card);
+}
+
+void MiddlePage::initUI()
+{
+	setMinimumWidth(DPI(240));
+	m_mainStackedLayout = new QStackedLayout(this);
+	m_mainStackedLayout->setContentsMargins(0, 0, 0, 0);
+	m_msgWidget = new QWidget(this);
+	m_msgWidget->setObjectName("msgWidget");
+	m_msgWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	m_msgScrollArea = new QScrollArea(this);
+	m_msgScrollArea->setMinimumWidth(DPI(240));
+	m_msgScrollArea->setWidgetResizable(true);
+	m_msgScrollArea->setWidget(m_msgWidget);
+	m_msgScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	MiddlePage::connect(m_msgScrollArea->verticalScrollBar(), &QScrollBar::valueChanged, this, &MiddlePage::onSessionScrollAreaScrolled);
+	MiddlePage::connect(m_msgScrollArea->verticalScrollBar(), &QScrollBar::rangeChanged, this, &MiddlePage::onSessionScrollAreaScrolled);
+	m_msgVLayout = new QVBoxLayout(m_msgWidget);
+	m_msgVLayout->setContentsMargins(0, 0, 0, 0);
+	m_msgVLayout->setSpacing(DPI(1));
+	m_mainStackedLayout->addWidget(m_msgScrollArea);
+
+	m_friendWidget = new QWidget(this);
+	m_friendWidget->setObjectName("friendWidget");
+	m_friendWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	m_friendScrollArea = new QScrollArea(this);
+	m_friendScrollArea->setMinimumWidth(DPI(230));
+	m_friendScrollArea->setWidgetResizable(true);
+	m_friendScrollArea->setWidget(m_friendWidget);
+	m_friendScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_friendVLayout = new QVBoxLayout(m_friendWidget);
+	m_friendVLayout->setContentsMargins(0, 0, 0, 0);
+	m_mainStackedLayout->addWidget(m_friendScrollArea);
 }

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <QApplication>
 
@@ -14,7 +14,7 @@ public:
 	MsgApplication(int& argc, char** argv);
 	~MsgApplication();
 	void init(IJCoreEntry* pCoreEntry);
-	IJCoreApplication* GetCoreApplication();
+	ComPtr<IJCoreApplication> GetCoreApplication();
 	void startWork();
 
 private:

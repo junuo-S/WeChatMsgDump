@@ -1,45 +1,45 @@
-﻿#pragma once
+#pragma once
 
 #include <QWidget>
 #include <QScopedPointer>
 
-#include <msgcore/interface/interfacedecl.h>
-
-#include "dbparser/MSGParser.h"
+#include <global_interface.h>
 
 class MessageCardWidgetBase : public QWidget
 {
 	Q_OBJECT
 public:
-	MessageCardWidgetBase(const MSGParser& parser, QWidget* parent = nullptr) : QWidget(parent), m_msgParser(parser) {};
+	MessageCardWidgetBase(const MessagePtr& message, QWidget* parent = nullptr) : QWidget(parent), m_message(message) {};
 	virtual ~MessageCardWidgetBase() = default;
-	QString getStrTalker() const { return m_msgParser.getStrTalker(); }
-	qint64 getCreateTime() const { return m_msgParser.getCreateTime(); }
+	QString getStrTalker() const { return m_message ? m_message->GetStrTalker() : QString(); }
+	qint64 getCreateTime() const { return m_message ? m_message->GetCreateTime() : 0; }
 	virtual void adjustBestSize() = 0;
 	virtual void initUI() = 0;
 
 protected:
-	MSGParser m_msgParser;
+	MessagePtr m_message;
 };
 
 class QHBoxLayout;
 class QVBoxLayout;
 class QLabel;
-class MessagecardNormalWidgetBase : public MessageCardWidgetBase, public IHeadImageObserver
+class QPushButton;
+class MessagecardNormalWidgetBase : public MessageCardWidgetBase
 {
 	Q_OBJECT
 public:
-	MessagecardNormalWidgetBase(const MSGParser& parser, QWidget* parent = nullptr);
+	MessagecardNormalWidgetBase(const MessagePtr& message, QWidget* parent = nullptr);
 	virtual ~MessagecardNormalWidgetBase() override;
-	void setHeadImage(const QPixmap& pixmap) override;
 
 protected:
 	void initUI() override;
+	void refreshHeadImage();
 	virtual QWidget* createMsgContentWidget() = 0;
 
 	QHBoxLayout* m_mainHLayout = nullptr;
 	QVBoxLayout* m_headImageVLayout = nullptr;
-	QLabel* m_headImageLabel = nullptr;
+	QPushButton* m_headImageButton = nullptr;
 	QVBoxLayout* m_msgVLayout = nullptr;
 	QLabel* m_timeLabel = nullptr;
+	QString m_headWxid;
 };

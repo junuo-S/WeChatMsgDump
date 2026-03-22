@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 
 #include "loadingpage.h"
 
@@ -15,15 +15,19 @@ LoadingPage::LoadingPage(QWidget* parent)
 	: QWidget(parent)
 {
 	initUI();
-	if (auto coreApplication = msgApp->GetCoreApplication(); auto manager = coreApplication ? coreApplication->GetDecryptManager() : nullptr)
-		attachTo(manager);
+	ComPtr<IJCoreApplication> coreApplication = msgApp ? msgApp->GetCoreApplication() : nullptr;
+	ComPtr<IJWeChatDBDecryptManager> manager = coreApplication ? coreApplication->GetDecryptManager() : nullptr;
+	if (manager)
+		attachTo(manager.Get());
 }
 
 LoadingPage::~LoadingPage() = default;
 
 void LoadingPage::startWork()
 {
-	if (auto coreApplication = msgApp->GetCoreApplication(); auto manager = coreApplication ? coreApplication->GetDecryptManager() : nullptr)
+	ComPtr<IJCoreApplication> coreApplication = msgApp ? msgApp->GetCoreApplication() : nullptr;
+	ComPtr<IJWeChatDBDecryptManager> manager = coreApplication ? coreApplication->GetDecryptManager() : nullptr;
+	if (manager)
 		manager->StartReadWeChatProcess();
 }
 

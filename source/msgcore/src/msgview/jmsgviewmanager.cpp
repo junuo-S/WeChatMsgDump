@@ -18,7 +18,6 @@ constexpr auto KEY_TALKER_LIST = "talkerList";
 constexpr auto KEY_TALKER = "talker";
 constexpr auto KEY_COUNT = "count";
 constexpr auto KEY_MESSAGES = "messages";
-constexpr auto KEY_CONTACT = "contact";
 }
 
 JMsgViewManager::JMsgViewManager()
@@ -207,13 +206,7 @@ void JMsgViewManager::updateAndNotifyContact(const QString& wxid, const QVariant
     if (!contactRecord)
         return;
 
-    QVariantMap contact;
-    contact.insert(STR_WXID, info.m_wxid);
-    contact.insert(STR_USERNAME, info.m_userName);
-    contact.insert(STR_NICKNAME, info.m_nickName);
-    contact.insert(STR_REMARK, info.m_remarkName);
-
     QVariantMap data;
-    data.insert(KEY_CONTACT, contact);
+    data.insert(STR_WXID, info.m_wxid);
     notifyMsgViewResult(MsgViewOpType::Op_QueryContactInfo, true, data);
 }

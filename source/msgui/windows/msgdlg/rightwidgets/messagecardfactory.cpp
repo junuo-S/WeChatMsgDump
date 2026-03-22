@@ -1,19 +1,20 @@
-﻿#include "messagecardfactory.h"
+#include "messagecardfactory.h"
 
 #include "messagecard.h"
 
-static QHash<MsgType, MessageCardWidgetFactoryItemBase*>& FactoryCollection()
+static QHash<JMsgType, MessageCardWidgetFactoryItemBase*>& FactoryCollection()
 {
-	static QHash<MsgType, MessageCardWidgetFactoryItemBase*> collection;
+	static QHash<JMsgType, MessageCardWidgetFactoryItemBase*> collection;
 	return collection;
 }
 
-MessageCardWidgetBase* MessageCardWidgetFactory::createInstance(const QVariantMap& msg, QWidget* parent)
+MessageCardWidgetBase* MessageCardWidgetFactory::createInstance(const MessagePtr& msg, QWidget* parent)
 {
-	MSGParser parser(msg);
-	if (FactoryCollection().contains(parser.getMsgType()))
-		return FactoryCollection().value(parser.getMsgType())->createInstance(parser, parent);
-	return new MessageCardUnKnownWidget(parser, parent);
+	if (!msg)
+		return nullptr;
+	if (FactoryCollection().contains(msg->GetMsgType()))
+		return FactoryCollection().value(msg->GetMsgType())->createInstance(msg, parent);
+	return new MessageCardUnKnownWidget(msg, parent);
 }
 
 void MessageCardWidgetFactory::registerItem(MessageCardWidgetFactoryItemBase* item)
@@ -27,7 +28,7 @@ void MessageCardWidgetFactory::unregisterItem(MessageCardWidgetFactoryItemBase* 
 	FactoryCollection().remove(item->m_type);
 }
 
-MessageCardWidgetFactoryItemBase::MessageCardWidgetFactoryItemBase(MsgType type)
+MessageCardWidgetFactoryItemBase::MessageCardWidgetFactoryItemBase(JMsgType type)
 	: m_type(type)
 {
 	MessageCardWidgetFactory::registerItem(this);

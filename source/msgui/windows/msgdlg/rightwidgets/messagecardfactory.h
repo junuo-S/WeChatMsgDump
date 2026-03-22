@@ -1,16 +1,13 @@
-﻿#pragma once
+#pragma once
 
-#include <QVariantMap>
-
-#include "global.h"
-#include "dbparser/MSGParser.h"
+#include <global_interface.h>
 
 class MessageCardWidgetBase;
 class MessageCardWidgetFactoryItemBase;
 class MessageCardWidgetFactory
 {
 public:
-	static MessageCardWidgetBase* createInstance(const QVariantMap& msg, QWidget* parent);
+	static MessageCardWidgetBase* createInstance(const MessagePtr& msg, QWidget* parent);
 
 private:
 	static void registerItem(MessageCardWidgetFactoryItemBase* item);
@@ -21,20 +18,20 @@ private:
 class MessageCardWidgetFactoryItemBase
 {
 public:
-	MessageCardWidgetFactoryItemBase(MsgType type);
+	MessageCardWidgetFactoryItemBase(JMsgType type);
 	virtual ~MessageCardWidgetFactoryItemBase();
-	virtual MessageCardWidgetBase* createInstance(const MSGParser& parser, QWidget* parent) = 0;
-	MsgType m_type = MsgType::UnKnown;
+	virtual MessageCardWidgetBase* createInstance(const MessagePtr& message, QWidget* parent) = 0;
+	JMsgType m_type = JMsgType::UnKnown;
 };
 
 template <class T>
 class MessageCardWidgetFactoryItem : public MessageCardWidgetFactoryItemBase
 {
 public:
-	MessageCardWidgetFactoryItem(MsgType type) : MessageCardWidgetFactoryItemBase(type) {}
-	virtual MessageCardWidgetBase* createInstance(const MSGParser& parser, QWidget* parent) override
+	MessageCardWidgetFactoryItem(JMsgType type) : MessageCardWidgetFactoryItemBase(type) {}
+	virtual MessageCardWidgetBase* createInstance(const MessagePtr& message, QWidget* parent) override
 	{
-		return new T(parser, parent);
+		return new T(message, parent);
 	}
 };
 

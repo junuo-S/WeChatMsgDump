@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 
 #include "chatpage.h"
 
@@ -14,8 +14,8 @@
 #include <QResizeEvent>
 
 #include <junuoui/customwidget/junuobasetitlebar.h>
-#include <msgcore/databus/databus.h>
 
+#include "msgapplication.h"
 #include "messagecard.h"
 #include "messagecardfactory.h"
 
@@ -24,12 +24,17 @@ ChatPage::ChatPage(QWidget* parent /*= nullptr*/)
 	, m_mainVLayout(new QVBoxLayout(this))
 	, m_titleBar(new JunuoBaseTitleBar(QPixmap(), QString(), this))
 {
+	ComPtr<IJCoreApplication> coreApp = msgApp ? msgApp->GetCoreApplication() : nullptr;
+	if (coreApp)
+		m_spMsgViewMgr = coreApp->GetMsgViewManager();
+	if (m_spMsgViewMgr)
+		attachTo(m_spMsgViewMgr.Get());
 	initUI();
 }
 
 ChatPage::~ChatPage()
 {
-	for (auto& list : m_chatContentMap)
+	for (QList<MessageCardWidgetBase*>& list : m_chatContentMap)
 	{
 		qDeleteAll(list);
 		list.clear();
@@ -152,7 +157,7 @@ void ChatPage::onChatContentScrollBarValueChanged(int value)
 
 void ChatPage::addMessageCardWidgetByCache(const QString& wxid)
 {
-	for (const auto& messageCardWidget : m_chatContentMap.value(wxid))
+	for (MessageCardWidgetBase* const& messageCardWidget : m_chatContentMap.value(wxid))
 	{
 		m_chatContentVLayout->addWidget(messageCardWidget);
 		messageCardWidget->adjustBestSize();
@@ -163,21 +168,41 @@ void ChatPage::requestChatHistory(const QString& wxid, qint64 createTime, bool f
 {
 	if (m_isRequestingChatHistory)
 		return;
-	DATA_BUS_INSTANCE->requestChatHistory(wxid, createTime, forward, limit, this, "onRequestChatHistoryFinished");
+	if (!m_spMsgViewMgr)
+		return;
+	m_spMsgViewMgr->StartQueryChatHistory(wxid, static_cast<quint64>(createTime), forward, static_cast<uint>(limit));
 	m_isRequestingChatHistory = true;
 }
 
-Q_INVOKABLE void ChatPage::onRequestChatHistoryFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)
+STDMETHODIMP_(bool) ChatPage::OnCoreEvent(IJCoreEvent* event)
+{
+	if (!event || event->Type() != EventType::Event_MsgView)
+		return false;
+	JMsgViewAsyncEvent* asyncEvent = dynamic_cast<JMsgViewAsyncEvent*>(event);
+	if (!asyncEvent || asyncEvent->m_op != MsgViewOpType::Op_QueryChatHistory)
+		return false;
+	const QVariantMap dataMap = asyncEvent->m_extraData;
+	const QString talker = dataMap.value("talker").toString();
+	const QVariantList messages = dataMap.value("messages").toList();
+	QMetaObject::invokeMethod(this, "onRequestChatHistoryFinished", Qt::QueuedConnection, Q_ARG(QString, talker), Q_ARG(QVariantList, messages));
+	return true;
+}
+
+Q_INVOKABLE void ChatPage::onRequestChatHistoryFinished(const QString& talker, const QVariantList& result)
 {
 	m_isRequestingChatHistory = false;
+	if (talker != m_currentChatTalkerWxid)
+		return;
 	if (result.isEmpty())
 	{
 		m_scrollBarCurrentVisiabelDelta = 0;
 		return;
 	}
-	for (const auto& record : result)
+	for (const QVariant& messageVar : result)
 	{
-		auto messageCardWidget = MessageCardWidgetFactory::createInstance(record.toMap(), this);
+		MessageCardWidgetBase* messageCardWidget = MessageCardWidgetFactory::createInstance(messageVar.value<MessagePtr>(), this);
+		if (!messageCardWidget)
+			continue;
 		if (messageCardWidget->getStrTalker() != m_currentChatTalkerWxid)
 		{
 			messageCardWidget->deleteLater();

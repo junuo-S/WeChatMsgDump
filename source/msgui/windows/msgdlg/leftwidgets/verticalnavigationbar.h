@@ -1,13 +1,16 @@
-﻿#pragma once
+#pragma once
 
 #include <QFrame>
-#include <QScopedPointer>
-
-#include <msgcore/interface/interfacedecl.h>
+#include <QPoint>
+#include <global_interface.h>
 
 class QAbstractButton;
+class QVBoxLayout;
+class QPushButton;
+class QRadioButton;
+class QButtonGroup;
 
-class VerticalNavigationBar : public QFrame, public IHeadImageObserver
+class VerticalNavigationBar : public QFrame, public IJCoreObserver
 {
 	Q_OBJECT
 public:
@@ -15,7 +18,7 @@ public:
 	~VerticalNavigationBar();
 	void startWork();
 	void setCurrentPage(unsigned int index);
-	void setHeadImage(const QPixmap& pixmap) override;
+	STDMETHODIMP_(bool) OnCoreEvent(IJCoreEvent* event) override;
 
 signals:
 	void sigCurrentPageChanged(unsigned int index);
@@ -26,7 +29,20 @@ protected:
 	void mouseMoveEvent(QMouseEvent* event) override;
 
 private:
+	Q_INVOKABLE void onSelfContactInfoReady();
+	void refreshSelfHeadImage();
 	void onRadioButtonClicked(QAbstractButton* button);
-	struct Data;
-	QScopedPointer<Data> data;
+
+	void initUI();
+
+	QVBoxLayout* m_mainVLayout = nullptr;
+	QPushButton* m_headImageButton = nullptr;
+	QRadioButton* m_msgRadioButton = nullptr;
+	QRadioButton* m_friendRadioButton = nullptr;
+	QButtonGroup* m_radioButtonGroup = nullptr;
+	QPoint m_lastPos;
+	bool m_bLeftButtonDown = false;
+
+	QString m_selfWxid;
+	ComPtr<IJMsgViewManager> m_spMsgViewMgr;
 };

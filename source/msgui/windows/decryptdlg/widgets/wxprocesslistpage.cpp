@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 
 #include "wxprocesslistpage.h"
 
@@ -16,8 +16,10 @@ WxProcessListPage::WxProcessListPage(QWidget* parent)
 	initUI();
 	initStyle();
 	m_refreshLabel->installEventFilter(this);
-	if (auto coreApplication = msgApp->GetCoreApplication(); auto manager = coreApplication ? coreApplication->GetDecryptManager() : nullptr)
-		attachTo(manager);
+	ComPtr<IJCoreApplication> coreApplication = msgApp ? msgApp->GetCoreApplication() : nullptr;
+	ComPtr<IJWeChatDBDecryptManager> manager = coreApplication ? coreApplication->GetDecryptManager() : nullptr;
+	if (manager)
+		attachTo(manager.Get());
 }
 
 WxProcessListPage::~WxProcessListPage()

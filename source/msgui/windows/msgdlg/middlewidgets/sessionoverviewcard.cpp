@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 
 #include "sessionoverviewcard.h"
 
@@ -7,155 +7,193 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QMouseEvent>
+#include <QPushButton>
 #include <QStyle>
 
+#include "msgapplication.h"
 #include "utils/utils.h"
-#include "dbparser/MSGParser.h"
 
 #include "defines.h"
-#include "msgcore/databus/databus.h"
 
 constexpr static const char* const gs_strLoading = "loading...";
 
-struct SessionOverviewCard::Data
-{
-	void initUI()
-	{
-		q->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-		q->setFixedHeight(DPI(60));
-		q->setMinimumWidth(DPI(230));
-		mainHLayout = new QHBoxLayout(q);
-		mainHLayout->setContentsMargins(DPI(8), DPI(8), DPI(8), DPI(8));
-		headImageLabel = new QLabel(q);
-		headImageLabel->setFixedSize(HEAD_IMAGE_ICON_SIZE);
-		headImageLabel->setScaledContents(true);
-		headImageLabel->setPixmap(QPixmap(":/icon_svg/head-image-none.svg"));
-		mainHLayout->addWidget(headImageLabel);
-
-		middleVLayout = new QVBoxLayout(q);
-		middleVLayout->setContentsMargins(0, 0, 0, 0);
-		remarkLabel = new QLabel(gs_strLoading, q);
-		remarkLabel->setObjectName("remarkLabel");
-		middleVLayout->addWidget(remarkLabel);
-		lastMessageLabel = new QLabel(gs_strLoading, q);
-		lastMessageLabel->setObjectName("lastMessageLabel");
-		lastMessageLabel->setTextFormat(Qt::PlainText);
-		middleVLayout->addWidget(lastMessageLabel);
-		mainHLayout->addLayout(middleVLayout, 10);
-
-		rightVLayout = new QVBoxLayout(q);
-		rightVLayout->setContentsMargins(0, 0, 0, 0);
-		lastMsgTimeLabel = new QLabel(gs_strLoading, q);
-		lastMsgTimeLabel->setObjectName("lastMsgTimeLabel");
-		rightVLayout->addWidget(lastMsgTimeLabel);
-		msgCountLabel = new QLabel(gs_strLoading, q);
-		msgCountLabel->setObjectName("msgCountLabel");
-		rightVLayout->addWidget(msgCountLabel, 0, Qt::AlignRight);
-		mainHLayout->addLayout(rightVLayout, 1);
-	}
-
-	SessionOverviewCard* q = nullptr;
-	QLabel* headImageLabel = nullptr;
-	QLabel* remarkLabel = nullptr;
-	QLabel* lastMessageLabel = nullptr;
-	QLabel* lastMsgTimeLabel = nullptr;
-	QLabel* msgCountLabel = nullptr;
-	QHBoxLayout* mainHLayout = nullptr;
-	QVBoxLayout* middleVLayout = nullptr;
-	QVBoxLayout* rightVLayout = nullptr;
-	QString wxid;
-	QString remark;
-	bool isSelected = false;
-};
-
 SessionOverviewCard::SessionOverviewCard(const QString& wxid, QWidget* parent /*= nullptr*/)
 	: QFrame(parent)
-	, data(new Data)
 {
-	data->q = this;
-	data->wxid = wxid;
-	data->initUI();
+	m_wxid = wxid;
+	initUI();
 }
 
 SessionOverviewCard::~SessionOverviewCard()
 {
-
 }
 
 void SessionOverviewCard::startWork()
 {
-	DATA_BUS_INSTANCE->attachHeadImageObserver(data->wxid, this);
-	DATA_BUS_INSTANCE->requestHeadImage(data->wxid, this);
-	DATA_BUS_INSTANCE->requestContactInfo(data->wxid, this, "onSelectContactInfoFinished");
-	DATA_BUS_INSTANCE->requestChatCount(data->wxid, this, "onSelectChatCountFinished");
-	DATA_BUS_INSTANCE->requestChatHistory(data->wxid, QDateTime::currentSecsSinceEpoch(), false, 1, this, "onSelectLastMsgFinished");
-}
+	if (!m_spMsgViewMgr)
+	{
+		ComPtr<IJCoreApplication> coreApp = msgApp ? msgApp->GetCoreApplication() : nullptr;
+		if (coreApp)
+			m_spMsgViewMgr = coreApp->GetMsgViewManager();
+		if (m_spMsgViewMgr)
+			attachTo(m_spMsgViewMgr.Get());
+	}
+	if (!m_spMsgViewMgr)
+		return;
 
-void SessionOverviewCard::setHeadImage(const QPixmap& pixmap)
-{
-	data->headImageLabel->setPixmap(utils::CreateRoundedPixmap(pixmap));
+	std::optional<ContactInfo> contact = m_spMsgViewMgr->GetContactInfo(m_wxid);
+	if (contact)
+		onContactInfoReady();
+	m_spMsgViewMgr->StartQueryMessageCount(m_wxid);
+	m_spMsgViewMgr->StartQueryChatHistory(m_wxid, QDateTime::currentSecsSinceEpoch(), false, 1);
 }
 
 QString SessionOverviewCard::getTalkerWxid() const
 {
-	return data->wxid;
+	return m_wxid;
 }
 
 QString SessionOverviewCard::getTalkerRemark() const
 {
-	return data->remark;
+	return m_remark;
 }
 
 void SessionOverviewCard::setSelected(bool selected)
 {
-	data->isSelected = selected;
+	m_isSelected = selected;
 	style()->unpolish(this);
 	style()->polish(this);
 }
 
 QString SessionOverviewCard::getSelectedString() const
 {
-	return data->isSelected ? "selected" : "no-selected";
+	return m_isSelected ? "selected" : "no-selected";
 }
 
 void SessionOverviewCard::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
-		emit sigSessionClicked(this, data->wxid, data->remarkLabel->text());
+		emit sigSessionClicked(this, m_wxid, m_remarkLabel->text());
 	}
 }
 
-Q_INVOKABLE void SessionOverviewCard::onSelectContactInfoFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)
+STDMETHODIMP_(bool) SessionOverviewCard::OnCoreEvent(IJCoreEvent* event)
 {
-	if (result.isEmpty())
+	if (!event || event->Type() != EventType::Event_MsgView)
+		return false;
+	JMsgViewAsyncEvent* asyncEvent = dynamic_cast<JMsgViewAsyncEvent*>(event);
+	if (!asyncEvent)
+		return false;
+
+	const QVariantMap dataMap = asyncEvent->m_extraData;
+	if (asyncEvent->m_op == MsgViewOpType::Op_QueryContactInfo)
 	{
-		data->remarkLabel->setText(data->wxid);
-		return;
+		if (dataMap.value(STR_WXID).toString() != m_wxid)
+			return false;
+		QMetaObject::invokeMethod(this, "onContactInfoReady", Qt::QueuedConnection);
+		return true;
 	}
-	const auto& resultMap = result.at(0).toMap();
-	const QString remark = resultMap.value(STR_REMARK).toString();
-	const QString nickName = resultMap.value(STR_NICKNAME).toString();
-	data->remarkLabel->setText(data->remark = remark.isEmpty() ? nickName : remark);
+	if (asyncEvent->m_op == MsgViewOpType::Op_QueryMessageCount)
+	{
+		if (dataMap.value("talker").toString() != m_wxid)
+			return false;
+		QMetaObject::invokeMethod(this, "onChatCountReady", Qt::QueuedConnection, Q_ARG(quint64, dataMap.value("count").toULongLong()));
+		return true;
+	}
+	if (asyncEvent->m_op == MsgViewOpType::Op_QueryChatHistory)
+	{
+		if (dataMap.value("talker").toString() != m_wxid)
+			return false;
+		const QVariantList messages = dataMap.value("messages").toList();
+		if (messages.isEmpty())
+			return false;
+		QMetaObject::invokeMethod(this, "onLastMsgReady", Qt::QueuedConnection, Q_ARG(MessagePtr, messages.first().value<MessagePtr>()));
+		return true;
+	}
+	return false;
 }
 
-Q_INVOKABLE void SessionOverviewCard::onSelectChatCountFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)
+Q_INVOKABLE void SessionOverviewCard::onContactInfoReady()
 {
-	if (result.size() != 1)
+	if (!m_spMsgViewMgr)
 	{
+		m_remarkLabel->setText(m_wxid);
 		return;
 	}
-	const quint64 count = result.at(0).toMap().value(STR_CHATCOUNT).toULongLong();
-	data->msgCountLabel->setText(QString::number(count));
+
+	std::optional<ContactInfo> contact = m_spMsgViewMgr->GetContactInfo(m_wxid);
+	if (!contact)
+	{
+		m_remarkLabel->setText(m_wxid);
+		return;
+	}
+
+	const QString remark = contact->m_remarkName;
+	const QString nickName = contact->m_nickName;
+	const QString display = remark.isEmpty() ? nickName : remark;
+	m_remarkLabel->setText(m_remark = display.isEmpty() ? m_wxid : display);
+	refreshHeadImage();
 }
 
-Q_INVOKABLE void SessionOverviewCard::onSelectLastMsgFinished(const QVariantList& result, const QVariant& context /*= QVariant()*/)
+Q_INVOKABLE void SessionOverviewCard::onChatCountReady(quint64 count)
 {
-	if (result.size() != 1)
-	{
+	m_msgCountLabel->setText(QString::number(count));
+}
+
+Q_INVOKABLE void SessionOverviewCard::onLastMsgReady(const MessagePtr& message)
+{
+	if (!message)
 		return;
-	}
-	MSGParser  parser(result.at(0).toMap());
-	data->lastMsgTimeLabel->setText(utils::QDateTimeToStringOnlyDate(QDateTime::fromSecsSinceEpoch(parser.getCreateTime())));
-	data->lastMessageLabel->setText(parser.getSessionDisplay());
+	m_lastMsgTimeLabel->setText(utils::QDateTimeToStringOnlyDate(QDateTime::fromSecsSinceEpoch(message->GetCreateTime())));
+	m_lastMessageLabel->setText(message->GetDisplayText());
+}
+
+void SessionOverviewCard::refreshHeadImage()
+{
+	if (!m_spMsgViewMgr)
+		return;
+	std::optional<ContactInfo> contact = m_spMsgViewMgr->GetContactInfo(m_wxid);
+	if (!contact || contact->m_headImage.isNull())
+		return;
+	m_headImageButton->setIcon(contact->m_headImage);
+	m_headImageButton->setIconSize(HEAD_IMAGE_ICON_SIZE);
+}
+
+void SessionOverviewCard::initUI()
+{
+	setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+	setFixedHeight(DPI(60));
+	setMinimumWidth(DPI(230));
+	m_mainHLayout = new QHBoxLayout(this);
+	m_mainHLayout->setContentsMargins(DPI(8), DPI(8), DPI(8), DPI(8));
+	m_headImageButton = new QPushButton(this);
+	m_headImageButton->setObjectName("headImageButton");
+	m_headImageButton->setFixedSize(HEAD_IMAGE_ICON_SIZE);
+	m_headImageButton->setIcon(QIcon(":/icon_svg/head-image-none.svg"));
+	m_headImageButton->setIconSize(HEAD_IMAGE_ICON_SIZE);
+	m_headImageButton->setFlat(true);
+	m_headImageButton->setEnabled(false);
+	m_mainHLayout->addWidget(m_headImageButton);
+
+	m_middleVLayout = new QVBoxLayout(this);
+	m_middleVLayout->setContentsMargins(0, 0, 0, 0);
+	m_remarkLabel = new QLabel(gs_strLoading, this);
+	m_remarkLabel->setObjectName("remarkLabel");
+	m_middleVLayout->addWidget(m_remarkLabel);
+	m_lastMessageLabel = new QLabel(gs_strLoading, this);
+	m_lastMessageLabel->setObjectName("lastMessageLabel");
+	m_lastMessageLabel->setTextFormat(Qt::PlainText);
+	m_middleVLayout->addWidget(m_lastMessageLabel);
+	m_mainHLayout->addLayout(m_middleVLayout, 10);
+
+	m_rightVLayout = new QVBoxLayout(this);
+	m_rightVLayout->setContentsMargins(0, 0, 0, 0);
+	m_lastMsgTimeLabel = new QLabel(gs_strLoading, this);
+	m_lastMsgTimeLabel->setObjectName("lastMsgTimeLabel");
+	m_rightVLayout->addWidget(m_lastMsgTimeLabel);
+	m_msgCountLabel = new QLabel(gs_strLoading, this);
+	m_msgCountLabel->setObjectName("msgCountLabel");
+	m_rightVLayout->addWidget(m_msgCountLabel, 0, Qt::AlignRight);
+	m_mainHLayout->addLayout(m_rightVLayout, 1);
 }
