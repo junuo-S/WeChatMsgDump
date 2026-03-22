@@ -1,6 +1,15 @@
-﻿#include "dbdecrypt/jwechatdbdecryptmanager.h"
+#include "main.h"
+#include "dbdecrypt/jwechatdbdecryptmanager.h"
+#include "msgview/jmsgviewmanager.h"
 
 #include <junuobase/junuocombase.h>
+
+static IJCoreApplication* gs_coreApplication = nullptr;
+
+IJCoreApplication* getCoreApplication()
+{
+	return gs_coreApplication;
+}
 
 class JCoreApplication : public IJCoreApplication
 {
@@ -9,8 +18,17 @@ public:
 		INTERFACE_ENTRY(IJCoreApplication)
 	END_INTERFACE_MAP()
 
-	JCoreApplication() : m_spDecryptMgr(JUNUO_COM_NEW(JWeChatDBDecryptManager))
+	JCoreApplication()
+		: m_spDecryptMgr(JUNUO_COM_NEW(JWeChatDBDecryptManager))
+		, m_spMsgViewMgr(JUNUO_COM_NEW(JMsgViewManager))
 	{
+		gs_coreApplication = this;
+	}
+
+	~JCoreApplication()
+	{
+		if (gs_coreApplication == this)
+			gs_coreApplication = nullptr;
 	}
 
 	STDMETHODIMP_(IJWeChatDBDecryptManager*) GetDecryptManager() override
@@ -18,8 +36,14 @@ public:
 		return m_spDecryptMgr.Get();
 	}
 
+	STDMETHODIMP_(IJMsgViewManager*) GetMsgViewManager() override
+	{
+		return m_spMsgViewMgr.Get();
+	}
+
 private:
 	ComPtr<IJWeChatDBDecryptManager> m_spDecryptMgr;
+	ComPtr<IJMsgViewManager> m_spMsgViewMgr;
 };
 
 class JCoreEntry : public IJCoreEntry

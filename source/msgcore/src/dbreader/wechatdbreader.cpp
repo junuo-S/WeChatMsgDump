@@ -1,4 +1,4 @@
-﻿#include "wechatdbreader.h"
+#include "wechatdbreader.h"
 
 #include "defines.h"
 
@@ -30,7 +30,13 @@ void WechatDbReader::selectHeadImageByUserName(QObject* receiver, const char* me
 
 void WechatDbReader::selectContactByUserName(QObject* receiver, const char* method, const QVariantMap& param /*= QVariantMap()*/, const QVariant& context /*= QVariant()*/)
 {
-	const QString sql = "select * from Contact where UserName = '%1';";
+	const QString sql =
+		"select Contact.*, "
+		"ContactHeadImgUrl.bigHeadImgUrl as bigHeadImgUrl, "
+		"ContactHeadImgUrl.smallHeadImgUrl as smallHeadImgUrl "
+		"from Contact "
+		"left join ContactHeadImgUrl on Contact.UserName = ContactHeadImgUrl.usrName "
+		"where Contact.UserName = '%1';";
 	m_dbThreadPool->executeQuery(sql.arg(param.value(STR_USERNAME).toString()), receiver, method, context);
 }
 

@@ -1,9 +1,10 @@
-﻿junuo_package(msgcore SHARED)
+junuo_package(msgcore SHARED)
 junuo_sources(
     junuo_moc
 
     ../include/global_interface.h
     ../include/global_part_impl.cpp
+    main.h
     main.cpp
     msgcore.def
     resource/resource.qrc
@@ -28,6 +29,38 @@ junuo_sources(
     src/dbdecrypt/decryptor/jwechatdbdecryptorfactory.cpp
     src/dbdecrypt/combiner/jwechatdbcombiner.h
     src/dbdecrypt/combiner/jwechatdbcombiner.cpp
+    src/msgview/jmsgviewmanager.h
+    src/msgview/jmsgviewmanager.cpp
+    src/msgview/messages/jmessagebase.h
+    src/msgview/messages/jmessagebase.cpp
+    src/msgview/messages/jtextmessage.h
+    src/msgview/messages/jtextmessage.cpp
+    src/msgview/messages/jimagemessage.h
+    src/msgview/messages/jimagemessage.cpp
+    src/msgview/messages/jvoicemessage.h
+    src/msgview/messages/jvoicemessage.cpp
+    src/msgview/messages/jvideomessage.h
+    src/msgview/messages/jvideomessage.cpp
+    src/msgview/messages/jstickermessage.h
+    src/msgview/messages/jstickermessage.cpp
+    src/msgview/messages/jfilemessage.h
+    src/msgview/messages/jfilemessage.cpp
+    src/msgview/messages/jlinkmessage.h
+    src/msgview/messages/jlinkmessage.cpp
+    src/msgview/messages/jquotetextmessage.h
+    src/msgview/messages/jquotetextmessage.cpp
+    src/msgview/messages/jmergedchatrecordmessage.h
+    src/msgview/messages/jmergedchatrecordmessage.cpp
+    src/msgview/messages/jtransfermessage.h
+    src/msgview/messages/jtransfermessage.cpp
+    src/msgview/messages/jsystemnoticemessage.h
+    src/msgview/messages/jsystemnoticemessage.cpp
+    src/msgview/messages/junknownmessage.h
+    src/msgview/messages/junknownmessage.cpp
+    src/msgview/messages/jmessagefactory.h
+    src/msgview/messages/jmessagefactory.cpp
+    src/msgview/icon/jonlineiconengine.h
+    src/msgview/icon/jonlineiconengine.cpp
 )
 junuo_use_packages(Qt6Core Qt6Gui Qt6Network Qt6Sql openssl)
 junuo_include_directories(. ./src ../include)

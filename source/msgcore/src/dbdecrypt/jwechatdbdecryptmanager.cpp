@@ -95,20 +95,15 @@ STDMETHODIMP_(bool) JWeChatDBDecryptManager::StartDecryptDataBase()
 {
 	if (!m_processReader || m_processReader->GetDataPath().isEmpty())
 		return false;
-	QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
-	dir.cd(m_processReader->GetWxid());
-	if (!CreateDirIfNeed(dir.absolutePath()))
-		return false;
-	m_finalDBFileName = dir.absoluteFilePath("merged_db.db");
 	if (QFile::exists(m_finalDBFileName) && !QFile::remove(m_finalDBFileName))
 		return false;
 	AddRef();
-	QThread* th = QThread::create([this, dir]()
+	QThread* th = QThread::create([this]()
 		{
 			const QStringList& dbFileList = GetDBFileList(m_majorVersion, m_processReader->GetDataPath());
 			const float totalCount = dbFileList.size();
 			QList<QPair<QString, QString>> ret;
-			QDir innerDir = dir;
+			QDir innerDir = QDir(m_finalDBFileName).dirName();
 			innerDir.mkdir("decrypted");
 			innerDir.cd("decrypted");
 			std::atomic<int> decryptedCount = 0;
@@ -178,6 +173,13 @@ JWeChatDBDecryptManager::JWeChatDBDecryptManager()
 		}
 	}
 	m_processReader.reset(JWeChatProcessReaderFactory::createInstance(m_majorVersion));
+
+	if (!m_processReader)
+		return;
+	QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+	dir.cd(m_processReader->GetWxid());
+	if (CreateDirIfNeed(dir.absolutePath()))
+		m_finalDBFileName = dir.absoluteFilePath("merged_db.db");
 }
 
 QString JWeChatDBDecryptManager::getFinalDBFileName() const

@@ -1,0 +1,164 @@
+@startuml MsgViewerClassDiagram
+skinparam classAttributeIconSize 0
+top to bottom direction
+
+package "msgcore" {
+    interface IJCoreSubject
+    interface IJCoreEvent
+    interface IJCoreObserver
+    IJCoreSubject ..> IJCoreObserver
+    IJCoreSubject ..> IJCoreEvent
+
+    struct ContactInfo {
+        QString m_wxid
+        QString m_userName
+        QString m_nickName
+        QString m_remarkName
+        QIcon m_headImage
+    }
+
+    interface IJMsgViewManager {
+        ' unified contact api: hit cache or async fallback
+        + std::optional<ContactInfo> GetContactInfo(const QString& wxid)
+        + QString GetSelfWxid()
+
+        ' async: database / long-running query
+        + bool StartQueryAllStrTalker()
+        + bool StartQueryMessageCount(const QString& talker)
+        + bool StartQueryChatHistory(const QString& talker, quint64 ts, bool forward, uint limit)
+    }
+    IJMsgViewManager --|> IJCoreSubject
+
+    class WechatDbReader {
+        + void selectAllStrTalkerFromMSG(...)
+        + void selectContactByUserName(...)
+        + void selectChatCountByUserName(...)
+        + void selectChatHistoryByUserName(...)
+        + void selectHeadImageByUserName(...)
+    }
+
+    enum MsgType {
+        UnKnown
+        PlantText
+        Image
+        Voice
+        Video
+        Sticker
+        SharedCardLink
+        MergedChatRecord
+        TextWithQuote
+        Transfer
+        File
+        SystemNotice
+        Tickle
+    }
+
+    interface IJMessage {
+        + MsgType GetMsgType() const
+        + QString GetSenderWxid() const
+        + QString GetStrTalker() const
+        + qint64 GetCreateTime() const
+        + bool IsSender() const
+        + QString GetDisplayText() const
+        + QVariant GetRawField(const QString& key) const
+    }
+
+    class JMessageBase {
+        + MsgType GetMsgType() const
+        + QString GetSenderWxid() const
+        + QString GetStrTalker() const
+        + qint64 GetCreateTime() const
+        + bool IsSender() const
+        + virtual QString GetDisplayText() const
+        + QVariant GetRawField(const QString& key) const
+        - QVariantMap m_rawRecord
+        - MsgType m_msgType
+    }
+    JMessageBase --|> IJMessage
+
+    class JTextMessage
+    class JImageMessage
+    class JVoiceMessage
+    class JVideoMessage
+    class JStickerMessage
+    class JFileMessage
+    class JLinkMessage
+    class JQuoteTextMessage
+    class JMergedChatRecordMessage
+    class JTransferMessage
+    class JSystemNoticeMessage
+    class JUnknownMessage
+    JTextMessage --|> JMessageBase
+    JImageMessage --|> JMessageBase
+    JVoiceMessage --|> JMessageBase
+    JVideoMessage --|> JMessageBase
+    JStickerMessage --|> JMessageBase
+    JFileMessage --|> JMessageBase
+    JLinkMessage --|> JMessageBase
+    JQuoteTextMessage --|> JMessageBase
+    JMergedChatRecordMessage --|> JMessageBase
+    JTransferMessage --|> JMessageBase
+    JSystemNoticeMessage --|> JMessageBase
+    JUnknownMessage --|> JMessageBase
+
+    class JMessageFactory {
+        + {static} std::shared_ptr<IJMessage> Create(const QVariantMap& raw)
+        - {static} MsgType resolveMsgType(short type, short subType)
+    }
+
+    class JOnlineIconEngine {
+        + JOnlineIconEngine(const QString& url)
+        + QIconEngine* clone() const
+        + void paint(QPainter* p, const QRect& rc, QIcon::Mode m, QIcon::State s)
+        + QPixmap pixmap(const QSize& sz, QIcon::Mode m, QIcon::State s)
+        + void StartRequest()
+        + bool IsReady() const
+        - QString m_url
+        - QPixmap m_headPixmap
+        - bool m_requesting
+        - QNetworkAccessManager* m_spNetworkManager
+    }
+    JOnlineIconEngine --|> QIconEngine
+
+    class JMsgViewManager {
+        + std::optional<ContactInfo> GetContactInfo(const QString& wxid)
+        + bool StartQueryAllStrTalker()
+        + bool StartQueryMessageCount(const QString& talker)
+        + bool StartQueryChatHistory(const QString& talker, quint64 ts, bool forward, uint limit)
+        - void onSelectHeadImageUrlFinished(...)
+        - void onSelectContactInfoFinished(...)
+        - void onSelectChatHistoryFinished(...)
+        - WechatDbReader* m_spDbReader
+        - QCache<QString, ContactInfo> m_contactCache
+    }
+    JMsgViewManager --|> IJMsgViewManager
+    JMsgViewManager o-- WechatDbReader
+    JMsgViewManager ..> JMessageFactory : use static Create
+    JMsgViewManager ..> JOnlineIconEngine : create QIcon(engine)
+    JMsgViewManager ..> IJMessage : notify message list
+
+    note bottom of JMsgViewManager
+        Query flow is closed in msgcore:
+        1) GetContactInfo checks QCache first.
+        2) cache hit: return ContactInfo immediately.
+        3) cache miss: return std::nullopt and trigger async DB query.
+        4) session list query reads all talkers from MSG.
+        5) create QIcon with JOnlineIconEngine.
+        6) chat history query returns IJMessage list.
+        7) UI enters loading when StartQuery* returns.
+        8) Use IJCoreEvent notify UI result only.
+        9) Avatar icon may be empty first.
+        10) JOnlineIconEngine finishes network request later,
+           then same QIcon renders real image automatically.
+    end note
+}
+
+package "msgui" {
+    class MsgViewWidget
+    MsgViewWidget --|> IJCoreObserver
+}
+
+MsgViewWidget ..> IJMsgViewManager : call API
+JMsgViewManager ..> IJCoreEvent : Notify(result via event)
+
+@enduml
