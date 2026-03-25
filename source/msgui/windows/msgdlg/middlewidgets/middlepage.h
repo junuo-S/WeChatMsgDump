@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QPointer>
+#include <QSet>
 
 class SessionOverviewCard;
 class QStackedLayout;
@@ -36,6 +37,7 @@ private:
 	QScrollArea* m_friendScrollArea = nullptr;
 	QVBoxLayout* m_friendVLayout = nullptr;
 	QPointer<SessionOverviewCard> m_currentSession = nullptr;
-	QList<SessionOverviewCard*> m_pendingSessionCards;
+	QVector<SessionOverviewCard*> m_sessionCards;
+	QSet<SessionOverviewCard*> m_startedSessionCards;
 	QTimer* m_refreshTimer = nullptr;
 };

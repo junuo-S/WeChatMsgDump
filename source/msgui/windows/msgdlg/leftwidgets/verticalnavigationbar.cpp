@@ -80,12 +80,17 @@ STDMETHODIMP_(bool) VerticalNavigationBar::OnCoreEvent(IJCoreEvent* event)
 	if (!event || event->Type() != EventType::Event_MsgView)
 		return false;
 	JMsgViewAsyncEvent* asyncEvent = dynamic_cast<JMsgViewAsyncEvent*>(event);
-	if (!asyncEvent || asyncEvent->m_op != MsgViewOpType::Op_QueryContactInfo)
+	if (!asyncEvent)
 		return false;
-	if (asyncEvent->m_extraData.value(STR_WXID).toString() != m_selfWxid)
-		return false;
-	QMetaObject::invokeMethod(this, "onSelfContactInfoReady", Qt::QueuedConnection);
-	return true;
+	if (asyncEvent->m_op == MsgViewOpType::Op_QueryContactInfo
+		|| asyncEvent->m_op == MsgViewOpType::Op_ContactHeadImageReady)
+	{
+		if (asyncEvent->m_extraData.value(STR_WXID).toString() != m_selfWxid)
+			return false;
+		QMetaObject::invokeMethod(this, "onSelfContactInfoReady", Qt::QueuedConnection);
+		return true;
+	}
+	return false;
 }
 
 void VerticalNavigationBar::onSelfContactInfoReady()

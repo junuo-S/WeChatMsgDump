@@ -10,10 +10,20 @@
 
 #include "msgapplication.h"
 #include "utils/utils.h"
+#include "defines.h"
 
 MessagecardNormalWidgetBase::MessagecardNormalWidgetBase(const MessagePtr& message, QWidget* parent /*= nullptr*/)
 	: MessageCardWidgetBase(message, parent)
 {
+	ComPtr<IJCoreApplication> coreApp = msgApp ? msgApp->GetCoreApplication() : nullptr;
+	m_spMsgViewMgr = coreApp ? coreApp->GetMsgViewManager() : nullptr;
+	if (m_spMsgViewMgr)
+		attachTo(m_spMsgViewMgr.Get());
+	if (m_message && m_spMsgViewMgr)
+	{
+		const bool isSender = m_message->IsSender();
+		m_headWxid = isSender ? m_spMsgViewMgr->GetSelfWxid() : m_message->GetStrTalker();
+	}
 }
 
 MessagecardNormalWidgetBase::~MessagecardNormalWidgetBase()
@@ -49,26 +59,29 @@ void MessagecardNormalWidgetBase::initUI()
 	m_mainHLayout->addLayout(m_msgVLayout);
 	m_mainHLayout->addStretch();
 
-	ComPtr<IJCoreApplication> coreApp = msgApp ? msgApp->GetCoreApplication() : nullptr;
-	ComPtr<IJMsgViewManager> msgViewMgr = coreApp ? coreApp->GetMsgViewManager() : nullptr;
-	if (!msgViewMgr)
-		return;
-	m_headWxid = isSender ? msgViewMgr->GetSelfWxid() : m_message->GetStrTalker();
-	if (m_headWxid.isEmpty())
-		return;
-
 	refreshHeadImage();
 }
 
 void MessagecardNormalWidgetBase::refreshHeadImage()
 {
-	ComPtr<IJCoreApplication> coreApp = msgApp ? msgApp->GetCoreApplication() : nullptr;
-	ComPtr<IJMsgViewManager> msgViewMgr = coreApp ? coreApp->GetMsgViewManager() : nullptr;
-	if (!msgViewMgr || m_headWxid.isEmpty() || !m_headImageButton)
+	if (!m_spMsgViewMgr || m_headWxid.isEmpty() || !m_headImageButton)
 		return;
-	std::optional<ContactInfo> contact = msgViewMgr->GetContactInfo(m_headWxid);
+	std::optional<ContactInfo> contact = m_spMsgViewMgr->GetContactInfo(m_headWxid);
 	if (!contact || contact->m_headImage.isNull())
 		return;
 	m_headImageButton->setIcon(contact->m_headImage);
 	m_headImageButton->setIconSize(HEAD_IMAGE_ICON_SIZE);
+}
+
+STDMETHODIMP_(bool) MessagecardNormalWidgetBase::OnCoreEvent(IJCoreEvent* event)
+{
+	if (!event || event->Type() != EventType::Event_MsgView)
+		return false;
+	JMsgViewAsyncEvent* asyncEvent = dynamic_cast<JMsgViewAsyncEvent*>(event);
+	if (!asyncEvent || asyncEvent->m_op != MsgViewOpType::Op_ContactHeadImageReady)
+		return false;
+	if (asyncEvent->m_extraData.value(STR_WXID).toString() != m_headWxid)
+		return false;
+	QMetaObject::invokeMethod(this, [this]() { refreshHeadImage(); }, Qt::QueuedConnection);
+	return true;
 }

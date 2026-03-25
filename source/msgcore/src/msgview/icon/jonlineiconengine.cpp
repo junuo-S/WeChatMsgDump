@@ -13,6 +13,7 @@ JOnlineIconEngine::JOnlineIconEngine(const QString& url)
 QIconEngine* JOnlineIconEngine::clone() const
 {
     auto* engine = new JOnlineIconEngine(m_url);
+    engine->m_readyCallback = m_readyCallback;
     engine->m_headPixmap = m_headPixmap;
     engine->m_requesting = m_requesting;
     return engine;
@@ -55,7 +56,11 @@ void JOnlineIconEngine::startRequest()
             if (!bytes.isEmpty())
                 px.loadFromData(bytes);
             if (!px.isNull())
+            {
                 m_headPixmap = px;
+                if (m_readyCallback)
+                    m_readyCallback();
+            }
             m_requesting = false;
             reply->deleteLater();
         });
@@ -64,4 +69,9 @@ void JOnlineIconEngine::startRequest()
 bool JOnlineIconEngine::isReady() const
 {
     return !m_headPixmap.isNull();
+}
+
+void JOnlineIconEngine::setReadyCallback(std::function<void()> readyCallback)
+{
+    m_readyCallback = std::move(readyCallback);
 }

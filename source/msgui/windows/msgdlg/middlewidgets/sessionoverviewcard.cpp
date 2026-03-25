@@ -45,7 +45,7 @@ void SessionOverviewCard::startWork()
 	if (contact)
 		onContactInfoReady();
 	m_spMsgViewMgr->StartQueryMessageCount(m_wxid);
-	m_spMsgViewMgr->StartQueryChatHistory(m_wxid, QDateTime::currentSecsSinceEpoch(), false, 1);
+	m_spMsgViewMgr->StartQuerySessionLastMessage(m_wxid);
 }
 
 QString SessionOverviewCard::getTalkerWxid() const
@@ -94,6 +94,13 @@ STDMETHODIMP_(bool) SessionOverviewCard::OnCoreEvent(IJCoreEvent* event)
 		QMetaObject::invokeMethod(this, "onContactInfoReady", Qt::QueuedConnection);
 		return true;
 	}
+	if (asyncEvent->m_op == MsgViewOpType::Op_ContactHeadImageReady)
+	{
+		if (dataMap.value(STR_WXID).toString() != m_wxid)
+			return false;
+		QMetaObject::invokeMethod(this, [this]() { refreshHeadImage(); }, Qt::QueuedConnection);
+		return true;
+	}
 	if (asyncEvent->m_op == MsgViewOpType::Op_QueryMessageCount)
 	{
 		if (dataMap.value("talker").toString() != m_wxid)
@@ -101,7 +108,7 @@ STDMETHODIMP_(bool) SessionOverviewCard::OnCoreEvent(IJCoreEvent* event)
 		QMetaObject::invokeMethod(this, "onChatCountReady", Qt::QueuedConnection, Q_ARG(quint64, dataMap.value("count").toULongLong()));
 		return true;
 	}
-	if (asyncEvent->m_op == MsgViewOpType::Op_QueryChatHistory)
+	if (asyncEvent->m_op == MsgViewOpType::Op_QuerySessionLastMessage)
 	{
 		if (dataMap.value("talker").toString() != m_wxid)
 			return false;

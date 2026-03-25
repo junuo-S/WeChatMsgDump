@@ -9,6 +9,7 @@
 #include <QPointer>
 #include <QScrollBar>
 #include <QTimer>
+#include <algorithm>
 
 #include "global.h"
 #include "sessionoverviewcard.h"
@@ -30,7 +31,8 @@ MiddlePage::~MiddlePage()
 
 void MiddlePage::startWork()
 {
-	refreshSessionCardsInfo();
+	m_refreshTimer->stop();
+	m_refreshTimer->start();
 }
 
 void MiddlePage::addSessionCard(const QString& wxid)
@@ -38,7 +40,9 @@ void MiddlePage::addSessionCard(const QString& wxid)
 	SessionOverviewCard* card = new SessionOverviewCard(wxid, m_msgWidget);
 	MiddlePage::connect(card, &SessionOverviewCard::sigSessionClicked, this, &MiddlePage::onSessionClicked);
 	m_msgVLayout->addWidget(card);
-	m_pendingSessionCards.append(card);
+	m_sessionCards.append(card);
+	m_refreshTimer->stop();
+	m_refreshTimer->start();
 }
 
 void MiddlePage::onSessionClicked(SessionOverviewCard* session, const QString& wxid, const QString& remark)
@@ -60,20 +64,32 @@ void MiddlePage::onSessionScrollAreaScrolled(int value)
 
 void MiddlePage::refreshSessionCardsInfo()
 {
-	QRect visibleRect = m_msgScrollArea->viewport()->rect();
-	QList<SessionOverviewCard*> needRemoveSessionCards;
-	for (SessionOverviewCard* card : m_pendingSessionCards)
+	if (!m_msgScrollArea || !m_msgScrollArea->viewport() || m_sessionCards.isEmpty())
+		return;
+
+	QScrollBar* scrollBar = m_msgScrollArea->verticalScrollBar();
+	if (!scrollBar)
+		return;
+
+	const int cardHeight = DPI(60);
+	const int stride = cardHeight + m_msgVLayout->spacing();
+	if (stride <= 0)
+		return;
+
+	const int viewportTop = scrollBar->value();
+	const int viewportBottom = viewportTop + m_msgScrollArea->viewport()->height();
+	const int startIndex = std::max(0, viewportTop / stride - 1);
+	const int lastIndex = static_cast<int>(m_sessionCards.size()) - 1;
+	const int endIndex = std::min(lastIndex, viewportBottom / stride + 1);
+
+	for (int i = startIndex; i <= endIndex; ++i)
 	{
-		QRect cardRect = card->geometry();
-		cardRect.moveTo(card->mapTo(m_msgScrollArea->viewport(), QPoint(0, 0)));
-		if (visibleRect.intersects(cardRect))
-		{
-			card->startWork();
-			needRemoveSessionCards.append(card);
-		}
+		SessionOverviewCard* card = m_sessionCards.at(i);
+		if (!card || m_startedSessionCards.contains(card))
+			continue;
+		card->startWork();
+		m_startedSessionCards.insert(card);
 	}
-	for (SessionOverviewCard* card : needRemoveSessionCards)
-		m_pendingSessionCards.removeAll(card);
 }
 
 void MiddlePage::initUI()

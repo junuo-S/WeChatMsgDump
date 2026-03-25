@@ -24,12 +24,13 @@ class QHBoxLayout;
 class QVBoxLayout;
 class QLabel;
 class QPushButton;
-class MessagecardNormalWidgetBase : public MessageCardWidgetBase
+class MessagecardNormalWidgetBase : public MessageCardWidgetBase, public IJCoreObserver
 {
 	Q_OBJECT
 public:
 	MessagecardNormalWidgetBase(const MessagePtr& message, QWidget* parent = nullptr);
 	virtual ~MessagecardNormalWidgetBase() override;
+	STDMETHODIMP_(bool) OnCoreEvent(IJCoreEvent* event) override;
 
 protected:
 	void initUI() override;
@@ -42,4 +43,5 @@ protected:
 	QVBoxLayout* m_msgVLayout = nullptr;
 	QLabel* m_timeLabel = nullptr;
 	QString m_headWxid;
+	ComPtr<IJMsgViewManager> m_spMsgViewMgr;
 };

@@ -1,7 +1,9 @@
 #include "jmsgviewmanager.h"
 
 #include <QDir>
+#include <QDateTime>
 #include <QFileInfo>
+#include <QPointer>
 #include <QVariantList>
 
 #include <defines.h>
@@ -12,13 +14,11 @@
 #include "icon/jonlineiconengine.h"
 #include "messages/jmessagefactory.h"
 
-namespace
-{
-constexpr auto KEY_TALKER_LIST = "talkerList";
-constexpr auto KEY_TALKER = "talker";
-constexpr auto KEY_COUNT = "count";
-constexpr auto KEY_MESSAGES = "messages";
-}
+static constexpr const char* const gs_strTalkerList = "talkerList";
+static constexpr const char* const gs_strTalker = "talker";
+static constexpr const char* const gs_strCount = "count";
+static constexpr const char* const gs_strMessages = "messages";
+static constexpr const char* const gs_strIsSessionLastQuery = "isSessionLastQuery";
 
 JMsgViewManager::JMsgViewManager()
     : QObject(nullptr)
@@ -62,9 +62,27 @@ bool JMsgViewManager::StartQueryMessageCount(const QString& talker)
 {
     if (!ensureDbReader())
         return false;
-    QVariantMap ctx;
-    ctx.insert(KEY_TALKER, talker);
-    m_spDbReader->selectChatCountByUserName(this, "onSelectMessageCountFinished", { { STR_USERNAME, talker } }, ctx);
+    QVariantMap queryContext;
+    queryContext.insert(gs_strTalker, talker);
+    m_spDbReader->selectChatCountByUserName(this, "onSelectMessageCountFinished", { { STR_USERNAME, talker } }, queryContext);
+    return true;
+}
+
+bool JMsgViewManager::StartQuerySessionLastMessage(const QString& talker)
+{
+    if (!ensureDbReader())
+        return false;
+
+    QVariantMap param;
+    param.insert(STR_USERNAME, talker);
+    param.insert(STR_FORWARD, false);
+    param.insert(STR_CREATETIME, QDateTime::currentSecsSinceEpoch());
+    param.insert(STR_LIMIT, 1U);
+
+    QVariantMap queryContext;
+    queryContext.insert(gs_strTalker, talker);
+    queryContext.insert(gs_strIsSessionLastQuery, true);
+    m_spDbReader->selectChatHistoryByUserName(this, "onSelectChatHistoryFinished", param, queryContext);
     return true;
 }
 
@@ -79,9 +97,10 @@ bool JMsgViewManager::StartQueryChatHistory(const QString& talker, quint64 ts, b
     param.insert(STR_CREATETIME, ts);
     param.insert(STR_LIMIT, limit);
 
-    QVariantMap ctx;
-    ctx.insert(KEY_TALKER, talker);
-    m_spDbReader->selectChatHistoryByUserName(this, "onSelectChatHistoryFinished", param, ctx);
+    QVariantMap queryContext;
+    queryContext.insert(gs_strTalker, talker);
+    queryContext.insert(gs_strIsSessionLastQuery, false);
+    m_spDbReader->selectChatHistoryByUserName(this, "onSelectChatHistoryFinished", param, queryContext);
     return true;
 }
 
@@ -99,22 +118,22 @@ void JMsgViewManager::onSelectAllStrTalkerFinished(const QVariantList& result, c
     }
 
     QVariantMap data;
-    data.insert(KEY_TALKER_LIST, talkers);
+    data.insert(gs_strTalkerList, talkers);
     notifyMsgViewResult(MsgViewOpType::Op_QueryAllStrTalker, !talkers.isEmpty(), data);
 }
 
 void JMsgViewManager::onSelectMessageCountFinished(const QVariantList& result, const QVariant& context)
 {
-    const QVariantMap ctx = context.toMap();
+    const QVariantMap queryContext = context.toMap();
     QVariantMap data;
-    data.insert(KEY_TALKER, ctx.value(KEY_TALKER).toString());
-    data.insert(KEY_COUNT, result.isEmpty() ? 0ULL : result.first().toMap().value(STR_CHATCOUNT).toULongLong());
+    data.insert(gs_strTalker, queryContext.value(gs_strTalker).toString());
+    data.insert(gs_strCount, result.isEmpty() ? 0ULL : result.first().toMap().value(STR_CHATCOUNT).toULongLong());
     notifyMsgViewResult(MsgViewOpType::Op_QueryMessageCount, true, data);
 }
 
 void JMsgViewManager::onSelectChatHistoryFinished(const QVariantList& result, const QVariant& context)
 {
-    const QVariantMap ctx = context.toMap();
+    const QVariantMap queryContext = context.toMap();
     QVariantList messageList;
     messageList.reserve(result.size());
     for (const QVariant& row : result)
@@ -124,9 +143,12 @@ void JMsgViewManager::onSelectChatHistoryFinished(const QVariantList& result, co
     }
 
     QVariantMap data;
-    data.insert(KEY_TALKER, ctx.value(KEY_TALKER).toString());
-    data.insert(KEY_MESSAGES, messageList);
-    notifyMsgViewResult(MsgViewOpType::Op_QueryChatHistory, true, data);
+    data.insert(gs_strTalker, queryContext.value(gs_strTalker).toString());
+    data.insert(gs_strMessages, messageList);
+    if (queryContext.value(gs_strIsSessionLastQuery).toBool())
+        notifyMsgViewResult(MsgViewOpType::Op_QuerySessionLastMessage, true, data);
+    else
+        notifyMsgViewResult(MsgViewOpType::Op_QueryChatHistory, true, data);
 }
 
 void JMsgViewManager::onSelectContactInfoFinished(const QVariantList& result, const QVariant& context)
@@ -198,7 +220,19 @@ void JMsgViewManager::updateAndNotifyContact(const QString& wxid, const QVariant
         const QString smallUrl = contactRecord->value("smallHeadImgUrl").toString();
         const QString url = !bigUrl.isEmpty() ? bigUrl : smallUrl;
         if (!url.isEmpty())
-            info.m_headImage = QIcon(new JOnlineIconEngine(url));
+        {
+            QPointer<JMsgViewManager> guard(this);
+            JOnlineIconEngine* iconEngine = new JOnlineIconEngine(url);
+            iconEngine->setReadyCallback([guard, wxid]()
+                {
+                    if (!guard)
+                        return;
+                    QVariantMap readyData;
+                    readyData.insert(STR_WXID, wxid);
+                    guard->notifyMsgViewResult(MsgViewOpType::Op_ContactHeadImageReady, true, readyData);
+                });
+            info.m_headImage = QIcon(iconEngine);
+        }
     }
 
     m_contactCache.insert(wxid, new ContactInfo(info));

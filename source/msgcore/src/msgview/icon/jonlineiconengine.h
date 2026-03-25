@@ -4,6 +4,7 @@
 #include <QNetworkAccessManager>
 #include <QPixmap>
 #include <QString>
+#include <functional>
 
 class JOnlineIconEngine : public QIconEngine
 {
@@ -17,9 +18,11 @@ public:
 
     void startRequest();
     bool isReady() const;
+    void setReadyCallback(std::function<void()> readyCallback);
 
 private:
     QString m_url;
+    std::function<void()> m_readyCallback;
     mutable QPixmap m_headPixmap;
     mutable bool m_requesting = false;
     mutable QNetworkAccessManager* m_spNetworkManager = nullptr;

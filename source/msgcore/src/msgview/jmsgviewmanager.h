@@ -23,6 +23,7 @@ public:
     STDMETHODIMP_(QString) GetSelfWxid() override;
     STDMETHODIMP_(bool) StartQueryAllStrTalker() override;
     STDMETHODIMP_(bool) StartQueryMessageCount(const QString& talker) override;
+    STDMETHODIMP_(bool) StartQuerySessionLastMessage(const QString& talker) override;
     STDMETHODIMP_(bool) StartQueryChatHistory(const QString& talker, quint64 ts, bool forward, uint limit) override;
 
 private:

@@ -32,8 +32,10 @@ enum class MsgViewOpType : short
     Op_Unknown = 0,
     Op_QueryAllStrTalker,
     Op_QueryMessageCount,
+    Op_QuerySessionLastMessage,
     Op_QueryChatHistory,
-    Op_QueryContactInfo
+    Op_QueryContactInfo,
+    Op_ContactHeadImageReady
 };
 
 enum class JMsgType : short
@@ -141,6 +143,7 @@ IJMsgViewManager : public IJCoreSubject
     STDMETHOD_(QString, GetSelfWxid)() PURE;
     STDMETHOD_(bool, StartQueryAllStrTalker)() PURE;
     STDMETHOD_(bool, StartQueryMessageCount)(const QString& talker) PURE;
+    STDMETHOD_(bool, StartQuerySessionLastMessage)(const QString& talker) PURE;
     STDMETHOD_(bool, StartQueryChatHistory)(const QString& talker, quint64 ts, bool forward, uint limit) PURE;
 };
 
