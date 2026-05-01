@@ -4,11 +4,22 @@
 <context>
     <name>ChatPage</name>
     <message>
-        <source>type something to search</source>
-        <translation>输入内容来搜索</translation>
+        <source>search in current chat</source>
+        <translation>搜索当前会话记录</translation>
     </message>
     <message>
-        <source>search</source>
+        <source>Search</source>
+        <translation>搜索</translation>
+    </message>
+</context>
+<context>
+    <name>MiddlePage</name>
+    <message>
+        <source>search in all chats</source>
+        <translation>搜索全部聊天记录</translation>
+    </message>
+    <message>
+        <source>Search</source>
         <translation>搜索</translation>
     </message>
 </context>

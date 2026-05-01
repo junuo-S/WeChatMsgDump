@@ -93,11 +93,11 @@ void ChatPage::initUI()
 	m_searchEdit = new QLineEdit(this);
 	m_searchEdit->setObjectName("searchEdit");
 	m_searchEdit->setFixedHeight(DPI(35));
-	m_searchEdit->setPlaceholderText(tr("type something to search"));
+	m_searchEdit->setPlaceholderText(tr("search in current chat"));
 	m_searchButton = new QPushButton(this);
 	m_searchButton->setObjectName("searchButton");
 	m_searchButton->setFixedSize(DPI(80), DPI(35));
-	m_searchButton->setText(tr("search"));
+	m_searchButton->setText(tr("Search"));
 	m_searchHLayout->addWidget(m_searchEdit);
 	m_searchHLayout->addWidget(m_searchButton);
 	m_searchHLayout->setContentsMargins(0, 0, DPI(25), DPI(15));

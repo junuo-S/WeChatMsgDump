@@ -45,6 +45,38 @@ WechatMsgDialog MiddlePage #friendWidget {
     border: none;
 }
 
+WechatMsgDialog MiddlePage #globalSearchWidget {
+    background-color: transparent;
+}
+
+WechatMsgDialog MiddlePage QLineEdit#globalSearchEdit {
+    min-height: 34px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0 10px;
+    font-size: 14px;
+    background-color: #efefef;
+}
+
+WechatMsgDialog MiddlePage QPushButton#globalSearchButton {
+    min-width: 72px;
+    min-height: 34px;
+    border: 1px solid #07b46a;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #07c160;
+}
+
+WechatMsgDialog MiddlePage QPushButton#globalSearchButton:hover {
+    background-color: #06ad56;
+}
+
+WechatMsgDialog MiddlePage QPushButton#globalSearchButton:pressed {
+    background-color: #059c4d;
+}
+
 WechatMsgDialog QScrollBar:vertical {
     background: #f7f7f7;
     width: 8px;
@@ -135,22 +167,25 @@ WechatMsgDialog ChatPage QLineEdit#searchEdit {
 WechatMsgDialog ChatPage QPushButton#searchButton {
     font-family: '仿宋';
     font-size: 16px;
-    background-color: #409eff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
+    font-weight: 600;
+    background-color: #07c160;
+    color: #ffffff;
+    border: 1px solid #07b46a;
+    border-radius: 6px;
 }
 
 WechatMsgDialog ChatPage QPushButton#searchButton:hover {
-    background-color: #66b1ff;
+    background-color: #06ad56;
 }
 
 WechatMsgDialog ChatPage QPushButton#searchButton:pressed {
-    background-color: #3a8ee6;
+    background-color: #059c4d;
 }
 
 WechatMsgDialog ChatPage QPushButton#searchButton:disabled {
-    background-color: #a0cfff;
+    color: #e9f8ef;
+    border: 1px solid #84d9ad;
+    background-color: #9ddfbf;
 }
 
 WechatMsgDialog ChatPage QScrollArea {

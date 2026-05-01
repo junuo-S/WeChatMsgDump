@@ -4,11 +4,14 @@
 
 #include <QStackedLayout>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QScrollArea>
 #include <QMap>
 #include <QPointer>
 #include <QScrollBar>
 #include <QTimer>
+#include <QLineEdit>
+#include <QPushButton>
 #include <algorithm>
 
 #include "global.h"
@@ -97,10 +100,29 @@ void MiddlePage::initUI()
 	setMinimumWidth(DPI(240));
 	m_mainStackedLayout = new QStackedLayout(this);
 	m_mainStackedLayout->setContentsMargins(0, 0, 0, 0);
-	m_msgWidget = new QWidget(this);
+	m_msgPageWidget = new QWidget(this);
+	m_msgPageVLayout = new QVBoxLayout(m_msgPageWidget);
+	m_msgPageVLayout->setContentsMargins(DPI(10), DPI(10), DPI(10), 0);
+	m_msgPageVLayout->setSpacing(DPI(8));
+	m_globalSearchWidget = new QWidget(m_msgPageWidget);
+	m_globalSearchWidget->setObjectName("globalSearchWidget");
+	m_globalSearchHLayout = new QHBoxLayout(m_globalSearchWidget);
+	m_globalSearchHLayout->setContentsMargins(0, 0, 0, 0);
+	m_globalSearchHLayout->setSpacing(DPI(6));
+	m_globalSearchEdit = new QLineEdit(m_globalSearchWidget);
+	m_globalSearchEdit->setObjectName("globalSearchEdit");
+	m_globalSearchEdit->setPlaceholderText(tr("search in all chats"));
+	m_globalSearchButton = new QPushButton(m_globalSearchWidget);
+	m_globalSearchButton->setObjectName("globalSearchButton");
+	m_globalSearchButton->setText(tr("Search"));
+	m_globalSearchHLayout->addWidget(m_globalSearchEdit);
+	m_globalSearchHLayout->addWidget(m_globalSearchButton);
+	m_msgPageVLayout->addWidget(m_globalSearchWidget);
+
+	m_msgWidget = new QWidget(m_msgPageWidget);
 	m_msgWidget->setObjectName("msgWidget");
 	m_msgWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	m_msgScrollArea = new QScrollArea(this);
+	m_msgScrollArea = new QScrollArea(m_msgPageWidget);
 	m_msgScrollArea->setMinimumWidth(DPI(240));
 	m_msgScrollArea->setWidgetResizable(true);
 	m_msgScrollArea->setWidget(m_msgWidget);
@@ -110,7 +132,8 @@ void MiddlePage::initUI()
 	m_msgVLayout = new QVBoxLayout(m_msgWidget);
 	m_msgVLayout->setContentsMargins(0, 0, 0, 0);
 	m_msgVLayout->setSpacing(DPI(1));
-	m_mainStackedLayout->addWidget(m_msgScrollArea);
+	m_msgPageVLayout->addWidget(m_msgScrollArea);
+	m_mainStackedLayout->addWidget(m_msgPageWidget);
 
 	m_friendWidget = new QWidget(this);
 	m_friendWidget->setObjectName("friendWidget");
