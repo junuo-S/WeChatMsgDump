@@ -3,7 +3,27 @@
 #include <QCoreApplication>
 #include <QNetworkReply>
 #include <QPainter>
+#include <QPainterPath>
 #include <QUrl>
+
+static QPixmap CreateRoundedPixmap(const QPixmap& sourcePixmap, const QSize& iconSize)
+{
+    if (sourcePixmap.isNull() || !iconSize.isValid())
+        return QPixmap();
+
+    const QPixmap scaledPixmap = sourcePixmap.scaled(iconSize, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+    QPixmap roundedPixmap(iconSize);
+    roundedPixmap.fill(Qt::transparent);
+
+    QPainter painter(&roundedPixmap);
+    painter.setRenderHint(QPainter::Antialiasing);
+    QPainterPath path;
+    const qreal radius = qMin(iconSize.width(), iconSize.height()) / 5.0;
+    path.addRoundedRect(roundedPixmap.rect(), radius, radius);
+    painter.setClipPath(path);
+    painter.drawPixmap(0, 0, scaledPixmap);
+    return roundedPixmap;
+}
 
 JOnlineIconEngine::JOnlineIconEngine(const QString& url)
     : m_url(url)
@@ -35,8 +55,8 @@ QPixmap JOnlineIconEngine::pixmap(const QSize& sz, QIcon::Mode m, QIcon::State s
     if (m_headPixmap.isNull())
         startRequest();
     if (m_headPixmap.isNull())
-        return QPixmap(":/icon_svg/head-image-none.svg").scaled(sz, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    return m_headPixmap.scaled(sz, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        return CreateRoundedPixmap(QPixmap(":/icon_svg/head-image-none.svg"), sz);
+    return CreateRoundedPixmap(m_headPixmap, sz);
 }
 
 void JOnlineIconEngine::startRequest()

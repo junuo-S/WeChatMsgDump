@@ -177,7 +177,8 @@ void SessionOverviewCard::initUI()
 	m_headImageButton = new QPushButton(this);
 	m_headImageButton->setObjectName("headImageButton");
 	m_headImageButton->setFixedSize(HEAD_IMAGE_ICON_SIZE);
-	m_headImageButton->setIcon(QIcon(":/icon_svg/head-image-none.svg"));
+	m_headImageButton->setIcon(utils::CreateRoundedIcon(QPixmap(":/icon_svg/head-image-none.svg").scaled(
+		HEAD_IMAGE_ICON_SIZE, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation), DPI(6)));
 	m_headImageButton->setIconSize(HEAD_IMAGE_ICON_SIZE);
 	m_headImageButton->setFlat(true);
 	m_headImageButton->setEnabled(false);
