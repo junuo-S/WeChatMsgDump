@@ -3,8 +3,10 @@
 #include "msgdlg.h"
 
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QFile>
 #include <QSplitter>
+#include <junuoui/customwidget/junuobasetitlebar.h>
 
 #include "msgapplication.h"
 #include "utils/utils.h"
@@ -52,14 +54,28 @@ void WechatMsgDialog::initUI()
 	m_mainWidget = new QWidget(this);
 	m_mainWidget->setObjectName("mainWidget");
 	m_shellLayout->addWidget(m_mainWidget);
-	m_mainHLayout = new QHBoxLayout(m_mainWidget);
+
+	m_mainVLayout = new QVBoxLayout(m_mainWidget);
+	m_mainVLayout->setContentsMargins(0, 0, 0, 0);
+	m_mainVLayout->setSpacing(0);
+	m_titleBar = new JunuoBaseTitleBar(QPixmap(), QString(), m_mainWidget);
+	m_titleBar->setObjectName("globalTitleBar");
+	m_titleBar->setTargetWidget(this);
+	m_mainVLayout->addWidget(m_titleBar);
+
+	m_contentWidget = new QWidget(m_mainWidget);
+	m_contentWidget->setObjectName("contentWidget");
+	m_mainVLayout->addWidget(m_contentWidget);
+	m_mainHLayout = new QHBoxLayout(m_contentWidget);
 	m_mainHLayout->setContentsMargins(0, 0, 0, 0);
 	m_mainHLayout->setSpacing(0);
-	m_verticalNavigationBar = new VerticalNavigationBar(this);
+	m_verticalNavigationBar = new VerticalNavigationBar(m_contentWidget);
 	m_mainHLayout->addWidget(m_verticalNavigationBar);
 	WechatMsgDialog::connect(m_verticalNavigationBar, &VerticalNavigationBar::sigCurrentPageChanged, this, &WechatMsgDialog::onCurrentPageChanged);
 
-	m_splitter = new QSplitter(Qt::Horizontal, this);
+	m_splitter = new QSplitter(Qt::Horizontal, m_contentWidget);
+	m_splitter->setObjectName("mainSplitter");
+	m_splitter->setHandleWidth(DPI(1));
 	m_splitter->setChildrenCollapsible(false);
 	m_middlePage = new MiddlePage(m_splitter);
 	m_middlePage->setMaximumWidth(DPI(358));

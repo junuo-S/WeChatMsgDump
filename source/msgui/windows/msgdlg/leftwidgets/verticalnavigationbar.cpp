@@ -63,8 +63,10 @@ void VerticalNavigationBar::mouseReleaseEvent(QMouseEvent* event)
 
 void VerticalNavigationBar::mouseMoveEvent(QMouseEvent* event)
 {
+	if (!event || !m_bLeftButtonDown || !(event->buttons() & Qt::LeftButton))
+		return;
 	QPoint delta = event->pos() - m_lastPos;
-	QWidget* dialog = parent() && parent()->parent() ? qobject_cast<QWidget*>(parent()->parent()) : nullptr;
+	QWidget* dialog = window();
 	if (dialog)
 		dialog->move(dialog->pos() + delta);
 }

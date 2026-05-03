@@ -1,13 +1,20 @@
-﻿WechatMsgDialog #mainWidget {
-    background-color: rgb(255, 255, 255);
-    border: 1px solid #ccc;
-    border-radius: 10px;
+WechatMsgDialog #mainWidget {
+    background-color: #f5f5f5;
+    border: 1px solid #d8d8d8;
+    border-radius: 12px;
+}
+
+WechatMsgDialog #contentWidget {
+    background-color: #f5f5f5;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
 }
 
 WechatMsgDialog VerticalNavigationBar {
-    background-color: #ededed;
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
+    background-color: #ececec;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 12px;
+    border-right: 1px solid #e1e1e1;
 }
 
 WechatMsgDialog VerticalNavigationBar QAbstractButton {
@@ -41,7 +48,7 @@ WechatMsgDialog VerticalNavigationBar #friendRadioButton::indicator:checked {
 WechatMsgDialog MiddlePage QScrollArea,
 WechatMsgDialog MiddlePage #msgWidget,
 WechatMsgDialog MiddlePage #friendWidget {
-    background-color: #f7f7f7;
+    background-color: #f5f5f5;
     border: none;
 }
 
@@ -78,7 +85,7 @@ WechatMsgDialog MiddlePage QPushButton#globalSearchButton:pressed {
 }
 
 WechatMsgDialog QScrollBar:vertical {
-    background: #f7f7f7;
+    background: #f5f5f5;
     width: 8px;
     margin: 0;
 }
@@ -95,10 +102,10 @@ WechatMsgDialog QScrollBar::handle:vertical:hover {
 
 WechatMsgDialog QScrollBar::add-page,
 WechatMsgDialog QScrollBar::sub-page {
-    background: #f7f7f7;
+    background: #f5f5f5;
 }
 
-WechatMsgDialog QScrollBar::add-line:vertical, 
+WechatMsgDialog QScrollBar::add-line:vertical,
 WechatMsgDialog QScrollBar::sub-line:vertical {
     height: 0px;
     width: 0px;
@@ -112,7 +119,6 @@ WechatMsgDialog MiddlePage SessionOverviewCard:hover {
     background-color: #e4e4e4;
 }
 
-/* 选中态 */
 WechatMsgDialog MiddlePage SessionOverviewCard[selectedString='selected'] {
     background-color: #dedede;
 }
@@ -130,7 +136,13 @@ WechatMsgDialog MiddlePage SessionOverviewCard #msgCountLabel {
     color: #b9b9b9;
 }
 
-WechatMsgDialog ChatPage JunuoBaseTitleBar QPushButton {
+WechatMsgDialog #globalTitleBar {
+    background-color: #ececec;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+WechatMsgDialog #globalTitleBar QPushButton {
     background: transparent;
     border: none;
     border-radius: 6px;
@@ -138,16 +150,20 @@ WechatMsgDialog ChatPage JunuoBaseTitleBar QPushButton {
     height: 24px;
 }
 
-WechatMsgDialog ChatPage JunuoBaseTitleBar QPushButton#closeButton {
+WechatMsgDialog #globalTitleBar QPushButton#closeButton {
     qproperty-iconSize: 14px 14px;
 }
 
-WechatMsgDialog ChatPage JunuoBaseTitleBar QPushButton:hover {
+WechatMsgDialog #globalTitleBar QPushButton:hover {
     background-color: #ddd;
 }
 
-WechatMsgDialog ChatPage JunuoBaseTitleBar QPushButton:pressed {
+WechatMsgDialog #globalTitleBar QPushButton:pressed {
     background-color: #ccc;
+}
+
+WechatMsgDialog QSplitter#mainSplitter::handle:horizontal {
+    background-color: #e6e6e6;
 }
 
 WechatMsgDialog ChatPage QLabel#chatTalkerInfoLabel {
@@ -198,8 +214,7 @@ WechatMsgDialog ChatPage QScrollArea QWidget#chatContentWidget {
 }
 
 WechatMsgDialog ChatPage QScrollArea QWidget#chatContentWidget QLabel#plantTextLabel_sender,
-WechatMsgDialog ChatPage QScrollArea QWidget#chatContentWidget QLabel#plantTextLabel_receiver
-{
+WechatMsgDialog ChatPage QScrollArea QWidget#chatContentWidget QLabel#plantTextLabel_receiver {
     color: black;
     border: none;
     border-radius: 5px;

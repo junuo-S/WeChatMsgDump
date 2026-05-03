@@ -14,8 +14,10 @@
 #include "global.h"
 
 class QLayout;
+class QVBoxLayout;
 class QHBoxLayout;
 class QSplitter;
+class JunuoBaseTitleBar;
 class VerticalNavigationBar;
 class MiddlePage;
 class ChatPage;
@@ -37,6 +39,9 @@ private:
 
 	QLayout* m_shellLayout = nullptr;
 	QWidget* m_mainWidget = nullptr;
+	QVBoxLayout* m_mainVLayout = nullptr;
+	JunuoBaseTitleBar* m_titleBar = nullptr;
+	QWidget* m_contentWidget = nullptr;
 	QHBoxLayout* m_mainHLayout = nullptr;
 	VerticalNavigationBar* m_verticalNavigationBar = nullptr;
 	QSplitter* m_splitter = nullptr;

@@ -3,7 +3,6 @@
 #include <QWidget>
 #include <global_interface.h>
 
-class JunuoBaseTitleBar;
 class QVBoxLayout;
 class QHBoxLayout;
 class QLineEdit;
@@ -40,7 +39,6 @@ private:
 
 	QString m_currentChatTalkerWxid;
 	QVBoxLayout* m_mainVLayout = nullptr;
-	JunuoBaseTitleBar* m_titleBar = nullptr;
 	QLabel* m_chatTalkerInfoLabel = nullptr;
 	QScrollArea* m_chatContentScrollArea = nullptr;
 	QWidget* m_chatContentWidget = nullptr;

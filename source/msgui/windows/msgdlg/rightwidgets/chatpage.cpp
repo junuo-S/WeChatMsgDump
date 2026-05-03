@@ -13,8 +13,6 @@
 #include <QScrollBar>
 #include <QResizeEvent>
 
-#include <junuoui/customwidget/junuobasetitlebar.h>
-
 #include "msgapplication.h"
 #include "messagecard.h"
 #include "messagecardfactory.h"
@@ -22,7 +20,6 @@
 ChatPage::ChatPage(QWidget* parent /*= nullptr*/)
 	: Base(parent)
 	, m_mainVLayout(new QVBoxLayout(this))
-	, m_titleBar(new JunuoBaseTitleBar(QPixmap(), QString(), this))
 {
 	ComPtr<IJCoreApplication> coreApp = msgApp ? msgApp->GetCoreApplication() : nullptr;
 	if (coreApp)
@@ -56,7 +53,8 @@ void ChatPage::paintEvent(QPaintEvent* event)
 	QPen pen(QColor(0xcccccc));
 	pen.setWidth(1);
 	painter.setPen(pen);
-	painter.drawLine(0, m_chatTalkerInfoLabel->geometry().bottom(), width(), m_chatTalkerInfoLabel->geometry().bottom());
+	if (m_chatTalkerInfoLabel && !m_chatTalkerInfoLabel->text().trimmed().isEmpty())
+		painter.drawLine(0, m_chatTalkerInfoLabel->geometry().bottom(), width(), m_chatTalkerInfoLabel->geometry().bottom());
 	Base::paintEvent(event);
 }
 
@@ -68,8 +66,7 @@ void ChatPage::resizeEvent(QResizeEvent* event)
 void ChatPage::initUI()
 {
 	m_mainVLayout->setContentsMargins(DPI(25), 0, 0, 0);
-	m_titleBar->setTargetWidget(qobject_cast<QWidget*>(parent()->parent()));
-	m_mainVLayout->addWidget(m_titleBar);
+	m_mainVLayout->setSpacing(0);
 	m_chatTalkerInfoLabel = new QLabel(this);
 	m_chatTalkerInfoLabel->setObjectName("chatTalkerInfoLabel");
 	m_chatTalkerInfoLabel->setFixedHeight(DPI(41));
