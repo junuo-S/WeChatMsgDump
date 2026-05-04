@@ -23,7 +23,7 @@ public:
 private:
     QString m_url;
     std::function<void()> m_readyCallback;
-    mutable QPixmap m_headPixmap;
-    mutable bool m_requesting = false;
-    mutable QNetworkAccessManager* m_spNetworkManager = nullptr;
+    QPixmap m_headPixmap;
+    bool m_requesting = false;
+    QNetworkAccessManager* m_spNetworkManager = nullptr;
 };
