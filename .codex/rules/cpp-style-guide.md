@@ -33,7 +33,7 @@ Com接口命名在普通前缀前加 `I` 作为标志。
 **示例：**
 
 ```cpp
-enum ActionType
+enum class ActionType
 {
     InsertActionType,
     DeleteActionType,
@@ -537,7 +537,7 @@ void SomeMagicalFunction()
 
 ### 7.4. 名称空间（namespace）
 
-允许在 `.cpp` 文件中使用匿名名称空间进行保护，不允许在头文件中使用匿名名称空间。
+禁止使用匿名空间，如需仅本文件可见，明确使用static控制。
 
 避免使用 `using namespace` 将一个名称空间中的所有名称全部导入。
 
@@ -658,3 +658,7 @@ void func(int type)
 `delete` 不应该出现在析构函数或用于清理内存的函数之外的地方。
 
 不允许使用 `malloc`/`free` 来分配和释放内存。
+
+## 10. 其他规范
+### 10.1 枚举
+必须使用enum class 强类型枚举，禁止使用传统枚举类型。
