@@ -8,7 +8,6 @@ junuo_sources(
     main.cpp
     stdafx.h
     stdafx.cpp
-    global.h
     msgapplication.h
     msgapplication.cpp
 

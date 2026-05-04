@@ -1,15 +1,5 @@
 ﻿#pragma once
 
-enum WeChatDbType
-{
-	_MSG,
-	MediaMSG,
-	MicroMsg,
-	OpenIMContact,
-	OpenIMMedia,
-	OpenIMMsg,
-};
-
 #define STR_WX_VERSION "wx_version"
 #define STR_WX_EXE_PATH "wx_exe_path"
 #define STR_WX_PHONE_NUMBER "wx_phone_number"

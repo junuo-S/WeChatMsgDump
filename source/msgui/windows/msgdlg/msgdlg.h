@@ -11,8 +11,6 @@
 #include "junuoui/customwidget/junuoframelesswidget.h"
 #include <global_interface.h>
 
-#include "global.h"
-
 class QLayout;
 class QVBoxLayout;
 class QHBoxLayout;
@@ -21,6 +19,12 @@ class JunuoBaseTitleBar;
 class VerticalNavigationBar;
 class MiddlePage;
 class ChatPage;
+
+enum class WechatPage : short
+{
+	Wechat_ChatPage,
+	Wechat_FriendPage,
+};
 
 class WechatMsgDialog : public JunuoFrameLessWidget, public IJCoreObserver
 {
@@ -47,6 +51,6 @@ private:
 	QSplitter* m_splitter = nullptr;
 	MiddlePage* m_middlePage = nullptr;
 	ChatPage* m_chatPage = nullptr;
-	WechatPage m_currentPage = Wechat_ChatPage;
+	WechatPage m_currentPage = WechatPage::Wechat_ChatPage;
 	ComPtr<IJMsgViewManager> m_spMsgViewMgr;
 };

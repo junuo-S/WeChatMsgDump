@@ -14,7 +14,6 @@
 #include <QPushButton>
 #include <algorithm>
 
-#include "global.h"
 #include "sessionoverviewcard.h"
 
 MiddlePage::MiddlePage(Base* parent /*= nullptr*/)

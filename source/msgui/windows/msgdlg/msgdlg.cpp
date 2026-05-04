@@ -96,7 +96,7 @@ void WechatMsgDialog::initUI()
 
 void WechatMsgDialog::turnToPage(WechatPage page)
 {
-	m_verticalNavigationBar->setCurrentPage(page);
+	m_verticalNavigationBar->setCurrentPage(static_cast<unsigned int>(page));
 }
 
 STDMETHODIMP_(bool) WechatMsgDialog::OnCoreEvent(IJCoreEvent* event)
