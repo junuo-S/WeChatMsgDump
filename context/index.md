@@ -9,6 +9,7 @@
 - [核心流程](./core-flows.md)
 - [构建与依赖](./build-and-dependencies.md)
 - [数据库与消息模型](./database-and-message-model.md)
+- [微信3.9数据库简述](./微信3.9数据库简述.md)
 
 ## 适用范围
 
