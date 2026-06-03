@@ -9,6 +9,7 @@ debug/
 release/
 !.codex
 !AGENTS.md
+!openspec
 
 !context
 !context/**
